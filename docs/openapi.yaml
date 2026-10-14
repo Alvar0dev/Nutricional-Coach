@@ -1,0 +1,329 @@
+openapi: 3.0.3
+info:
+  title: Nutricional-Coach API
+  version: 1.0.0
+  description: API Cloud Sports Nutrition & Biometrics - Spring Boot + Angular
+  contact:
+    name: Nutricional-Coach Team
+    email: api@nutricional-coach.dev
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+paths:
+  /api/v1/pacientes:
+    get:
+      summary: Listar pacientes
+      operationId: listPatients
+      tags:
+        - Pacientes
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Lista de pacientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PacienteDTO"
+    post:
+      summary: Crear paciente
+      operationId: createPatient
+      tags:
+        - Pacientes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PacienteDTO"
+      responses:
+        "201":
+          description: Paciente creado
+
+  /api/v1/pacientes/{id}:
+    get:
+      summary: Obtener paciente por ID
+      operationId: getPatient
+      tags:
+        - Pacientes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Detalle del paciente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PacienteDTO"
+    put:
+      summary: Actualizar paciente
+      operationId: updatePatient
+      tags:
+        - Pacientes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PacienteDTO"
+      responses:
+        "200":
+          description: Paciente actualizado
+
+  /api/v1/pacientes/{id}/mediciones:
+    get:
+      summary: Listar mediciones biométricas de paciente
+      operationId: listPatientMeasurements
+      tags:
+        - Mediciones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lista de mediciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MedicionBiometricaDTO"
+    post:
+      summary: Registrar medición biométrica
+      operationId: recordBiometricMeasurement
+      tags:
+        - Mediciones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicionBiometricaDTO"
+      responses:
+        "201":
+          description: Medición registrada
+
+  /api/v1/recordatorios/pendientes:
+    get:
+      summary: Listar recordatorios pendientes
+      operationId: listPendingReminders
+      tags:
+        - Recordatorios
+      responses:
+        "200":
+          description: Lista de recordatorios pendientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RecordatorioDTO"
+
+  /api/v1/recordatorios/{id}/feedback:
+    patch:
+      summary: Actualizar feedback de recordatorio
+      operationId: updateReminderFeedback
+      tags:
+        - Recordatorios
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordatorioFeedbackDTO"
+      responses:
+        "200":
+          description: Feedback actualizado
+
+  /api/v1/pacientes/{id}/revisiones:
+    post:
+      summary: Crear revisión mensual y calcular deltas
+      operationId: createMonthlyReview
+      tags:
+        - Revisiones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RevisionDTO"
+      responses:
+        "201":
+          description: Revisión creada con deltas calculados
+
+  /api/v1/revisiones/{id}/pdf:
+    get:
+      summary: Descargar PDF de revisión (dieta/entreno)
+      operationId: downloadRevisionPDF
+      tags:
+        - Revisiones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: PDF descargado
+          content:
+            application/pdf:
+              schema:
+                type: string
+components:
+  schemas:
+    PacienteDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        apellidos:
+          type: string
+        email:
+          type: string
+          format: email
+        telefono:
+          type: string
+        objetivo:
+          type: string
+        fechaAlta:
+          type: string
+          format: date
+      required:
+        - nombre
+        - apellidos
+        - email
+    MedicionBiometricaDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        pacienteId:
+          type: string
+          format: uuid
+        fecha:
+          type: string
+          format: date
+        pesoKg:
+          type: number
+          format: double
+        grasaPct:
+          type: number
+          format: double
+        masaMuscularKg:
+          type: number
+          format: double
+        cinturaCm:
+          type: number
+          format: double
+    RevisionDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        pacienteId:
+          type: string
+          format: uuid
+        medicionAnteriorId:
+          type: string
+          format: uuid
+        medicionActualId:
+          type: string
+          format: uuid
+        deltaPeso:
+          type: number
+        deltaGrasa:
+          type: number
+        deltaMusculo:
+          type: number
+        comentariosAjuste:
+          type: string
+        ajustesDieta:
+          type: string
+        ajustesEntreno:
+          type: string
+        pdfUrl:
+          type: string
+        fechaRevision:
+          type: string
+          format: date
+    RecordatorioDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        pacienteId:
+          type: string
+          format: uuid
+        fechaProgramada:
+          type: string
+          format: date
+        tipo:
+          type: string
+          enum: [CONTROL, REVISION_MENSUAL]
+        estado:
+          type: string
+          enum: [PENDIENTE, COMPLETADO]
+        feedbackPaciente:
+          type: string
+    RecordatorioFeedbackDTO:
+      type: object
+      properties:
+        feedbackPaciente:
+          type: string

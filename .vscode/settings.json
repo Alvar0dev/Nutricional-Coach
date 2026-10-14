@@ -1,0 +1,17 @@
+{
+  "files.watcherExclude": [
+    "**/node_modules",
+    "**/target",
+    "**/.angular",
+    "**/dist",
+    "**/.git"
+  ],
+  "search.exclude": [
+    "**/node_modules",
+    "**/target",
+    "**/.angular",
+    "**/dist",
+    "**/.git"
+  ],
+  "editor.formatOnSave": true
+}

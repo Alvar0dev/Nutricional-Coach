@@ -1,0 +1,10 @@
+target/
+*.jar
+node_modules/
+dist/
+.angular/
+.env
+application-local.yml
+.DS_Store
+!.vscode/settings.json
+!.vscode/extensions.json
