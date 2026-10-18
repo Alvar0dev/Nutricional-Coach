@@ -13,5 +13,6 @@
     "**/dist",
     "**/.git"
   ],
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "java.compile.nullAnalysis.mode": "automatic"
 }

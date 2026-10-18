@@ -3,9 +3,7 @@ info:
   title: Nutricional-Coach API
   version: 1.0.0
   description: API Cloud Sports Nutrition & Biometrics - Spring Boot + Angular
-  contact:
-    name: Nutricional-Coach Team
-    email: api@nutricional-coach.dev
+
 servers:
   - url: http://localhost:8080
     description: Development server
@@ -68,10 +66,8 @@ paths:
       responses:
         "200":
           description: Detalle del paciente
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PacienteDTO"
+        "404":
+          description: Paciente no encontrado
     put:
       summary: Actualizar paciente
       operationId: updatePatient
@@ -93,6 +89,21 @@ paths:
       responses:
         "200":
           description: Paciente actualizado
+    delete:
+      summary: Eliminar paciente
+      operationId: deletePatient
+      tags:
+        - Pacientes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Paciente eliminado
 
   /api/v1/pacientes/{id}/mediciones:
     get:
@@ -110,12 +121,8 @@ paths:
       responses:
         "200":
           description: Lista de mediciones
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/MedicionBiometricaDTO"
+        "404":
+          description: Paciente no encontrado
     post:
       summary: Registrar medición biométrica
       operationId: recordBiometricMeasurement
@@ -138,7 +145,7 @@ paths:
         "201":
           description: Medición registrada
 
-  /api/v1/recordatorios/pendientes:
+  /api/v1/recordatorios:
     get:
       summary: Listar recordatorios pendientes
       operationId: listPendingReminders
@@ -153,8 +160,22 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/RecordatorioDTO"
+    get:
+      summary: Listar todos los recordatorios
+      operationId: listAllReminders
+      tags:
+        - Recordatorios
+      responses:
+        "200":
+          description: Lista de todos los recordatorios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RecordatorioDTO"
 
-  /api/v1/recordatorios/{id}/feedback:
+  /api/v1/recordatorios/{id}:
     patch:
       summary: Actualizar feedback de recordatorio
       operationId: updateReminderFeedback
@@ -200,6 +221,39 @@ paths:
         "201":
           description: Revisión creada con deltas calculados
 
+  /api/v1/revisiones:
+    get:
+      summary: Listar revisiones
+      operationId: listRevisions
+      tags:
+        - Revisiones
+      responses:
+        "200":
+          description: Lista de revisiones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RevisionDTO"
+    get:
+      summary: Obtener revisión por ID
+      operationId: getReviewById
+      tags:
+        - Revisiones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Revisión obtenida
+        "404":
+          description: Revisión no encontrada
+
   /api/v1/revisiones/{id}/pdf:
     get:
       summary: Descargar PDF de revisión (dieta/entreno)
@@ -220,6 +274,7 @@ paths:
             application/pdf:
               schema:
                 type: string
+
 components:
   schemas:
     PacienteDTO:
@@ -242,10 +297,7 @@ components:
         fechaAlta:
           type: string
           format: date
-      required:
-        - nombre
-        - apellidos
-        - email
+
     MedicionBiometricaDTO:
       type: object
       properties:
@@ -270,6 +322,7 @@ components:
         cinturaCm:
           type: number
           format: double
+
     RevisionDTO:
       type: object
       properties:
@@ -302,6 +355,7 @@ components:
         fechaRevision:
           type: string
           format: date
+
     RecordatorioDTO:
       type: object
       properties:
@@ -322,8 +376,29 @@ components:
           enum: [PENDIENTE, COMPLETADO]
         feedbackPaciente:
           type: string
+
     RecordatorioFeedbackDTO:
       type: object
       properties:
         feedbackPaciente:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+
+    ErrorDTO:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
           type: string
