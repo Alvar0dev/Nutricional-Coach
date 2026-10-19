@@ -72,7 +72,7 @@ Metodología: Spec Driven Development (SDD) — OpenAPI 3.0
 
 ## Estado Actual del Repositorio
 - Rama: `main`
-- Último commit: `6217ec6` (Día 4 - Completa especificación OpenAPI)
+- Último commit: `16d050d` (Día 5 — Fix de Toolchain y Documentación)
 - Estado: Limpio (`git status` sin conflictos)
 - Push: Confirmado (`origin/main` actualizado)
 - Archivos críticos creados/actualizados:
@@ -81,28 +81,36 @@ Metodología: Spec Driven Development (SDD) — OpenAPI 3.0
   - `docs/CHANGELOG.md`
   - `docs/openapi.yaml`
   - `README.md`
+  - `SETUP.md`
 
 ---
 
-## Próximos Pasos (Día 5+)
+## Próximos Pasos (Día 6+)
 1. Validar que la spec `openapi.yaml` esté sincronizada con el código Java existente.
 2. Añadir los casos de test correspondientes a los nuevos endpoints (`DELETE`, `GET /revisiones`).
 3. Documentar el primer caso de prueba de integración del flujo completo: Alta → Medición → Revisión → PDF.
 4. Revisar `spring-petclinic/` para confirmar que no hay interferencia con el build de Maven del proyecto principal.
+5. Reiniciar VS Code y verificar que la extensión Java detecte el JDK 17 (autocompletado y depuración).
+6. Decidir si `spring-petclinic/` mantiene Java 17 o se alinea a Java 21 (requiere actualizar toolchain, `pom.xml` y CI).
 
 ---
 
 ## Día 5 — Fix de Toolchain y Documentación
 
 ### Logros
-- Instalado JDK 17 (Eclipse Temurin 17.0.20.101-hotspot) y verificado build con Gradle 9.5.1 (`BUILD SUCCESSFUL`).
-- Corregido warning AOT (`Status.STABLE`) en `spring-petclinic/build.gradle` añadiendo `compileOnly 'org.apiguardian:apiguardian-api:1.1.2'`.
-- Creado `SETUP.md` en raíz documentando la instalación del JDK.
-- Actualizado `docs/CHANGELOG.md` (cuaderno de bitácora SDD) con el registro del día.
+- Identificado y corregido el error de build de Gradle (`FAILURE: Cannot find a Java installation... languageVersion=17`): instalado Eclipse Temurin JDK 17 (v17.0.20.101-hotspot) vía `winget`.
+- Verificado build completo de `spring-petclinic` con Gradle 9.5.1: `BUILD SUCCESSFUL` en ~41s (21 tareas ejecutadas, 0 errores).
+- Eliminado el warning AOT (`unknown enum constant Status.STABLE` / `org.apiguardian.api.API$Status`) añadiendo `compileOnly "org.apiguardian:apiguardian-api:1.1.2"` al `build.gradle` del subproyecto.
+- Creado `SETUP.md` con instrucciones de instalación, verificación (`java -version`, `./gradlew build`) y notas del subproyecto independiente.
+- Actualizado `docs/CHANGELOG.md` (cuaderno de bitácora SDD) con registro del día y actualización del estado del repositorio.
+- Confirmado push (`16d050d` → `origin/main`).
 
 ### ❌ Dificultad Encontrada
-**Problema:** El proyecto `spring-petclinic` es un subproyecto independiente (gitlink) que usa Spring Boot 4.1.0 y requiere Java 17 en su toolchain. El entorno no lo tenía, bloqueando cualquier build.
+**Problema:** El entorno de trabajo (`G:\Proyectos OpenCode\BBVA\Nutritional Coach`) contenía solo Java 11 y Java 21, sin Java 17. El subproyecto `spring-petclinic/` fija explícitamente `languageVersion = JavaLanguageVersion.of(17)` en `build.gradle` (y `<java.version>17</java.version>` en `pom.xml`). Esto bloqueaba cualquier build, test o compilación. Adicionalmente, aparecía el warning `Status.STABLE` en `:compileAotTestJava` debido a la ausencia del artifact `apiguardian-api` en el classpath de compilación AOT.
 
-**Solución:** Instalación vía `winget` + ajuste local de `build.gradle`. El cambio no se sube al repo upstream (`spring-projects/spring-petclinic`) por restricciones; se documenta en el cuaderno de bitácora y en `SETUP.md`.
+**Solución:**
+1. Instalación de JDK 17 con `winget install EclipseAdoptium.Temurin.17.JDK --accept-source-agreements --accept-package-agreements`, verificación con `java -version` y actualización temporal de `JAVA_HOME`/`PATH` para la sesión.
+2. Aplicación del fix AOT en `spring-petclinic/build.gradle` (sin modificar código fuente de la aplicación; solo configuración de build y una dependencia de compilación).
+3. Documentación del proceso en `SETUP.md` y registro en el cuaderno (`docs/CHANGELOG.md`). El cambio de `spring-petclinic/` queda aplicado localmente; no se sube a `spring-projects/spring-petclinic` porque es un gitlink independiente.
 
 ---
