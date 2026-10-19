@@ -89,3 +89,20 @@ Metodología: Spec Driven Development (SDD) — OpenAPI 3.0
 2. Añadir los casos de test correspondientes a los nuevos endpoints (`DELETE`, `GET /revisiones`).
 3. Documentar el primer caso de prueba de integración del flujo completo: Alta → Medición → Revisión → PDF.
 4. Revisar `spring-petclinic/` para confirmar que no hay interferencia con el build de Maven del proyecto principal.
+
+---
+
+## Día 5 — Fix de Toolchain y Documentación
+
+### Logros
+- Instalado JDK 17 (Eclipse Temurin 17.0.20.101-hotspot) y verificado build con Gradle 9.5.1 (`BUILD SUCCESSFUL`).
+- Corregido warning AOT (`Status.STABLE`) en `spring-petclinic/build.gradle` añadiendo `compileOnly 'org.apiguardian:apiguardian-api:1.1.2'`.
+- Creado `SETUP.md` en raíz documentando la instalación del JDK.
+- Actualizado `docs/CHANGELOG.md` (cuaderno de bitácora SDD) con el registro del día.
+
+### ❌ Dificultad Encontrada
+**Problema:** El proyecto `spring-petclinic` es un subproyecto independiente (gitlink) que usa Spring Boot 4.1.0 y requiere Java 17 en su toolchain. El entorno no lo tenía, bloqueando cualquier build.
+
+**Solución:** Instalación vía `winget` + ajuste local de `build.gradle`. El cambio no se sube al repo upstream (`spring-projects/spring-petclinic`) por restricciones; se documenta en el cuaderno de bitácora y en `SETUP.md`.
+
+---
