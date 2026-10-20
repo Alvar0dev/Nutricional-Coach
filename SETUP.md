@@ -14,3 +14,9 @@ Gradle 9.5.1 / `spring-petclinic` requería Java 17 (`languageVersion = 17` en `
 ## Notas
 - El subproyecto `spring-petclinic/` es independiente (gitlink a spring-projects); el cambio de `compileOnly 'org.apiguardian:apiguardian-api:1.1.2'` está aplicado localmente para eliminar el warning `Status.STABLE` en `compileAotTestJava`.
 - Si se recrea el entorno, repetir: `winget install EclipseAdoptium.Temurin.17.JDK`.
+
+## Pruebas (Tests)
+- Desde la carpeta `spring-petclinic/`: `./gradlew test` (usa Gradle Wrapper con Java 17).
+- Tests existentes en `src/test/java/org/springframework/samples/petclinic/`: `PetClinicIntegrationTests`, `PetControllerTests`, `ClinicServiceTests`, `ValidatorTests`, etc.
+- Si se requiere tests sin base de datos externa: `./gradlew test -Pdb=hsqldb`.
+- El subproyecto debe mantenerse con Java 17 (`languageVersion = 17`) por ahora; alineación a Java 21 requiere actualizar `build.gradle` y `pom.xml` (pendiente, ver Día 6 Próximos Pasos).

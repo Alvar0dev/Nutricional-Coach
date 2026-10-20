@@ -1,6 +1,6 @@
 # CHANGELOG - Cuaderno de Bitácora SDD
 
-Fecha actual: 2026-10-16
+Fecha actual: 2026-10-20
 Metodología: Spec Driven Development (SDD) — OpenAPI 3.0
 
 ---
@@ -104,6 +104,23 @@ Metodología: Spec Driven Development (SDD) — OpenAPI 3.0
 - Creado `SETUP.md` con instrucciones de instalación, verificación (`java -version`, `./gradlew build`) y notas del subproyecto independiente.
 - Actualizado `docs/CHANGELOG.md` (cuaderno de bitácora SDD) con registro del día y actualización del estado del repositorio.
 - Confirmado push (`16d050d` → `origin/main`).
+
+---
+
+## Día 6 - Pruebas, Documentación y Commit
+
+### Logros
+- Actualización de `docs/CHANGELOG.md`: corrección del commit hash (`e2f3d7e` → `16d050d`), actualización de la fecha, y entrada Día 6 con el avance de tests y documentation.
+- Mejorada `SETUP.md`: se añadieron instrucciones explícitas para correr los tests de `spring-petclinic` vía Gradle (comandos, options y consideraciones de base).
+- Verificado que el flujo de build/test funciona con JDK 17 (`./gradlew build` y `./gradlew test` en `spring-petclinic/`, BUILD SUCCESSFUL).
+
+### ❌ Dificultad Encontrada
+**Problema:** No existía documentación sobre cómo ejecutar los tests en `spring-petclinic`, lo que impidió reproducibilidad en nuevos entornos.
+
+**Solución Implementada:**
+1. Se añadieron secciones completas a `SETUP.md` con los comandos `./gradlew build` e `./gradlew test`, options adicionales (ej. `--no-daemon`, `-Pdb=hsqldb`) y los archivos de tests existentes listados.
+2. Se registró en el cuaderno la resolución para futuras sesiones.
+
 
 ### ❌ Dificultad Encontrada
 **Problema:** El entorno de trabajo (`G:\Proyectos OpenCode\BBVA\Nutritional Coach`) contenía solo Java 11 y Java 21, sin Java 17. El subproyecto `spring-petclinic/` fija explícitamente `languageVersion = JavaLanguageVersion.of(17)` en `build.gradle` (y `<java.version>17</java.version>` en `pom.xml`). Esto bloqueaba cualquier build, test o compilación. Adicionalmente, aparecía el warning `Status.STABLE` en `:compileAotTestJava` debido a la ausencia del artifact `apiguardian-api` en el classpath de compilación AOT.
