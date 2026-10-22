@@ -70,6 +70,11 @@ Metodología: Spec Driven Development (SDD) — OpenAPI 3.0
 
 ---
 
+## Día 6 — Continuación ODD (nuevo feature)
+- Creado `odd/tasks/medicion-biometrica.md` con S1-S5, vinculando `POST /api/v1/pacientes/{id}/mediciones` a `openapi.yaml`.
+- Riesgo nombrado: item 1 (datos biométricos irreversibles). Mitigación: inmutabilidad + validación `min: 0`; referencias a `AGENTS.md`, `constitution.md`, no duplicadas.
+- Workspace artifacts (`.config/`, `.gemini/`, `opencode.json`) mantenidos untracked tras `gentle-ai sync --scope=workspace`; no entran al commit.
+
 ## Estado Actual del Repositorio
 - Rama: `main`
 - Último commit: `16d050d` (Día 5 — Fix de Toolchain y Documentación)
