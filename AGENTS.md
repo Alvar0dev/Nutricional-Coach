@@ -1,7 +1,7 @@
 # AGENTS.md - Nutricional-Coach
 
 ## Resumen del Proyecto
-Plataforma cloud de nutrición deportiva y biometría construida con Spring Boot 3.4 (Java 21) y Angular 18. Implementa un flujo de negocio desde alta de pacientes hasta generación de planes de dieta y entrenamiento mediante alertas mensuales y exportación a PDF. Adopta metodología SDD (Software Development Lifecycle) con arquitectura definida en OpenAPI 3.0.
+Plataforma cloud de nutrición deportiva y biometría construida con Spring Boot 3.4 (Java 21) y Angular 18. Implementa un flujo de negocio desde alta de pacientes hasta generación de planes de dieta y entrenamiento mediante alertas mensuales y exportación a PDF. Adopta metodología ODD (Organic Driven Development) con arquitectura definida en OpenAPI 3.0.
 
 ## Arquitectura Actual y Tecnologías
 - **Backend**: Spring Boot 3.4, Java 21, Maven, Hibernate JPA
@@ -27,8 +27,8 @@ Plataforma cloud de nutrición deportiva y biometría construida con Spring Boot
   - `docs/` (documentación oficial)
   - `src/` (código fuente principal)
   - `spring-petclinic/` (subproyecto independiente)
-  - `ARCHITECTURE_SDD.md` (diseño arquitectónico)
 - **Modificar permitido**:
   - `pom.xml`, `build.gradle`, `src/` (código fuente)
   - `openapi.yaml` (actualización de la API)
   - Agregar nuevos endpoints en la documentación
+  - `AGENTS.md`, `docs/constitution.md`, `docs/CHANGELOG.md`, `PROJECT_INDEX.md`, `DEV_RUNBOOK.md` (documentos ODD)
