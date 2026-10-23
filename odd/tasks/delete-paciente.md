@@ -16,11 +16,16 @@ Especificación: `AGENTS.md` (límites de edición confirmados)
 |----|------|------|--------|
 | T1 | S1, S2, S3 | Creación del endpoint `deletePatient` en `PacienteController.java` | Hecho |
 | T2 | S4 | Test `PacienteControllerTest.java` para validación de soft-delete | Hecho |
+| T3 | S1, S2, S3 | Implementación `PacienteServiceImpl.softDeletePaciente()` (activo=false + fechaBaja) | Hecho |
+| T4 | S1, S2, S3 | Repositorio `PacienteRepository` (JPA) | Hecho |
+| T5 | S1-S4 | Test `PacienteServiceImplTest.java` (soft-delete existente / inexistente) | Hecho |
+| T6 | S4 | Test `PacienteControllerTest.java` (GET filtrado por activo=true) | Pendiente — requiere `GET /api/v1/pacientes` implementado |
 
 ## Log
 
 - **L1** (2026-10-22): Usuario solicita implementar `DELETE` como avance del día 4. Confirmado que es cambio pequeño (1 archivo + 1 test). Riesgo: item 1 (datos irreversibles). Mitigación: soft-delete con `activo=false` y `fechaBaja`.
 - **L2** (2026-10-22): Se confirma que no hay conflicto con rebase; repositorio limpio (`git status` OK).
+- **L3** (2026-10-23): Día actual — se implementa `PacienteServiceImpl` con soft-delete obligatorio, `PacienteRepository`, y test `PacienteServiceImplTest` cubriendo paciente existente (marca activo=false, fechaBaja, guarda) e inexistente (retorna false, no guarda). Se agrega `pom.xml` mínimo para build verificable. Se agregan modelos `Paciente` y DTOs alineados con `openapi.yaml`.
 
 ## Risk
-Risk: item 1 (datos irreversibles). Mitigación: soft-delete obligatorio. Sin `activo=true` en la eliminación física no se permite commit.
+Risk: item 1 (datos irreversibles). Mitigación: soft-delete obligatorio con `activo=false` y `fechaBaja`; sin eliminación física permitida. T6 pendiente requiere endpoint GET pacientes filtrado por activo=true.
