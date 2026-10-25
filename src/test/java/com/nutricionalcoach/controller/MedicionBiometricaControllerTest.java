@@ -2,14 +2,19 @@ package com.nutricionalcoach.controller;
 
 import com.nutricionalcoach.dto.MedicionBiometricaDTO;
 import com.nutricionalcoach.service.MedicionBiometricaService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDate;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class MedicionBiometricaControllerTest {
@@ -26,6 +31,9 @@ class MedicionBiometricaControllerTest {
         when(service.registrarMedicion("paciente-1", dtoEntrada)).thenReturn(dtoSalida);
 
         MedicionBiometricaController controller = new MedicionBiometricaController(service);
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
         ResponseEntity<MedicionBiometricaDTO> respuesta =
                 controller.registrarMedicion("paciente-1", dtoEntrada);
@@ -51,6 +59,6 @@ class MedicionBiometricaControllerTest {
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage()).contains("Paciente no encontrado");
         }
-        verify(service, times(1)).registrarMedicion("paciente-999", any());
+        verify(service, times(1)).registrarMedicion(eq("paciente-999"), any());
     }
 }

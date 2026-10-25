@@ -1,8 +1,12 @@
 package com.nutricionalcoach.controller;
 
+import com.nutricionalcoach.dto.PacienteDTO;
 import com.nutricionalcoach.service.PacienteService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+
+import java.time.LocalDate;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,5 +50,37 @@ class PacienteControllerTest {
         assertThat(respuesta.getStatusCode().is4xxClientError()).isTrue();
         assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
         verify(service, times(1)).softDeletePaciente(anyString());
+    }
+
+    @Test
+    void listarPacientes_retorna200ConSoloActivos() {
+        PacienteService service = mock(PacienteService.class);
+        PacienteDTO activo = new PacienteDTO("1", "Juan", "Pérez", "juan@test.com",
+                "123456789", "perder peso", LocalDate.of(2024, 1, 1));
+        when(service.listarPacientesActivos(1, 20)).thenReturn(List.of(activo));
+
+        PacienteController controller = new PacienteController(service);
+
+        ResponseEntity<List<PacienteDTO>> respuesta = controller.listarPacientes(1, 20);
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+        assertThat(respuesta.getBody()).hasSize(1);
+        assertThat(respuesta.getBody().get(0).getId()).isEqualTo("1");
+        assertThat(respuesta.getBody().get(0).getNombre()).isEqualTo("Juan");
+        verify(service, times(1)).listarPacientesActivos(1, 20);
+    }
+
+    @Test
+    void listarPacientes_pacienteEliminadoNoAparece_retorna200ListaVacia() {  // S4
+        PacienteService service = mock(PacienteService.class);
+        when(service.listarPacientesActivos(1, 20)).thenReturn(List.of());
+
+        PacienteController controller = new PacienteController(service);
+
+        ResponseEntity<List<PacienteDTO>> respuesta = controller.listarPacientes(1, 20);
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+        assertThat(respuesta.getBody()).isEmpty();
+        verify(service, times(1)).listarPacientesActivos(1, 20);
     }
 }

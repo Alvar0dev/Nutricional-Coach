@@ -1,16 +1,22 @@
 package com.nutricionalcoach.controller;
 
+import com.nutricionalcoach.dto.PacienteDTO;
 import com.nutricionalcoach.service.PacienteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Controlador de pacientes.
  * Implementa el endpoint DELETE /api/v1/pacientes/{id} con soft-delete
- * (protección de datos: no elimina físicamente, marca como inactivo).
+ * (protección de datos: no elimina físicamente, marca como inactivo) y el
+ * endpoint GET /api/v1/pacientes que lista solo pacientes activos.
  */
 @RestController
 @RequestMapping("/api/v1/pacientes")
@@ -20,6 +26,21 @@ public class PacienteController {
 
     public PacienteController(PacienteService pacienteService) {
         this.pacienteService = pacienteService;
+    }
+
+    /**
+     * Lista pacientes activos (soft-delete: dados de baja no aparecen).
+     *
+     * @param page página a consultar (a partir de 1)
+     * @param size cantidad de resultados por página
+     * @return 200 OK con la lista de pacientes activos
+     */
+    @GetMapping
+    public ResponseEntity<List<PacienteDTO>> listarPacientes(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        List<PacienteDTO> pacientes = pacienteService.listarPacientesActivos(page, size);
+        return ResponseEntity.ok(pacientes);
     }
 
     /**

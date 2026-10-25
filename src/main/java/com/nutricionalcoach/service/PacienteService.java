@@ -1,5 +1,9 @@
 package com.nutricionalcoach.service;
 
+import com.nutricionalcoach.dto.PacienteDTO;
+
+import java.util.List;
+
 /**
  * Servicio de pacientes.
  * Toda operación crítica debe ser reversible (soft-delete) para proteger
@@ -16,4 +20,14 @@ public interface PacienteService {
      * @return true si el paciente existió y fue marcado como inactivo, false si no se encontró
      */
     boolean softDeletePaciente(String id);
+
+    /**
+     * Lista pacientes activos (activo=true). Los pacientes dados de baja
+     * (soft-delete) no aparecen en el listado.
+     *
+     * @param page página a consultar (a partir de 1)
+     * @param size cantidad de resultados por página
+     * @return lista de DTO de pacientes activos, nunca vacía si hay datos
+     */
+    List<PacienteDTO> listarPacientesActivos(int page, int size);
 }
