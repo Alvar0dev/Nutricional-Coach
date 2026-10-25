@@ -138,3 +138,31 @@ MetodologÃ­a: Spec Driven Development (SDD) â€” OpenAPI 3.0
 ---
 `n---`n`n## Migración: SDD ? ODD (Organic Driven Development) — Ventajas registradas`n`n**Fecha:** 2026-10-22`n**Motivo:** Transición de Spec Driven Development (especificación rígida intermedia) a ODD (flujo orgánico con tracking por feature, referencia por archivo, no duplicación de reglas).`n`n### Ventajas conocidas y aplicadas`n1. **No duplicación de reglas de negocio** — `constitution.md` y `AGENTS.md` contienen las reglas una vez; `PROJECT_INDEX.md`, código y `CHANGELOG.md` las referencian por archivo, no las replican.`n2. **Feature docs ligeros (`odd/tasks/`)** — cada feature (`delete-paciente`, `medicion-biometrica`) lleva `S#` que apunta a `openapi.yaml`; tareas vinculadas; `Log` de decisiones; `Risk` nombrado (item 1). No hay documentos intermedios obsoletos.`n3. **Integridad de referencia** — `docs/ARCHIVE_SDD.md` archiva lo superado (`openapi.yaml` parcial, `ARCHITECTURE_SDD.md` como referencia) sin eliminar evidencia; `CHANGELOG.md` conserva la historia de errores inventados y soluciones reales (días 1-4).`n4. **Workspace sync controlado** — `gentle-ai sync --scope=workspace` sincroniza skills, plugins y contexto (`AGENTS.md`) pero deja los artefactos (`.config/`, `.gemini/`, `.at/`, `opencode.json`) **untracked**, evitando contaminación del repositorio del proyecto.`n5. **Autonomía del explorador** — `PROJECT_INDEX.md` y `DEV_RUNBOOK.md` permiten a un agente navegable orientarse sin leer todo el código; rutas exactas y firmas de métodos representativas (no código completo).`n6. **Verificación con protección** — cambio de riesgo (item 1) documentado con `softDelete` obligatorio, test `PacienteControllerTest.java`, feature doc con `Risk: item 1`, y verificación aplicada antes del push.`n
 `n`n---`n`n## Día 6 — Registro completo de cambios (2026-10-22)`n`n### Cambios realizados hoy`n1. `gentle-ai sync --scope=workspace` — sincronización de agentes (`opencode`, `gemini-cli`) y componentes gestionados (`engram`, `skills`, `context7`, `permissions`, `claude-theme`). Archivo resultado: `opencode.json` actualizado; workspace artifacts (`.config/`, `.gemini/`, `.at/`) mantenidos **untracked**.`n2. `odd/tasks/medicion-biometrica.md` — feature doc creado (`S1-S5`, tareas T1-T3, `Log`, `Risk: item 1`). Referencia a `docs/openapi.yaml` (`POST /api/v1/pacientes/{id}/mediciones`); sin duplicación de reglas.`n3. `docs/CHANGELOG.md` — actualizado con entrada de migración SDD?ODD.`n4. `PROJECT_INDEX.md`, `DEV_RUNBOOK.md`, `docs/ARCHIVE_SDD.md` — creados/actualizados.`n5. `docs/openapi.yaml` — ya completo.`n6. `AGENTS.md` — intacto.`n7. `src/` — `PacienteController.java` + servicio + test sin modificaciones hoy (`484fcaf`); `medicion-biometrica` pendiente.`n`n### Estado del repositorio`n- `main`: `ef54a46` (último push hoy)`n- Untracked (intencional): `.atl/`, `.config/`, `.gemini/`, `opencode.json`, `spring-petclinic` (submódulo)`n- No archivos intermedios obsoletos sin archivar (`ARCHIVE_SDD.md` cubre limpieza)`n- Soft-delete verificado: `PacienteService.softDeletePaciente()`; test cubre 204/404; riesgo documentado`n`n### Comando aplicado hoy`n```bash`ngentle-ai sync --scope=workspace`ngit add odd/tasks/medicion-biometrica.md docs/CHANGELOG.md`ngit commit -m `Dia 6 - ODD feature doc medicion-biometrica.md, log actualizado, workspace artifacts untracked`git push origin main`n```
+
+---
+
+## DÃ­a 7 - 2026-10-25 â€” Entorno listo, GET /api/v1/pacientes y push a main
+
+### Logros
+- Entorno de build desbloqueado: Maven 3.9.9 instalado en `C:\Users\alvar\bin\apache-maven-3.9.9`; Java 21 (Eclipse Adoptium `jdk-21.0.5.11-hotspot`); wrapper `C:\Users\alvar\bin\mvn21.cmd` que fija JAVA_HOME al JDK 21 antes de invocar Maven.
+- `mvn21.cmd clean compile` â†’ BUILD SUCCESS.
+- `mvn21.cmd test` â†’ 13/13 tests verdes (se corrigieron 2 tests preexistentes de `MedicionBiometricaControllerTest` que nunca se habÃ­an ejecutado por falta de Maven: matcher crudo en `verify` y falta de contexto de servlet para `fromCurrentRequest()`).
+- Implementado `GET /api/v1/pacientes` (listar solo pacientes activos, paginaciÃ³n `page`/`size`, 200 con `PacienteDTO`) cumpliendo **S4/T6** de `delete-paciente`:
+  - `PacienteRepository.findByActivoTrue()`
+  - `PacienteService.listarPacientesActivos(page, size)` con mapeo entity â†’ DTO
+  - `PacienteController @GetMapping` con `page`/`size` (defaults 1 y 20)
+  - 3 tests nuevos (service + 2 controller cubriendo que pacientes soft-deleteados no aparecen)
+- Commit `7513c36` en `feat/soft-delete-mediciones-biometricas` (8 archivos, +143/âˆ’3).
+- Merge fast-forward a `main` y `git push origin main` (ahora `main` estÃ¡ en `9a805f2`, publicado en GitHub).
+- Creado `PLAN_PENDIENTE_MVP.md` y `TODO.md` en la raÃ­z para visibilidad en VS Code (pendientes hasta el MVP).
+
+### Pendiente para el MVP
+- `GET /api/v1/pacientes/{id}/mediciones` (medicion-biometrica T2)
+- Documentar inmutabilidad en `docs/CHANGELOG.md` (medicion-biometrica T3)
+- `POST /api/v1/pacientes`, `GET /api/v1/pacientes/{id}`, `GET /api/v1/revisiones`, `GET /api/v1/recordatorios`, PDF (OpenPDF), frontend Angular, `.env` para RDS/S3.
+
+### Regla a partir de hoy
+- Cada sesiÃ³n de trabajo debe registrar sus cambios en `docs/CHANGELOG.md` con fecha, logros, dificultades y pendientes, antes de cerrar la sesiÃ³n o al finalizar el dÃ­a.
+
+### Risk
+Risk: none (endpoint GET nuevo, sin tocar DELETE ni helpers compartidos; solo archivos de esta tarea modificados).
