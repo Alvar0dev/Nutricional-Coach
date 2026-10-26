@@ -7,7 +7,7 @@ El proyecto mantiene un stack mínimo y consistente: Java 21 + Spring Boot 3.4 +
 La lógica de negocio (tratamiento de pacientes, mediciones, alertas, generación de PDF) reside exclusivamente en el backend (Spring Boot). El frontend (Angular/Thymeleaf) solo se encarga de la presentación. No se mezclan modelos de dominio con componentes UI.
 
 ## 3. Alineación Especificación-Código
-Toda nueva funcionalidad debe reflejar cambios en la especificación OpenAPI (`openapi.yaml`) y en la arquitectura (`ARCHITECTURE_SDD.md`). Los cambios en la API deben propagarse primero a la documentación antes de implementar.
+Toda nueva funcionalidad debe reflejar cambios en la especificación OpenAPI (`openapi.yaml`) Los cambios en la API deben propagarse primero a la documentación antes de implementar.
 
 ## 4. Testing como Requisito Obligatorio
 Todos los cambios deben incluir pruebas unitarias y de integración. El 80% de los cambios deben tener al menos un test que pase. Sin test, el cambio no puede ser aprobado.

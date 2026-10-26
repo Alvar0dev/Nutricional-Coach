@@ -11,7 +11,7 @@
 - Angular 18
 - OpenPDF / Thymeleaf
 - AWS Free Tier (EC2, RDS, S3)
-- SDD (OpenAPI 3.0)
+- OpenAPI 3.0 (contrato de API)
 
 ## Flujo de Negocio
 
@@ -30,7 +30,7 @@ Plataforma cloud de nutrición deportiva y biometría que integra alta de pacien
 
 ## Tecnologías Clave
 
-- **Backend:** Spring Boot 3.4, Java 21, Maven, Hibernate JPA, OpenAPI 3.0 (SDD)
+- **Backend:** Spring Boot 3.4, Java 21, Maven, Hibernate JPA, OpenAPI 3.0 (contrato de API)
 - **Frontend:** Angular 18, Thymeleaf, OpenPDF para generación de documentos
 - **Cloud:** AWS Free Tier (EC2, RDS, S3)
 - **Arquitectura:** Monorepo con módulos Java y Angular

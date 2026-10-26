@@ -1,0 +1,20 @@
+- [done] Estructurar documentación ODD simplificada (docs/organizacion-documentacion.md, odd/task/estado-actual-proyecto.md)
+- [pending] T2 medicion-biometrica: GET /api/v1/pacientes/{id}/mediciones (listar mediciones de un paciente)
+- [pending] T3 medicion-biometrica: Documentar inmutabilidad en docs/CHANGELOG.md
+- [pending] POST /api/v1/pacientes — alta de paciente (falta controller; está en openapi.yaml)
+- [pending] GET /api/v1/pacientes/{id} — obtener paciente por ID (200/404)
+- [pending] GET /api/v1/revisiones y GET /api/v1/revisiones/{id} — revisiones mensuales
+- [pending] GET /api/v1/recordatorios — alertas mensuales
+- [pending] Generación de PDF de plan de dieta/entrenamiento (OpenPDF)
+- [pending] Frontend Angular 18 (npm run dev) conectado a los endpoints
+- [pending] .env con DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3
+- [pending] PR de feat/soft-delete-mediciones-biometricas a main
+
+=== Cierre de sesión — nota para mañana ===
+
+Mañana posible continúo (elegí una):
+A) T2 medicion-biometrica: GET /api/v1/pacientes/{id}/mediciones
+B) T3 medicion-biometrica: Documentar inmutabilidad en docs/CHANGELOG.md
+C) POST /api/v1/pacientes — alta de paciente
+
+Estado git después de push: main -> <commit> (publicado)

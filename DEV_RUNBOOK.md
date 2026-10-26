@@ -1,6 +1,6 @@
 # DEV_RUNBOOK.md — Comandos ejecutables y entornos
 
-Estado: 2026-10-22. Proyecto en fase SDD inicial (spec antes que código); build root pendiente.
+Estado: 2026-10-22. Proyecto en fase ODD; build root pendiente.
 
 ## Entorno requerido
 

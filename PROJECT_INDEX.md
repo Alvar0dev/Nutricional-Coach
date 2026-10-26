@@ -1,7 +1,7 @@
 # PROJECT_INDEX.md — Mapa de navegación arquitectónico
 
 ## Propósito
-Plataforma cloud de nutrición deportiva y biometría. Flujo: alta paciente → medición biométrica → alertas → revisión mensual → PDF (dieta/entreno). Metodología SDD (OpenAPI 3.0 primero, código después).
+Plataforma cloud de nutrición deportiva y biometría. Flujo: alta paciente → medición biométrica → alertas → revisión mensual → PDF (dieta/entreno). Metodología ODD (Organic Driven Development).
 
 ## Stack principal
 - Runtime: Java 21 (proyecto principal) / Java 17 (spring-petclinic subproyecto)
@@ -13,11 +13,11 @@ Plataforma cloud de nutrición deportiva y biometría. Flujo: alta paciente → 
 
 ## Estructura de carpetas (responsabilidad)
 
-- `docs/` — Especificaciones SDD y arquitectura (`ARCHITECTURE_SDD.md`, `openapi.yaml`, `CHANGELOG.md`, `constitution.md`). **No duplicar reglas de negocio aquí; referenciar por archivo.**
+- `docs/` — Documentación de arquitectura y contratos (`openapi.yaml`, `CHANGELOG.md`, `constitution.md`). **No duplicar reglas de negocio aquí; referenciar por archivo.**
 - `odd/` — Tracking de tareas por feature (`odd/tasks/delete-paciente.md`). Cada feature apunta a `S#` en `docs/openapi.yaml`.
 - `src/` — Código fuente del proyecto Nutricional-Coach (nuevo). Estructura: `controller/`, `service/`, `test/`. Aún no completo; solo `PacienteController.java` implementado como avance día 5.
 - `spring-petclinic/` — Subproyecto independiente (gitlink a `spring-projects/spring-petclinic`). No modificar sin permiso; usa Gradle + Java 17 (`build.gradle`).
-- `AGENTS.md` — Contexto operativo del proyecto (stack, comandos, límites de edición, convención SDD).
+- `AGENTS.md` — Contexto operativo del proyecto (stack, comandos, límites de edición, convención ODD).
 - `.atl/skill-registry.md` — Registro de habilidades para subagentes.
 - `.vscode/` — Configuración de IDE (no tocar sin confirmar).
 
