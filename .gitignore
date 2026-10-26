@@ -8,3 +8,7 @@ application-local.yml
 .DS_Store
 !.vscode/settings.json
 !.vscode/extensions.json
+session.jsonl
+!session.jsonl.enc
+!session_readme.md
+!.env.example
