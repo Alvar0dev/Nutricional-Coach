@@ -8,10 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementación del servicio de mediciones biométricas.
  * Valida pesoKg y grasaPct no negativos antes de persistir.
+ * Las mediciones son inmutables: listarMediciones solo lee, nunca modifica ni borra.
  */
 @Service
 public class MedicionBiometricaServiceImpl implements MedicionBiometricaService {
@@ -53,6 +56,24 @@ public class MedicionBiometricaServiceImpl implements MedicionBiometricaService 
                 guardada.getMasaMuscularKg(),
                 guardada.getCinturaCm()
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MedicionBiometricaDTO> listarMediciones(String pacienteId) {
+        if (!pacienteRepository.existsById(pacienteId)) {
+            throw new IllegalArgumentException("Paciente no encontrado: " + pacienteId);
+        }
+        return medicionRepository.findByPacienteId(pacienteId).stream()
+                .map(m -> new MedicionBiometricaDTO(
+                        m.getId(),
+                        m.getPacienteId(),
+                        m.getFecha(),
+                        m.getPesoKg(),
+                        m.getGrasaPct(),
+                        m.getMasaMuscularKg(),
+                        m.getCinturaCm()))
+                .collect(Collectors.toList());
     }
 
     private void validarMedicion(MedicionBiometricaDTO dto) {

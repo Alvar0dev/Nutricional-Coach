@@ -2,6 +2,8 @@ package com.nutricionalcoach.service;
 
 import com.nutricionalcoach.dto.MedicionBiometricaDTO;
 
+import java.util.List;
+
 /**
  * Servicio de mediciones biométricas.
  * Las mediciones son inmutables una vez creadas (no hay PUT ni DELETE en la spec).
@@ -17,4 +19,13 @@ public interface MedicionBiometricaService {
      * @throws IllegalArgumentException si pesoKg o grasaPct son negativos
      */
     MedicionBiometricaDTO registrarMedicion(String pacienteId, MedicionBiometricaDTO dto);
+
+    /**
+     * Lista las mediciones biométricas de un paciente.
+     *
+     * @param pacienteId UUID del paciente
+     * @return lista de DTO de mediciones del paciente (vacía si no hay ninguna)
+     * @throws IllegalArgumentException si el paciente no existe
+     */
+    List<MedicionBiometricaDTO> listarMediciones(String pacienteId);
 }
