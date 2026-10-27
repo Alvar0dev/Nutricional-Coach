@@ -22,6 +22,15 @@ public interface PacienteService {
     boolean softDeletePaciente(String id);
 
     /**
+     * Crea un nuevo paciente a partir de un DTO de alta. Genera el id y la
+     * fecha de alta automáticamente; nunca se acepta un id ya existente.
+     *
+     * @param pacienteDTO datos del paciente a crear (sin id ni fechaAlta)
+     * @return el PacienteDTO creado con id y fechaAlta asignados
+     */
+    PacienteDTO crearPaciente(PacienteDTO pacienteDTO);
+
+    /**
      * Lista pacientes activos (activo=true). Los pacientes dados de baja
      * (soft-delete) no aparecen en el listado.
      *

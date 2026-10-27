@@ -36,6 +36,30 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     @Override
+    @Transactional
+    public PacienteDTO crearPaciente(PacienteDTO pacienteDTO) {
+        if (pacienteDTO == null) {
+            throw new IllegalArgumentException("El paciente no puede ser nulo");
+        }
+        if (pacienteDTO.getNombre() == null || pacienteDTO.getNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre es obligatorio");
+        }
+        if (pacienteDTO.getEmail() == null || pacienteDTO.getEmail().isBlank()) {
+            throw new IllegalArgumentException("El email es obligatorio");
+        }
+        Paciente paciente = new Paciente(
+                null,
+                pacienteDTO.getNombre(),
+                pacienteDTO.getApellidos(),
+                pacienteDTO.getEmail(),
+                pacienteDTO.getTelefono(),
+                pacienteDTO.getObjetivo(),
+                pacienteDTO.getFechaAlta());
+        Paciente guardado = pacienteRepository.save(paciente);
+        return toDto(guardado);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<PacienteDTO> listarPacientesActivos(int page, int size) {
         if (page < 1) {

@@ -1,7 +1,7 @@
 - [done] Estructurar documentación ODD simplificada (docs/organizacion-documentacion.md, odd/task/estado-actual-proyecto.md)
 - [pending] T2 medicion-biometrica: GET /api/v1/pacientes/{id}/mediciones (listar mediciones de un paciente)
 - [pending] T3 medicion-biometrica: Documentar inmutabilidad en docs/CHANGELOG.md
-- [pending] POST /api/v1/pacientes — alta de paciente (falta controller; está en openapi.yaml)
+- [done] POST /api/v1/pacientes — alta de paciente (201 Created, Location header, tests 201/400 sin nombre/email; suite 20/20 verdes)
 - [pending] GET /api/v1/pacientes/{id} — obtener paciente por ID (200/404)
 - [pending] GET /api/v1/revisiones y GET /api/v1/revisiones/{id} — revisiones mensuales
 - [pending] GET /api/v1/recordatorios — alertas mensuales
@@ -12,9 +12,12 @@
 
 === Cierre de sesión — nota para mañana ===
 
-Mañana posible continúo (elegí una):
-A) T2 medicion-biometrica: GET /api/v1/pacientes/{id}/mediciones
-B) T3 medicion-biometrica: Documentar inmutabilidad en docs/CHANGELOG.md
-C) POST /api/v1/pacientes — alta de paciente
+Hoy (2026-10-27): POST /api/v1/pacientes implementado y verificado (suite 20/20 verdes). docs/CHANGELOG.md entrada Día 9 agregada. Cambios sin commitear aún.
 
-Estado git después de push: main -> <commit> (publicado)
+Mañana posible continúo (elegí una):
+A) T2 medicion-biometrica: GET /api/v1/pacientes/{id}/mediciones (ya está hecho en main; verificar estado real)
+B) T3 medicion-biometrica: Documentar inmutabilidad en docs/CHANGELOG.md
+C) GET /api/v1/pacientes/{id} — obtener paciente por ID (200/404)
+D) Commit + push de POST /pacientes a main
+
+Estado git: cambios en working tree sin commitear (PacienteController, PacienteService, PacienteServiceImpl, PacienteControllerTest, docs/CHANGELOG.md, todo).

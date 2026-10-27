@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -82,5 +83,50 @@ class PacienteControllerTest {
         assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
         assertThat(respuesta.getBody()).isEmpty();
         verify(service, times(1)).listarPacientesActivos(1, 20);
+    }
+
+    @Test
+    void crearPaciente_valido_retorna201ConIdYFechaAlta() {
+        PacienteService service = mock(PacienteService.class);
+        PacienteDTO creado = new PacienteDTO("1", "Juan", "Pérez", "juan@test.com",
+                "123456789", "perder peso", LocalDate.of(2024, 1, 1));
+        when(service.crearPaciente(any(PacienteDTO.class))).thenReturn(creado);
+
+        PacienteController controller = new PacienteController(service);
+        PacienteDTO entrada = new PacienteDTO(null, "Juan", "Pérez", "juan@test.com",
+                "123456789", "perder peso", null);
+
+        ResponseEntity<PacienteDTO> respuesta = controller.crearPaciente(entrada);
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(201);
+        assertThat(respuesta.getBody().getId()).isEqualTo("1");
+        assertThat(respuesta.getBody().getFechaAlta()).isEqualTo(LocalDate.of(2024, 1, 1));
+        verify(service, times(1)).crearPaciente(entrada);
+    }
+
+    @Test
+    void crearPaciente_sinNombre_retorna400yNoLlamaAlServicio() {
+        PacienteService service = mock(PacienteService.class);
+        PacienteController controller = new PacienteController(service);
+        PacienteDTO entrada = new PacienteDTO(null, null, "Pérez", "juan@test.com",
+                "123456789", "perder peso", null);
+
+        ResponseEntity<PacienteDTO> respuesta = controller.crearPaciente(entrada);
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+        verify(service, never()).crearPaciente(any());
+    }
+
+    @Test
+    void crearPaciente_sinEmail_retorna400yNoLlamaAlServicio() {
+        PacienteService service = mock(PacienteService.class);
+        PacienteController controller = new PacienteController(service);
+        PacienteDTO entrada = new PacienteDTO(null, "Juan", "Pérez", "",
+                "123456789", "perder peso", null);
+
+        ResponseEntity<PacienteDTO> respuesta = controller.crearPaciente(entrada);
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+        verify(service, never()).crearPaciente(any());
     }
 }
