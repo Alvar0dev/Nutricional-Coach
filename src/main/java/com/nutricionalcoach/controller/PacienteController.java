@@ -74,6 +74,19 @@ public class PacienteController {
         return ResponseEntity.created(location).body(creado);
     }
 
+    /**
+     * Obtiene un paciente por su id.
+     *
+     * @param id UUID del paciente
+     * @return 200 OK con el paciente, 404 Not Found si no existe
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<PacienteDTO> obtenerPacientePorId(@PathVariable String id) {
+        return pacienteService.obtenerPacientePorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePaciente(@PathVariable String id) {
         boolean eliminado = pacienteService.softDeletePaciente(id);

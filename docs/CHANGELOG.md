@@ -30,3 +30,25 @@
 
 ## Riesgo
 Ninguno nuevo: endpoint de creación no modifica datos existentes; validación evita registros con nombre/email vacíos.
+
+## Día 10 — 2026-11-01: GET /api/v1/pacientes/{id} y T3 inmutabilidad
+
+## Logro
+- Implementado `GET /api/v1/pacientes/{id}` (200 con PacienteDTO, 404 si no existe) en `PacienteController`, `PacienteService.obtenerPacientePorId` y `PacienteServiceImpl`.
+- Agregados 2 tests nuevos en `PacienteControllerTest` (200 con id existente, 404 id inexistente).
+- Suite: 22/22 verdes, BUILD SUCCESS, sin regresiones (era 20, +2 nuevos).
+
+## T3 — Documentar inmutabilidad de pacientes y mediciones
+- `Paciente` usa **soft-delete**: `activo=false` + `fechaBaja` en lugar de eliminación física (`Paciente.softDelete()`).
+- `PacienteService.softDeletePaciente` marca inactivo y guarda; nunca elimina registros físicos del repositorio.
+- `GET /api/v1/pacientes` lista solo pacientes activos (`findByActivoTrue`); dados de baja no aparecen.
+- Las mediciones y revisiones relacionadas conservan su trazabilidad al no borrarse físicamente el paciente al que pertenecen.
+
+## Dificultad
+**Problema:** `mvn` no está en el PATH del sistema.  
+**Solución:** Usar `/c/Users/alvar/bin/mvn21.cmd` que fija `JAVA_HOME` al JDK 21 y llama a Maven 3.9.9.  
+
+**Por qué:** JAVA_HOME del sistema apuntaba a JDK 17 y fallaba la compilación.
+
+## Riesgo
+Ninguno nuevo: endpoint de consulta es de solo lectura; soft-delete protege datos existentes de eliminación irreversible.

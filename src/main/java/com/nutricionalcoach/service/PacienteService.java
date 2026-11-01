@@ -3,6 +3,7 @@ package com.nutricionalcoach.service;
 import com.nutricionalcoach.dto.PacienteDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Servicio de pacientes.
@@ -29,6 +30,14 @@ public interface PacienteService {
      * @return el PacienteDTO creado con id y fechaAlta asignados
      */
     PacienteDTO crearPaciente(PacienteDTO pacienteDTO);
+
+    /**
+     * Obtiene un paciente por su id.
+     *
+     * @param id UUID del paciente
+     * @return Optional con el PacienteDTO si existe, vacío si no se encontró
+     */
+    Optional<PacienteDTO> obtenerPacientePorId(String id);
 
     /**
      * Lista pacientes activos (activo=true). Los pacientes dados de baja

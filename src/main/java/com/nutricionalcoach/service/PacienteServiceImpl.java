@@ -61,6 +61,13 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Override
     @Transactional(readOnly = true)
+    public Optional<PacienteDTO> obtenerPacientePorId(String id) {
+        return pacienteRepository.findById(id)
+                .map(this::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<PacienteDTO> listarPacientesActivos(int page, int size) {
         if (page < 1) {
             page = 1;

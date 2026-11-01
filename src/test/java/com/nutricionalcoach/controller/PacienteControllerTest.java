@@ -129,4 +129,34 @@ class PacienteControllerTest {
         assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
         verify(service, never()).crearPaciente(any());
     }
+
+    @Test
+    void obtenerPacientePorIdExistente_retorna200ConDto() {
+        PacienteService service = mock(PacienteService.class);
+        PacienteDTO dto = new PacienteDTO("1", "Juan", "Pérez", "juan@test.com",
+                "123456789", "perder peso", LocalDate.of(2024, 1, 1));
+        when(service.obtenerPacientePorId("1")).thenReturn(java.util.Optional.of(dto));
+
+        PacienteController controller = new PacienteController(service);
+
+        ResponseEntity<PacienteDTO> respuesta = controller.obtenerPacientePorId("1");
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+        assertThat(respuesta.getBody().getId()).isEqualTo("1");
+        assertThat(respuesta.getBody().getNombre()).isEqualTo("Juan");
+        verify(service, times(1)).obtenerPacientePorId("1");
+    }
+
+    @Test
+    void obtenerPacientePorIdInexistente_retorna404() {
+        PacienteService service = mock(PacienteService.class);
+        when(service.obtenerPacientePorId("no-existe")).thenReturn(java.util.Optional.empty());
+
+        PacienteController controller = new PacienteController(service);
+
+        ResponseEntity<PacienteDTO> respuesta = controller.obtenerPacientePorId("no-existe");
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+        verify(service, times(1)).obtenerPacientePorId("no-existe");
+    }
 }
