@@ -92,3 +92,30 @@ Ninguno nuevo: endpoint de creación no modifica datos existentes; validación e
 
 ## Riesgo
 Ninguno nuevo: endpoint de consulta es de solo lectura; soft-delete protege datos existentes de eliminación irreversible.
+
+## Día 12 — 2026-11-02: GET /api/v1/recordatorios (listar pendientes)
+
+## Logro
+- Implementado `GET /api/v1/recordatorios` para listar recordatorios con estado `PENDIENTE` (200 con lista de `RecordatorioDTO`, vacía si no hay ninguno).
+- Endpoint alineado con `docs/openapi.yaml` (schemas `RecordatorioDTO` y operación `listPendingReminders`).
+- Archivos creados:
+  - `src/main/java/com/nutricionalcoach/model/Recordatorio.java` (entidad: id, pacienteId, fechaProgramada, tipo, estado, feedbackPaciente; estado por defecto `PENDIENTE`)
+  - `src/main/java/com/nutricionalcoach/dto/RecordatorioDTO.java` (DTO alineado al schema OpenAPI)
+  - `src/main/java/com/nutricionalcoach/repository/RecordatorioRepository.java` (`JpaRepository` con `findByEstado` y `findAll`)
+  - `src/main/java/com/nutricionalcoach/service/RecordatorioService.java` + `RecordatorioServiceImpl.java` (`listarRecordatoriosPendientes()`)
+  - `src/main/java/com/nutricionalcoach/controller/RecordatorioController.java` (`GET /api/v1/recordatorios` → 200 OK)
+  - `src/test/java/com/nutricionalcoach/controller/RecordatorioControllerTest.java` (test: 200 con lista de 2 recordatorios pendientes, verifica ids y estados)
+- Tests: 1 nuevo en `RecordatorioControllerTest`.
+- Suite: **33/33 verdes**, `BUILD SUCCESS`, sin regresiones (era 32, +1 nuevo).
+- Commit: `171b197` en rama `feat/recordatorios`.
+
+## Dificultad
+Ninguna: se siguió exactamente el patrón establecido de revisiones mensuales (modelo → DTO → repository → service → controller → tests). El contrato ya existía en `openapi.yaml`, por lo que solo hubo que traducirlo a Java sin decisiones de diseño abiertas.
+
+## Por qué se hizo antes que otros pendientes
+- Cierra **todos** los endpoints de consulta definidos en `openapi.yaml` (pacientes, mediciones, revisiones y recordatorios).
+- Los recordatorios son el paso 3 del flujo de negocio del README (alta paciente → medición → alertas/recordatorios → revisión mensual → PDF).
+- Es una tarea pequeña (understood, contained risk, resumable desde el diff), por lo que se implementó inline sin documento de feature grande.
+
+## Riesgo
+Ninguno nuevo: endpoint de consulta de solo lectura; no modifica ni elimina datos; el estado `PENDIENTE` se asigna por defecto en la entidad y nunca se expone como editable desde este endpoint.

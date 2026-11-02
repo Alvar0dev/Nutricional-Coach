@@ -32,9 +32,14 @@ Plataforma cloud de nutrición deportiva y biometría. Flujo: alta paciente → 
 ## Contratos clave (rutas/firmas representativas)
 
 - `DELETE /api/v1/pacientes/{id}` → `PacienteController.deletePaciente(String id)` → `PacienteService.softDeletePaciente(String id)` → respuesta `204` / `404`
-- `POST /api/v1/pacientes/{id}/mediciones` → definido en `openapi.yaml`; controller pendiente
-- `GET /api/v1/revisiones/{id}/pdf` → definido; controller pendiente
-- `POST /api/v1/pacientes/{id}/revisiones` → definido; controller pendiente
+- `GET /api/v1/pacientes` → `PacienteController.listarPacientes()` → `PacienteService.listarPacientesActivos()` → respuesta `200` con lista paginada de pacientes activos
+- `POST /api/v1/pacientes/{id}/mediciones` → `MedicionBiometricaController.registrarMedicion()` → `MedicionBiometricaService.registrarMedicion()` → respuesta `201` + `Location` header
+- `GET /api/v1/pacientes/{id}` → `PacienteController.obtenerPacientePorId(String id)` → `PacienteService.obtenerPacientePorId(String id)` → respuesta `200` con `PacienteDTO` / `404` si no existe
+- `POST /api/v1/pacientes` → alta de paciente → respuesta `201` Created + `Location` header / `400` si falta nombre o email
+- `GET /api/v1/revisiones` → `RevisionController.listarRevisiones()` → `RevisionService.listarRevisiones()` → respuesta `200` con lista de `RevisionDTO`
+- `GET /api/v1/revisiones/{id}` → `RevisionController.obtenerRevisionPorId(String id)` → `RevisionService.obtenerRevisionPorId(String id)` → respuesta `200` con `RevisionDTO` / `404` si no existe
+- `POST /api/v1/pacientes/{id}/revisiones` → `RevisionController.crearRevision()` → `RevisionService.crearRevision()` → respuesta `201` Created + `Location` header
+- `GET /api/v1/recordatorios` → `RecordatorioController.listarRecordatoriosPendientes()` → `RecordatorioService.listarRecordatoriosPendientes()` → respuesta `200` con lista de `RecordatorioDTO` (estado `PENDIENTE`, vacía si no hay ninguno)
 
 ## Flujo de datos crítico (request → persistencia)
 
