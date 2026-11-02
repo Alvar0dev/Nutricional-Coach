@@ -22,6 +22,22 @@
 ## Riesgo
 Ninguno nuevo: endpoint de consulta es de solo lectura; las mediciones son inmutables (no hay PUT ni DELETE en la especificación).
 
+## Día 11 — 2026-11-02: GET /api/v1/revisiones y GET /api/v1/revisiones/{id}
+
+## Logro
+- Implementado `GET /api/v1/revisiones` para listar todas las revisiones mensuales (200 con lista de RevisionDTO).
+- Implementado `GET /api/v1/revisiones/{id}` para obtener una revisión por ID (200 con RevisionDTO, 404 si no existe).
+- Implementado también `POST /api/v1/pacientes/{id}/revisiones` para crear una revisión mensual con deltas calculados (201 Created con Location header).
+- `Revision` model, `RevisionDTO`, `RevisionRepository`, `RevisionService`, `RevisionServiceImpl`, `RevisionController`.
+- Tests: 4 nuevos en `RevisionControllerTest` (listar 200, obtener 200, obtener 404, crear 201) y 6 nuevos en `RevisionServiceImplTest`.
+- Suite: 32/32 verdes, BUILD SUCCESS (era 22, +10 nuevos).
+
+## Dificultad
+Ninguna: se siguió el patrón establecido de mediciones biométricas (model → DTO → repository → service → controller → tests).
+
+## Riesgo
+Ninguno nuevo: endpoints de consulta son de solo lectura; la creación valida que el pacienteId no esté vacío.
+
 # T3: Documentar inmutabilidad de mediciones en docs/CHANGELOG.md
 
 ## Logro

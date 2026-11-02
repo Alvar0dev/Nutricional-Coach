@@ -3,7 +3,7 @@
 - [done] T3 medicion-biometrica: Documentar inmutabilidad en docs/CHANGELOG.md (entrada Día 10; commit d9b02c6)
 - [done] POST /api/v1/pacientes — alta de paciente (201 Created, Location header, tests 201/400 sin nombre/email; suite 20/20 verdes)
 - [done] GET /api/v1/pacientes/{id} — obtener paciente por ID (200/404; suite 22/22 verdes; commit d9b02c6)
-- [pending] GET /api/v1/revisiones y GET /api/v1/revisiones/{id} — revisiones mensuales
+- [done] GET /api/v1/revisiones y GET /api/v1/revisiones/{id} — revisiones mensuales (suite 32/32 verdes)
 - [pending] GET /api/v1/recordatorios — alertas mensuales
 - [pending] Generación de PDF de plan de dieta/entrenamiento (OpenPDF)
 - [pending] Frontend Angular 18 (npm run dev) conectado a los endpoints
