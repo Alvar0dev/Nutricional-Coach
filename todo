@@ -1,8 +1,8 @@
 - [done] Estructurar documentación ODD simplificada (docs/organizacion-documentacion.md, odd/task/estado-actual-proyecto.md)
-- [pending] T2 medicion-biometrica: GET /api/v1/pacientes/{id}/mediciones (listar mediciones de un paciente)
-- [pending] T3 medicion-biometrica: Documentar inmutabilidad en docs/CHANGELOG.md
+- [done] T2 medicion-biometrica: GET /api/v1/pacientes/{id}/mediciones (listar mediciones de un paciente; suite 22/22 verdes)
+- [done] T3 medicion-biometrica: Documentar inmutabilidad en docs/CHANGELOG.md (entrada Día 10; commit d9b02c6)
 - [done] POST /api/v1/pacientes — alta de paciente (201 Created, Location header, tests 201/400 sin nombre/email; suite 20/20 verdes)
-- [pending] GET /api/v1/pacientes/{id} — obtener paciente por ID (200/404)
+- [done] GET /api/v1/pacientes/{id} — obtener paciente por ID (200/404; suite 22/22 verdes; commit d9b02c6)
 - [pending] GET /api/v1/revisiones y GET /api/v1/revisiones/{id} — revisiones mensuales
 - [pending] GET /api/v1/recordatorios — alertas mensuales
 - [pending] Generación de PDF de plan de dieta/entrenamiento (OpenPDF)
@@ -10,14 +10,19 @@
 - [pending] .env con DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3
 - [pending] PR de feat/soft-delete-mediciones-biometricas a main
 
-=== Cierre de sesión — nota para mañana ===
+=== Cierre de sesión — 2026-11-01 ===
 
-Hoy (2026-10-27): POST /api/v1/pacientes implementado y verificado (suite 20/20 verdes). docs/CHANGELOG.md entrada Día 9 agregada. Cambios sin commitear aún.
+Hoy se completaron ambas tareas solicitadas:
 
-Mañana posible continúo (elegí una):
-A) T2 medicion-biometrica: GET /api/v1/pacientes/{id}/mediciones (ya está hecho en main; verificar estado real)
-B) T3 medicion-biometrica: Documentar inmutabilidad en docs/CHANGELOG.md
-C) GET /api/v1/pacientes/{id} — obtener paciente por ID (200/404)
-D) Commit + push de POST /pacientes a main
+- GET /api/v1/pacientes/{id} (200 con PacienteDTO, 404 si no existe): PacienteController.obtenerPacientePorId, PacienteService.obtenerPacientePorId, PacienteServiceImpl (delegación a findById + toDto), 2 tests nuevos (200 id existente, 404 id inexistente).
+- T3 inmutabilidad documentada en docs/CHANGELOG.md (entrada Día 10: soft-delete activo=false + fechaBaja, findByActivoTrue, trazabilidad de mediciones/revisiones).
 
-Estado git: cambios en working tree sin commitear (PacienteController, PacienteService, PacienteServiceImpl, PacienteControllerTest, docs/CHANGELOG.md, todo).
+Suite: 22/22 verdes, BUILD SUCCESS, sin regresiones.
+Commit d9b02c6 pusheado a origin/main (5 archivos, +82/−1).
+Estado git: rama limpia, solo quedan opencode.json y spring-petclinic sin commitear (son ajenos, sin permiso).
+
+Próximos pasos posibles:
+- T2 medicion-biometrica: GET /api/v1/pacientes/{id}/mediciones (verificar estado real en main)
+- GET /api/v1/revisiones y GET /api/v1/revisiones/{id}
+- GET /api/v1/recordatorios
+- Groq: pendiente decisión de usuario (no integrar sin confirmar)

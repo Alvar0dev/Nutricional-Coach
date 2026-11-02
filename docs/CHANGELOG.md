@@ -1,3 +1,27 @@
+## Día 8 — 2026-10-26: T2 mediciones biométricas GET /pacientes/{id}/mediciones
+
+## Logro
+- Implementado `GET /api/v1/pacientes/{id}/mediciones` para listar mediciones de un paciente (200 con lista de MedicionBiometricaDTO, 404 si el paciente no existe).
+- Implementado también `POST /api/v1/pacientes/{id}/mediciones` para registrar una nueva medición (201 Created con Location header).
+- `MedicionBiometricaController`, `MedicionBiometricaService`, `MedicionBiometricaServiceImpl`, `MedicionBiometricaRepository`, `MedicionBiometricaDTO`, `MedicionBiometrica` model.
+- Tests: 4 nuevos en `MedicionBiometricaControllerTest` (listar 200, listar 404, registrar 201, registrar paciente inexistente) y 6 nuevos en `MedicionBiometricaServiceImplTest`.
+- Suite: 17/17 verdes, BUILD SUCCESS.
+
+## Dificultad 1
+**Problema:** Maven no recompila cambios en archivos modificados (`Nothing to compile - all classes are up to date`).  
+**Solución:** `mvn clean test` para forzar recompilación completa desde cero.  
+
+**Por qué:** Maven a veces reutiliza clases target sin detectar cambios en archivos fuente.
+
+## Dificultad 2
+**Problema:** Variable `service` no declarada en tests del controller (`MedicionBiometricaControllerTest`).  
+**Solución:** Declarar `MedicionBiometricaService service = mock(MedicionBiometricaService.class);` al inicio de cada test, siguiendo el patrón existente.  
+
+**Por qué:** Mantiene consistencia con los tests originales y evita acoplamiento entre tests.
+
+## Riesgo
+Ninguno nuevo: endpoint de consulta es de solo lectura; las mediciones son inmutables (no hay PUT ni DELETE en la especificación).
+
 # T3: Documentar inmutabilidad de mediciones en docs/CHANGELOG.md
 
 ## Logro
