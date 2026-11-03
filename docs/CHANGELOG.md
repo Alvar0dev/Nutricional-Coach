@@ -93,6 +93,26 @@ Ninguno nuevo: endpoint de creación no modifica datos existentes; validación e
 ## Riesgo
 Ninguno nuevo: endpoint de consulta es de solo lectura; soft-delete protege datos existentes de eliminación irreversible.
 
+## Día 13 — 2026-11-03: PATCH /api/v1/recordatorios/{id} (actualizar feedback del paciente)
+
+## Logro
+- Implementado `PATCH /api/v1/recordatorios/{id}` para actualizar el feedback del paciente de un recordatorio existente (200 con RecordatorioDTO actualizado, 404 Not Found si no existe).
+- Endpoint alineado con `docs/openapi.yaml` (operación `updateReminderFeedback`, schema `RecordatorioFeedbackDTO` con solo `feedbackPaciente`).
+- Archivos nuevos/modificados:
+  - `src/main/java/com/nutricionalcoach/dto/RecordatorioFeedbackDTO.java` (nuevo: DTO con solo `feedbackPaciente`)
+  - `src/main/java/com/nutricionalcoach/service/RecordatorioService.java` (+`actualizarFeedback(id, feedback)` → `Optional<RecordatorioDTO>`)
+  - `src/main/java/com/nutricionalcoach/service/RecordatorioServiceImpl.java` (+implementación de `actualizarFeedback`, `Optional.empty()` si no existe)
+  - `src/main/java/com/nutricionalcoach/controller/RecordatorioController.java` (+`PATCH /{id}` → 200/404)
+  - `src/test/java/com/nutricionalcoach/controller/RecordatorioControllerTest.java` (+2 tests: PATCH 200 feedback actualizado, PATCH 404 no existe)
+- Tests: 2 nuevos en `RecordatorioControllerTest`.
+- Suite: **35/35 verdes**, `BUILD SUCCESS`, sin regresiones (era 33, +2 nuevos).
+
+## Dificultad
+Ninguna: se siguió exactamente el patrón establecido de recordatorios (DTO → service → controller → tests). El contrato ya existía en `openapi.yaml`.
+
+## Riesgo
+Ninguno nuevo: endpoint de actualización aislado sobre recordatorios, sin tocar código compartido ni otros endpoints; todos los casos cubiertos con test.
+
 ## Día 12 — 2026-11-02: GET /api/v1/recordatorios (listar pendientes)
 
 ## Logro

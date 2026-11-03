@@ -6,8 +6,8 @@
 
 - Rama activa: `feat/recordatorios` (desde `main`)
 - Último commit en main: `689d278` — `feat(revisiones): GET /api/v1/revisiones y GET /api/v1/revisiones/{id} con deltas mensuales`
-- Último commit en feat/recordatorios: `171b197` — `feat(recordatorios): GET /api/v1/recordatorios listar pendientes`
-- Suite de tests: **33/33 verdes** (`mvn21.cmd test`)
+- Último commit en feat/recordatorios: `171b197` — `feat(recordatorios): GET /api/v1/recordatorios listar pendientes` (sin commitear aún: PATCH feedback)
+- Suite de tests: **35/35 verdes** (`mvn21.cmd test`)
 - Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd`
 
 ## Hecho (cierra delete-paciente + medicion-biometrica POST + revisiones + recordatorios)
@@ -20,11 +20,11 @@
 - `GET /api/v1/revisiones` y `GET /api/v1/revisiones/{id}` — revisiones mensuales (200 con lista, 200 por ID, 404 si no existe)
 - `POST /api/v1/pacientes/{id}/revisiones` — crear revisión mensual con deltas (201 Created + Location header)
 - `GET /api/v1/recordatorios` — listar recordatorios pendientes (200 con lista de RecordatorioDTO, vacía si no hay ninguno)
+- `PATCH /api/v1/recordatorios/{id}` — actualizar feedback del paciente (200 con RecordatorioDTO, 404 si no existe)
 
 ## Pendiente para el MVP (en orden sugerido)
 
-### Sesión siguiente (corta)
-- [ ] **PATCH /api/v1/recordatorios/{id}** — actualizar feedback del paciente (en openapi.yaml, sin controller). Requiere `RecordatorioFeedbackDTO`, service + controller + tests.
+### Sesiones siguientes (hasta MVP)
 
 ### Sesiones siguientes (hasta MVP)
 - [ ] `POST /api/v1/pacientes` — alta de paciente (falta en controller; existe en openapi.yaml)
@@ -59,4 +59,4 @@ git status --short --branch
 
 ---
 
-Última actualización: sesión del 2026-11-02. Si cambias el plan, edita este archivo y avísame.
+Última actualización: sesión del 2026-11-03. Si cambias el plan, edita este archivo y avísame.
