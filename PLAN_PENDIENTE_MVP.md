@@ -29,7 +29,7 @@
 ### Sesiones siguientes (hasta MVP)
 - [ ] `POST /api/v1/pacientes` — alta de paciente (falta en controller; existe en openapi.yaml)
 - [ ] `GET /api/v1/pacientes/{id}` — obtener paciente por ID (200/404)
-- [ ] Generación de PDF de plan de dieta/entrenamiento (OpenPDF) → `GET /api/v1/revisiones/{id}/pdf`
+- [x] Generación de PDF de plan de dieta/entrenamiento (OpenPDF) → `GET /api/v1/revisiones/{id}/pdf` (hecho, commiteado en feat/recordatorios)
 - [ ] Frontend Angular 18 (`npm run dev`) conectado a los endpoints
 - [ ] `.env` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (para RDS/S3)
 - [ ] PR de `feat/recordatorios` a `main` (tu decisión)

@@ -2,6 +2,8 @@ package com.nutricionalcoach.controller;
 
 import com.nutricionalcoach.dto.RevisionDTO;
 import com.nutricionalcoach.service.RevisionService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -70,5 +72,24 @@ public class RevisionController {
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{revisionId}").buildAndExpand(creada.getId()).toUri();
         return ResponseEntity.created(location).body(creada);
+    }
+
+    /**
+     * Descarga el PDF del plan de dieta y entreno de una revisión.
+     *
+     * @param id UUID de la revisión
+     * @return 200 OK con el PDF como application/pdf, 404 si no existe
+     */
+    @GetMapping(value = "/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> descargarPdf(@PathVariable String id) {
+        byte[] pdf = revisionService.generarPdfRevision(id);
+        if (pdf == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=revision-" + id + ".pdf")
+                .body(pdf);
     }
 }

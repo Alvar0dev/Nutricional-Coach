@@ -139,3 +139,19 @@ Ninguna: se siguió exactamente el patrón establecido de revisiones mensuales (
 
 ## Riesgo
 Ninguno nuevo: endpoint de consulta de solo lectura; no modifica ni elimina datos; el estado `PENDIENTE` se asigna por defecto en la entidad y nunca se expone como editable desde este endpoint.
+
+## Día 13 — 2026-11-04: GET /api/v1/revisiones/{id}/pdf (OpenPDF)
+
+## Logro
+- Implementado `GET /api/v1/revisiones/{id}/pdf` para descargar el PDF del plan de dieta y entreno de una revisión mensual (200 con `application/pdf`, 404 si la revisión no existe).
+- Dependencia agregada: `com.github.librepdf:openpdf:1.3.27` en `pom.xml`.
+- `RevisionService.generarPdfRevision(String id)` → genera el PDF con OpenPDF o devuelve `null` si la revisión no existe.
+- `RevisionController.descargarPdf(String id)` → endpoint `GET /{id}/pdf` con `Content-Type: application/pdf` y `Content-Disposition: attachment`.
+- Tests: 2 nuevos en `RevisionControllerTest` (PDF 200 con content-type y disposition, 404 si no existe) y 2 nuevos en `RevisionServiceImplTest` (PDF genera bytes, inexistente devuelve null).
+- Suite: **39/39 verdes**, `BUILD SUCCESS` (era 35, +4 nuevos), sin regresiones.
+
+## Dificultad
+Ninguna: se siguió el patrón establecido de revisiones mensuales. El contrato ya existía en `docs/openapi.yaml` (operación `downloadRevisionPDF`), solo hubo que traducirlo a Java.
+
+## Riesgo
+Ninguno nuevo: endpoint de consulta de solo lectura; genera un archivo PDF descargable sin modificar datos persistidos.

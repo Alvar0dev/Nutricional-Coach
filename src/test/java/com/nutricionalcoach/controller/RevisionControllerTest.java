@@ -4,6 +4,8 @@ import com.nutricionalcoach.dto.RevisionDTO;
 import com.nutricionalcoach.service.RevisionService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -109,5 +111,40 @@ class RevisionControllerTest {
         assertThat(respuesta.getHeaders().getLocation()).isNotNull();
         assertThat(respuesta.getHeaders().getLocation().toString()).contains("rev-1");
         verify(service, times(1)).crearRevision(any(RevisionDTO.class));
+    }
+
+    @Test
+    void descargarPdfExistente_retorna200ConPdf() {
+        RevisionService service = mock(RevisionService.class);
+        when(service.generarPdfRevision("rev-1")).thenReturn(new byte[]{1, 2, 3, 4});
+
+        RevisionController controller = new RevisionController(service);
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        ResponseEntity<byte[]> respuesta = controller.descargarPdf("rev-1");
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+        assertThat(respuesta.getBody()).isEqualTo(new byte[]{1, 2, 3, 4});
+        assertThat(respuesta.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PDF);
+        assertThat(respuesta.getHeaders().getContentDisposition()).isNotNull();
+        verify(service, times(1)).generarPdfRevision("rev-1");
+    }
+
+    @Test
+    void descargarPdfInexistente_retorna404() {
+        RevisionService service = mock(RevisionService.class);
+        when(service.generarPdfRevision("rev-999")).thenReturn(null);
+
+        RevisionController controller = new RevisionController(service);
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        ResponseEntity<byte[]> respuesta = controller.descargarPdf("rev-999");
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+        verify(service, times(1)).generarPdfRevision("rev-999");
     }
 }

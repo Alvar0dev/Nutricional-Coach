@@ -107,4 +107,28 @@ class RevisionServiceImplTest {
 
         assertThat(resultado).isNull();
     }
+
+    @Test
+    void generarPdfRevisionExistente_devuelveBytes() {
+        Revision r = new Revision();
+        r.setId("rev-1"); r.setPacienteId("paciente-1");
+        r.setFechaRevision(LocalDate.of(2024, 7, 1));
+        r.setDeltaPeso(-1.5); r.setDeltaGrasa(-0.5); r.setDeltaMusculo(0.5);
+        r.setAjustesDieta("más proteínas"); r.setAjustesEntreno("más cardio");
+        r.setComentariosAjuste("mejora general");
+        when(revisionRepository.findById("rev-1")).thenReturn(Optional.of(r));
+
+        byte[] pdf = servicio.generarPdfRevision("rev-1");
+
+        assertThat(pdf).isNotNull();
+        assertThat(pdf.length).isGreaterThan(0);
+        verify(revisionRepository, times(1)).findById("rev-1");
+    }
+
+    @Test
+    void generarPdfRevisionInexistente_devuelveNulo() {
+        when(revisionRepository.findById("rev-999")).thenReturn(Optional.empty());
+        byte[] pdf = servicio.generarPdfRevision("rev-999");
+        assertThat(pdf).isNull();
+    }
 }

@@ -41,6 +41,7 @@ Plataforma cloud de nutrición deportiva y biometría. Flujo: alta paciente → 
 - `POST /api/v1/pacientes/{id}/revisiones` → `RevisionController.crearRevision()` → `RevisionService.crearRevision()` → respuesta `201` Created + `Location` header
 - `GET /api/v1/recordatorios` → `RecordatorioController.listarRecordatoriosPendientes()` → `RecordatorioService.listarRecordatoriosPendientes()` → respuesta `200` con lista de `RecordatorioDTO` (estado `PENDIENTE`, vacía si no hay ninguno)
 - `PATCH /api/v1/recordatorios/{id}` → `RecordatorioController.actualizarFeedback(String id, RecordatorioFeedbackDTO feedback)` → `RecordatorioService.actualizarFeedback(id, feedback)` → respuesta `200` con `RecordatorioDTO` actualizado / `404` si no existe
+- `GET /api/v1/revisiones/{id}/pdf` → `RevisionController.descargarPdf(String id)` → `RevisionService.generarPdfRevision(String id)` → respuesta `200` con `application/pdf` / `404` si no existe
 
 ## Flujo de datos crítico (request → persistencia)
 
