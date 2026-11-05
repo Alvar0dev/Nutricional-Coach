@@ -1,9 +1,6 @@
 # TODO — Nutricional Coach (MVP)
 
 ## Hasta el MVP
-- [ ] `POST /api/v1/pacientes` — alta de paciente (falta controller; está en openapi.yaml)
-- [ ] `GET /api/v1/pacientes/{id}` — obtener paciente por ID (200/404)
-- [ ] `GET /api/v1/revisiones` y `GET /api/v1/revisiones/{id}` — revisiones mensuales
 - [ ] Frontend Angular 18 (`npm run dev`) conectado a los endpoints
 - [ ] `.env` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (RDS/S3)
 - [ ] PR de `feat/recordatorios` a `main` (decisión tuya)

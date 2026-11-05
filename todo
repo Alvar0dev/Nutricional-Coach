@@ -4,25 +4,14 @@
 - [done] POST /api/v1/pacientes — alta de paciente (201 Created, Location header, tests 201/400 sin nombre/email; suite 20/20 verdes)
 - [done] GET /api/v1/pacientes/{id} — obtener paciente por ID (200/404; suite 22/22 verdes; commit d9b02c6)
 - [done] GET /api/v1/revisiones y GET /api/v1/revisiones/{id} — revisiones mensuales (suite 32/32 verdes)
-- [pending] GET /api/v1/recordatorios — alertas mensuales
-- [pending] Generación de PDF de plan de dieta/entrenamiento (OpenPDF)
+- [done] GET /api/v1/recordatorios — alertas mensuales pendientes (200 lista RecordatorioDTO; commit 171b197)
+- [done] PATCH /api/v1/recordatorios/{id} — actualizar feedback del paciente (commit 61ac33a)
+- [done] Generación de PDF de plan de dieta/entrenamiento (OpenPDF) — GET /api/v1/revisiones/{id}/pdf (commit b958430; suite 39/39 verdes)
 - [pending] Frontend Angular 18 (npm run dev) conectado a los endpoints
-- [pending] .env con DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3
-- [pending] PR de feat/soft-delete-mediciones-biometricas a main
+- [pending] .env con DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3 (RDS/S3)
+- [pending] PR de feat/recordatorios a main (decisión tuya)
 
-=== Cierre de sesión — 2026-11-01 ===
-
-Hoy se completaron ambas tareas solicitadas:
-
-- GET /api/v1/pacientes/{id} (200 con PacienteDTO, 404 si no existe): PacienteController.obtenerPacientePorId, PacienteService.obtenerPacientePorId, PacienteServiceImpl (delegación a findById + toDto), 2 tests nuevos (200 id existente, 404 id inexistente).
-- T3 inmutabilidad documentada en docs/CHANGELOG.md (entrada Día 10: soft-delete activo=false + fechaBaja, findByActivoTrue, trazabilidad de mediciones/revisiones).
-
-Suite: 22/22 verdes, BUILD SUCCESS, sin regresiones.
-Commit d9b02c6 pusheado a origin/main (5 archivos, +82/−1).
-Estado git: rama limpia, solo quedan opencode.json y spring-petclinic sin commitear (son ajenos, sin permiso).
-
-Próximos pasos posibles:
-- T2 medicion-biometrica: GET /api/v1/pacientes/{id}/mediciones (verificar estado real en main)
-- GET /api/v1/revisiones y GET /api/v1/revisiones/{id}
-- GET /api/v1/recordatorios
-- Groq: pendiente decisión de usuario (no integrar sin confirmar)
+=== Cierre de sesión — 2026-11-04 ===
+Estado: rama feat/recordatorios, último commit b958430 (PDF de revisiones, OpenPDF). Suite 39/39 verdes, BUILD SUCCESS.
+Sin commitear (no tocar, sin permiso): opencode.json y spring-petclinic (son ajenos).
+Falta para el MVP: frontend Angular 18, .env con credenciales, y tu decisión sobre el PR de feat/recordatorios a main.
