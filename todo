@@ -7,11 +7,21 @@
 - [done] GET /api/v1/recordatorios — alertas mensuales pendientes (200 lista RecordatorioDTO; commit 171b197)
 - [done] PATCH /api/v1/recordatorios/{id} — actualizar feedback del paciente (commit 61ac33a)
 - [done] Generación de PDF de plan de dieta/entrenamiento (OpenPDF) — GET /api/v1/revisiones/{id}/pdf (commit b958430; suite 39/39 verdes)
-- [pending] Frontend Angular 18 (npm run dev) conectado a los endpoints
+- [done] Frontend Angular 18 — T1: generar proyecto (npx @angular/cli@18 new frontend --routing --style=css --skip-git; carpeta frontend/)
+- [done] Frontend Angular 18 — T2: servicio HTTP base (src/app/core/api.config.ts API_BASE_URL=http://localhost:8080/api/v1; src/app/core/api.service.ts ApiService con get/post/patch/delete; app.config.ts con provideHttpClient(); tsc --noEmit limpio)
+- [pending] Frontend Angular 18 — T3: páginas de pacientes (alta S1, listar S2, detalle S3)
+- [pending] Frontend Angular 18 — T4: soft-delete de paciente (S4)
+- [pending] Frontend Angular 18 — T5: mediciones biométricas por paciente (S5, S6)
+- [pending] Frontend Angular 18 — T6: revisiones mensuales (listar S7, crear S8, descargar PDF S9)
+- [pending] Frontend Angular 18 — T7: recordatorios pendientes + feedback (S10, S11)
+- [pending] Frontend Angular 18 — T8: tests que pinchan cada endpoint (200/201/404) (S1-S11)
+- [pending] Frontend Angular 18 — T9: documentar dificultades y comandos en docs/CHANGELOG.md (S1-S11)
 - [pending] .env con DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3 (RDS/S3)
-- [pending] PR de feat/recordatorios a main (decisión tuya)
+- [blocked] PR de feat/recordatorios a main (gh no autenticado; rama ya pusheada con 5 commits: 171b197, e7867a0, 61ac33a, b958430, 8feebdf)
 
-=== Cierre de sesión — 2026-11-04 ===
-Estado: rama feat/recordatorios, último commit b958430 (PDF de revisiones, OpenPDF). Suite 39/39 verdes, BUILD SUCCESS.
+=== Cierre de sesión — 2026-11-06 ===
+Estado: rama feat/recordatorios, último commit 8feebdf (docs sincronizadas). Suite 39/39 verdes, BUILD SUCCESS.
+Frontend: proyecto Angular 18 generado en frontend/; T1 y T2 completados (proyecto + servicio HTTP base). TypeScript compila sin errores.
 Sin commitear (no tocar, sin permiso): opencode.json y spring-petclinic (son ajenos).
-Falta para el MVP: frontend Angular 18, .env con credenciales, y tu decisión sobre el PR de feat/recordatorios a main.
+Bloqueado: PR feat/recordatorios -> main porque `gh` no está autenticado (`gh auth status` falla). Se requiere `gh auth login` (OAuth en navegador) o crear PR manualmente en https://github.com/Alvar0dev/Nutricional-Coach.
+Siguiente paso sugerido: seguir con T3 (páginas de pacientes) del frontend; el PR se desbloquea cuando se autentique gh.
