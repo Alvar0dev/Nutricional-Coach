@@ -1,0 +1,23 @@
+<h2>Detalle del paciente</h2>
+
+<div *ngIf="error" class="error">{{ error }}</div>
+
+<div *ngIf="cargando && !paciente">Cargando paciente...</div>
+
+<div *ngIf="paciente && !error">
+  <dl>
+    <dt>ID</dt>
+    <dd>{{ paciente.id }}</dd>
+    <dt>Nombre</dt>
+    <dd>{{ paciente.nombre }} {{ paciente.apellidos }}</dd>
+    <dt>Email</dt>
+    <dd>{{ paciente.email }}</dd>
+    <dt>Teléfono</dt>
+    <dd>{{ paciente.telefono || '-' }}</dd>
+    <dt>Objetivo</dt>
+    <dd>{{ paciente.objetivo || '-' }}</dd>
+    <dt>Fecha alta</dt>
+    <dd>{{ paciente.fechaAlta || '-' }}</dd>
+  </dl>
+  <button type="button" (click)="volver()">Volver al listado</button>
+</div>

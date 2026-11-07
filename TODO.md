@@ -18,7 +18,7 @@
 ### Frontend Angular 18 (`npm run dev`) — EN PROGRESO
 - [x] T1: Generar proyecto Angular 18 (carpeta `frontend/`, routing, CSS, npm)
 - [x] T2: Servicio HTTP base `http://localhost:8080/api/v1` (`core/api.config.ts`, `core/api.service.ts`, `provideHttpClient()` en `app.config.ts`)
-- [ ] T3: Páginas de pacientes (alta S1, listar S2, detalle S3)
+- [x] T3: Páginas de pacientes (alta S1, listar S2, detalle S3)
 - [ ] T4: Soft-delete de paciente (S4)
 - [ ] T5: Mediciones biométricas por paciente (S5, S6)
 - [ ] T6: Revisiones mensuales (listar S7, crear S8, descargar PDF S9)

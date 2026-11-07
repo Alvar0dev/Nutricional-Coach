@@ -1,0 +1,21 @@
+dl {
+  margin-top: 1rem;
+}
+
+dt {
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+dd {
+  margin: 0.25rem 0 0.75rem 0;
+}
+
+.error {
+  color: #b00;
+  margin: 0.5rem 0;
+}
+
+button {
+  cursor: pointer;
+}

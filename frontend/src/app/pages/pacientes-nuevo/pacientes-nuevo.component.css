@@ -1,0 +1,31 @@
+.campo {
+  margin-bottom: 1rem;
+}
+
+.campo label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: bold;
+}
+
+.campo input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.4rem;
+  box-sizing: border-box;
+}
+
+button {
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
+
+.error {
+  color: #b00;
+  margin: 0.5rem 0;
+}
+
+.exito {
+  color: #070;
+  margin: 1rem 0;
+}
