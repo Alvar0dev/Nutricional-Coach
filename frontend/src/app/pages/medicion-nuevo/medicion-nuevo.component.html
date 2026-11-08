@@ -1,0 +1,38 @@
+<h2>Nueva medición biométrica</h2>
+
+<form (ngSubmit)="guardar()" #f="ngForm">
+  <div class="campo">
+    <label for="fecha">Fecha *</label>
+    <input id="fecha" name="fecha" type="date" [(ngModel)]="medicion.fecha" required />
+  </div>
+
+  <div class="campo">
+    <label for="pesoKg">Peso (kg) *</label>
+    <input id="pesoKg" name="pesoKg" type="number" [(ngModel)]="medicion.pesoKg" required min="0" step="0.1" />
+  </div>
+
+  <div class="campo">
+    <label for="grasaPct">Grasa corporal (%) *</label>
+    <input id="grasaPct" name="grasaPct" type="number" [(ngModel)]="medicion.grasaPct" required min="0" step="0.1" />
+  </div>
+
+  <div class="campo">
+    <label for="masaMuscularKg">Masa muscular (kg)</label>
+    <input id="masaMuscularKg" name="masaMuscularKg" type="number" [(ngModel)]="medicion.masaMuscularKg" min="0" step="0.1" />
+  </div>
+
+  <div class="campo">
+    <label for="cinturaCm">Cintura (cm)</label>
+    <input id="cinturaCm" name="cinturaCm" type="number" [(ngModel)]="medicion.cinturaCm" min="0" step="0.1" />
+  </div>
+
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <button type="submit" [disabled]="cargando">{{ cargando ? 'Registrando...' : 'Registrar medición' }}</button>
+  <button type="button" (click)="volver()">Cancelar</button>
+</form>
+
+<div *ngIf="exito" class="exito">
+  {{ exito }}
+  <button type="button" (click)="volver()">Ver mediciones</button>
+</div>

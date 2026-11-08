@@ -156,6 +156,37 @@ Ninguna: se siguió el patrón establecido de revisiones mensuales. El contrato 
 ## Riesgo
 Ninguno nuevo: endpoint de consulta de solo lectura; genera un archivo PDF descargable sin modificar datos persistidos.
 
+## Día 15 — 2026-11-07: Frontend T5 mediciones biométricas por paciente (S5, S6)
+
+## Logro
+- Implementado T5 del frontend Angular 18 en rama `feat/recordatorios`: páginas de mediciones biométricas por paciente para registro (S5, POST /pacientes/{id}/mediciones) y listado (S6, GET /pacientes/{id}/mediciones), conectadas a los endpoints del backend en `http://localhost:8080/api/v1`.
+- Archivos nuevos/modificados:
+  - `frontend/src/app/core/models/medicion.dto.ts` (nuevo: `MedicionBiometricaDTO` alineado a `docs/openapi.yaml`)
+  - `frontend/src/app/core/services/medicion.service.ts` (nuevo: `MedicionService` con `registrar()` y `listarPorPaciente()`)
+  - `frontend/src/app/pages/mediciones-list/` (nuevo: tabla de mediciones, botón nueva medición, volver al paciente)
+  - `frontend/src/app/pages/medicion-nuevo/` (nuevo: formulario con validación min=0 en pesoKg/grasaPct, respuesta 201/400)
+  - `frontend/src/app/app.routes.ts` (rutas `/pacientes/:id/mediciones` y `/pacientes/:id/mediciones/nueva`)
+  - `frontend/src/app/pages/pacientes-detalle/` (botón "Mediciones biométricas" que navega al listado)
+  - `todo`, `TODO.md`, `odd/tasks/frontend-angular.md` (planificación sincronizada: T5 marcado como hecho, entrada L6)
+- `tsc --noEmit -p tsconfig.app.json`: exit 0 (TypeScript compila sin errores).
+
+## Dificultad 1
+**Problema:** Desde el detalle de un paciente no había acceso a sus mediciones biométricas.  
+**Solución:** Agregar botón "Mediciones biométricas" en `PacientesDetalleComponent` que navega a `/pacientes/:id/mediciones`, y crear las rutas + componentes de listado y alta de mediciones.
+
+**Por qué:** Mantener la navegación coherente con el flujo de negocio (paciente → mediciones) y reutilizar el patrón ya probado de T3.
+
+## Por qué se construyó así
+- **DTO primero:** `MedicionBiometricaDTO` se definió antes que el servicio y los componentes, alineado al schema OpenAPI.
+- **Servicio reutilizando ApiService:** `MedicionService` usa `API_BASE_URL` de `api.config.ts` sin duplicar la lógica de URL base.
+- **Validación nativa del navegador:** `min="0"` y `required` en los inputs numéricos para cumplir la regla del backend (`pesoKg >= 0`, `grasaPct >= 0`) sin añadir librerías de validación extra.
+- **Campos opcionales:** `masaMuscularKg` y `cinturaCm` son opcionales en el DTO y en el formulario; el backend los acepta nulos.
+- **Componentes standalone de Angular 18:** Cada página es standalone con su propio CSS/HTML, siguiendo la convención de T1/T2/T3.
+- **Commit como slice de trabajo:** Tests y docs van junto al comportamiento (regla del proyecto). Los tests de endpoint frontend se dejan para T8.
+
+## Riesgo
+Ninguno nuevo: páginas de consulta y creación aisladas sobre mediciones de un paciente existente; no se tocó `opencode.json` ni `spring-petclinic/` (sin permiso).
+
 ## Día 14 — 2026-11-06: Frontend T3 páginas de pacientes (alta, listar, detalle)
 
 ## Logro

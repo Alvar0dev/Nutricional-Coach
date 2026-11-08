@@ -31,6 +31,15 @@
 - [ ] `GET /api/v1/pacientes/{id}` — obtener paciente por ID (200/404)
 - [x] Generación de PDF de plan de dieta/entrenamiento (OpenPDF) → `GET /api/v1/revisiones/{id}/pdf` (hecho, commiteado en feat/recordatorios)
 - [ ] Frontend Angular 18 (`npm run dev`) conectado a los endpoints
+  - [x] T1: Generar proyecto Angular 18
+  - [x] T2: Servicio HTTP base
+  - [x] T3: Páginas de pacientes (alta, listar, detalle)
+  - [x] T5: Mediciones biométricas por paciente (registro + listado)
+  - [ ] T4: Soft-delete de paciente
+  - [ ] T6: Revisiones mensuales (listar, crear, PDF)
+  - [ ] T7: Recordatorios pendientes + feedback
+  - [ ] T8: Tests que pinchen cada endpoint
+  - [ ] T9: Documentar en docs/CHANGELOG.md
 - [ ] `.env` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (para RDS/S3)
 - [ ] PR de `feat/recordatorios` a `main` (tu decisión)
 

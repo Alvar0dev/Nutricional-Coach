@@ -51,6 +51,12 @@ export class PacientesDetalleComponent implements OnInit {
     });
   }
 
+  irMediciones(): void {
+    if (this.paciente?.id) {
+      this.router.navigate(['/pacientes', this.paciente.id, 'mediciones']);
+    }
+  }
+
   volver(): void {
     this.router.navigate(['/pacientes']);
   }
