@@ -21,6 +21,7 @@
     <dd>{{ paciente.fechaAlta || '-' }}</dd>
   </dl>
   <button type="button" (click)="irMediciones()">Mediciones biométricas</button>
+  <button type="button" (click)="irNuevaRevision()">Nueva revisión mensual</button>
   <button type="button" (click)="eliminar()" [disabled]="eliminando" class="btn-eliminar">
     {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
   </button>

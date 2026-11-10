@@ -12,7 +12,7 @@
 - [done] Frontend Angular 18 — T3: páginas de pacientes (alta S1, listar S2, detalle S3)
 - [done] Frontend Angular 18 — T4: soft-delete de paciente (S4)
 - [done] Frontend Angular 18 — T5: mediciones biométricas por paciente (S5, S6)
-- [pending] Frontend Angular 18 — T6: revisiones mensuales (listar S7, crear S8, descargar PDF S9)
+- [done] Frontend Angular 18 — T6: revisiones mensuales (listar S7, crear S8, descargar PDF S9)
 - [pending] Frontend Angular 18 — T7: recordatorios pendientes + feedback (S10, S11)
 - [pending] Frontend Angular 18 — T8: tests que pinchan cada endpoint (200/201/404) (S1-S11)
 - [pending] Frontend Angular 18 — T9: documentar dificultades y comandos en docs/CHANGELOG.md (S1-S11)

@@ -60,6 +60,12 @@ export class PacientesDetalleComponent implements OnInit {
     }
   }
 
+  irNuevaRevision(): void {
+    if (this.paciente?.id) {
+      this.router.navigate(['/pacientes', this.paciente.id, 'revisiones', 'nueva']);
+    }
+  }
+
   eliminar(): void {
     if (!this.paciente?.id) {
       return;

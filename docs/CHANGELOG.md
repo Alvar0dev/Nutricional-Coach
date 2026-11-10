@@ -207,6 +207,28 @@ Ninguno nuevo: páginas de consulta y creación aisladas sobre mediciones de un 
 ## Riesgo
  Bajo (mutación controlada con soft-delete en backend y diálogo de confirmación en cliente).
 
+## Día 16 (cont.) — 2026-11-10: Frontend T6 revisiones mensuales y descarga PDF (S7, S8, S9)
+
+## Logro
+- Implementado T6 del frontend Angular 18 en rama `feat/recordatorios`: listado, detalle, creación con cálculo de deltas y descarga de PDF de revisiones mensuales.
+- Archivos nuevos/modificados:
+  - `frontend/src/app/core/models/revision.dto.ts` (`RevisionDTO` alineado a `docs/openapi.yaml`)
+  - `frontend/src/app/core/services/revision.service.ts` (`listar()`, `obtenerPorId(id)`, `crear(pacienteId, revision)`, `descargarPdf(id)` con `responseType: 'blob'`)
+  - `frontend/src/app/pages/revisiones-list/` (S7 y S9: listado de revisiones y descarga directa de PDF)
+  - `frontend/src/app/pages/revisiones-nuevo/` (S8: alta de revisión con selección de mediciones del paciente y cálculo automático de `deltaPeso`, `deltaGrasa` y `deltaMusculo`)
+  - `frontend/src/app/pages/revisiones-detalle/` (S7 y S9: vista de detalle de revisión y botón de descarga PDF mediante `URL.createObjectURL(blob)`)
+  - `frontend/src/app/app.routes.ts`, `frontend/src/app/app.component.html`, `frontend/src/app/pages/pacientes-detalle/` (rutas y navegación)
+- `tsc --noEmit -p tsconfig.app.json`: exit 0 (TypeScript compila sin errores).
+
+## Dificultad 1
+**Problema:** Manejar la descarga binaria de `application/pdf` desde Angular sin corromper el archivo ni dejar object URLs colgadas en memoria.  
+**Solución:** Invocar `this.http.get(\`${this.base}/${id}/pdf\`, { responseType: 'blob' })`, generar una URL temporal con `window.URL.createObjectURL(blob)`, disparar un `<a download="revision-${id}.pdf">` programático y liberar la referencia con `window.URL.revokeObjectURL(url)`.  
+
+**Por qué:** Evita parsear el PDF como JSON (comportamiento por defecto de `HttpClient`) y libera memoria inmediatamente después de iniciar la descarga en el navegador.
+
+## Riesgo
+Ninguno nuevo: operaciones de lectura/creación y descarga binaria sobre endpoints ya verificados en el backend.
+
 ## Día 14 — 2026-11-06: Frontend T3 páginas de pacientes (alta, listar, detalle)
 
 ## Logro
