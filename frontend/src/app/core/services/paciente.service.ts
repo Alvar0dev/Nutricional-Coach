@@ -7,7 +7,7 @@ import { PacienteDTO } from '../models/paciente.dto';
 
 /**
  * Servicio de pacientes que consume la API del backend Nutricional Coach.
- * Endpoints: POST /pacientes, GET /pacientes, GET /pacientes/{id}.
+ * Endpoints: POST /pacientes, GET /pacientes, GET /pacientes/{id}, DELETE /pacientes/{id} (soft-delete).
  */
 @Injectable({ providedIn: 'root' })
 export class PacienteService {
@@ -28,5 +28,10 @@ export class PacienteService {
   /** Da de alta un paciente (POST /pacientes). Devuelve 201 Created + Location. */
   crear(paciente: Omit<PacienteDTO, 'id' | 'fechaAlta'>): Observable<PacienteDTO> {
     return this.http.post<PacienteDTO>(this.base, paciente);
+  }
+
+  /** Da de baja un paciente mediante soft-delete (DELETE /pacientes/{id}). Responde 204 No Content o 404 Not Found. */
+  eliminar(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`);
   }
 }

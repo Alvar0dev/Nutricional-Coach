@@ -187,6 +187,26 @@ Ninguno nuevo: endpoint de consulta de solo lectura; genera un archivo PDF desca
 ## Riesgo
 Ninguno nuevo: páginas de consulta y creación aisladas sobre mediciones de un paciente existente; no se tocó `opencode.json` ni `spring-petclinic/` (sin permiso).
 
+## Día 16 — 2026-11-10: Frontend T4 soft-delete de paciente (S4)
+
+## Logro
+- Implementado T4 del frontend Angular 18 en rama `feat/recordatorios`: baja lógica de paciente (`DELETE /api/v1/pacientes/{id}`, S4) desde el listado y el detalle de pacientes.
+- Archivos modificados:
+  - `frontend/src/app/core/services/paciente.service.ts` (`eliminar(id): Observable<void>` consumiendo `DELETE /api/v1/pacientes/{id}` sin tragar errores HTTP)
+  - `frontend/src/app/pages/pacientes-list/` (botón "Eliminar" con estado deshabilitado durante la petición, confirmación y manejo de 204 vs 404)
+  - `frontend/src/app/pages/pacientes-detalle/` (botón "Eliminar" con confirmación, redirección a `/pacientes` tras 204 y mensaje en caso de 404)
+  - `todo`, `TODO.md`, `PLAN_PENDIENTE_MVP.md`, `odd/tasks/frontend-angular.md` (planificación sincronizada: T4 marcado como hecho, entrada L7)
+- `tsc --noEmit -p tsconfig.app.json`: exit 0 (TypeScript compila sin errores).
+
+## Dificultad 1
+**Problema:** El borrador inicial en `PacienteService.eliminar()` usaba `catchError(() => of(false))`, lo que convertía cualquier error 404 o 500 en una emisión exitosa en `next` y eliminaba visualmente al paciente de la tabla aunque el backend hubiera fallado.  
+**Solución:** Cambiar la firma a `eliminar(id: string): Observable<void>` delegando directamente en `this.http.delete<void>(\`${this.base}/${id}\`)` y manejar `HttpErrorResponse` en el bloque `error` de los componentes (`err.status === 404 ? 'Paciente no encontrado.' : 'No se pudo eliminar el paciente.'`).  
+
+**Por qué:** Preserva la semántica HTTP de Angular `HttpClient` y garantiza que la UI solo refleje la baja cuando el backend responde `204 No Content`.
+
+## Riesgo
+ Bajo (mutación controlada con soft-delete en backend y diálogo de confirmación en cliente).
+
 ## Día 14 — 2026-11-06: Frontend T3 páginas de pacientes (alta, listar, detalle)
 
 ## Logro

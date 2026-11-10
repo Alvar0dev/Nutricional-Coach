@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { PacienteDTO } from '../../core/models/paciente.dto';
 import { PacienteService } from '../../core/services/paciente.service';
 
 /**
- * Página de detalle de paciente (S3).
- * Consume GET /api/v1/pacientes/{id}. Responde 200 con PacienteDTO o 404 si no existe.
+ * Página de detalle de paciente (S3, S4).
+ * Consume GET /api/v1/pacientes/{id} (200/404) y permite dar de baja con DELETE /api/v1/pacientes/{id} (204/404).
  */
 @Component({
   selector: 'app-pacientes-detalle',
@@ -20,6 +21,8 @@ export class PacientesDetalleComponent implements OnInit {
   paciente?: PacienteDTO;
   cargando = false;
   error = '';
+  eliminando = false;
+  errorEliminar = '';
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -55,6 +58,28 @@ export class PacientesDetalleComponent implements OnInit {
     if (this.paciente?.id) {
       this.router.navigate(['/pacientes', this.paciente.id, 'mediciones']);
     }
+  }
+
+  eliminar(): void {
+    if (!this.paciente?.id) {
+      return;
+    }
+    if (!confirm(`¿Estás seguro de dar de baja al paciente ${this.paciente.nombre} ${this.paciente.apellidos}?`)) {
+      return;
+    }
+    this.eliminando = true;
+    this.errorEliminar = '';
+    this.pacienteService.eliminar(this.paciente.id).subscribe({
+      next: () => {
+        this.eliminando = false;
+        this.router.navigate(['/pacientes']);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.errorEliminar =
+          err.status === 404 ? 'Paciente no encontrado.' : 'No se pudo eliminar el paciente.';
+        this.eliminando = false;
+      }
+    });
   }
 
   volver(): void {

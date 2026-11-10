@@ -1,6 +1,7 @@
 <h2>Detalle del paciente</h2>
 
 <div *ngIf="error" class="error">{{ error }}</div>
+<div *ngIf="errorEliminar" class="error">{{ errorEliminar }}</div>
 
 <div *ngIf="cargando && !paciente">Cargando paciente...</div>
 
@@ -20,5 +21,8 @@
     <dd>{{ paciente.fechaAlta || '-' }}</dd>
   </dl>
   <button type="button" (click)="irMediciones()">Mediciones biométricas</button>
+  <button type="button" (click)="eliminar()" [disabled]="eliminando" class="btn-eliminar">
+    {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
+  </button>
   <button type="button" (click)="volver()">Volver al listado</button>
 </div>

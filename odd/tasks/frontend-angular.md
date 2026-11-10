@@ -25,7 +25,7 @@ Especificación: `docs/constitution.md` §3 (alineación spec-código)
 | T1 | S12 | Generar proyecto Angular 18 (`npm run dev`) | Hecho |
 | T2 | S12 | Configurar servicio HTTP base (`http://localhost:8080/api/v1`) | Hecho |
 | T3 | S1, S2, S3 | Páginas/componentes de pacientes (alta, listar, detalle) | Hecho |
-| T4 | S4 | Acción de soft-delete de paciente | Pendiente |
+| T4 | S4 | Acción de soft-delete de paciente | Hecho |
 | T5 | S5, S6 | Formulario y listado de mediciones biométricas por paciente | Hecho |
 | T6 | S7, S8, S9 | Páginas de revisiones mensuales (listar, crear, descargar PDF) | Pendiente |
 | T7 | S10, S11 | Página de recordatorios pendientes + actualizar feedback | Pendiente |
@@ -48,6 +48,7 @@ Especificación: `docs/constitution.md` §3 (alineación spec-código)
   - `app.routes.ts` (rutas `/pacientes/:id/mediciones` y `/pacientes/:id/mediciones/nueva`)
   - `pages/pacientes-detalle/` (botón "Mediciones biométricas" que navega al listado de mediciones del paciente)
   - `tsc --noEmit -p tsconfig.app.json`: exit 0 (TypeScript compila sin errores).
+- **L7** (2026-11-10): T4 completado. Soft-delete de paciente (`DELETE /api/v1/pacientes/{id}`) conectado desde `PacienteService.eliminar(id): Observable<void>`, con confirmación en `PacientesListComponent` y `PacientesDetalleComponent`, actualización del listado local tras 204 o redirección desde detalle, y diferenciación de errores 404 ("Paciente no encontrado.") frente a otros fallos. `tsc --noEmit -p tsconfig.app.json` exit 0.
 
 ## Dificultad 1 (T5)
 **Problema:** Al navegar al detalle de un paciente no había forma de acceder a sus mediciones biométricas.  

@@ -4,6 +4,8 @@
 
 <div *ngIf="error" class="error">{{ error }}</div>
 
+<div *ngIf="errorEliminar" class="error">{{ errorEliminar }}</div>
+
 <div *ngIf="cargando">Cargando pacientes...</div>
 
 <table *ngIf="!cargando && pacientes.length > 0">
@@ -26,6 +28,14 @@
       <td>{{ paciente.fechaAlta || '-' }}</td>
       <td>
         <button type="button" (click)="verDetalle(paciente.id!)">Ver detalle</button>
+        <button
+          type="button"
+          (click)="eliminar(paciente)"
+          [disabled]="eliminandoId === paciente.id"
+          class="btn-eliminar"
+        >
+          {{ eliminandoId === paciente.id ? 'Eliminando...' : 'Eliminar' }}
+        </button>
       </td>
     </tr>
   </tbody>
