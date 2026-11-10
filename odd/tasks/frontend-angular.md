@@ -70,6 +70,12 @@ Especificación: `docs/constitution.md` §3 (alineación spec-código)
 ## Riesgo (T5)
 Ninguno nuevo: páginas de consulta y creación aisladas sobre mediciones de un paciente existente; no se tocó `opencode.json` ni `spring-petclinic/` (sin permiso).
 
+## Dificultades y soluciones (T4, T6, T7, T8)
+- **T4 (`PacienteService.eliminar`):** El borrador previo usaba `catchError(() => of(false))`, tragando errores 404/500 y eliminando visualmente al paciente en el listado. Se reemplazó por `Observable<void>` directo y manejo de `HttpErrorResponse` en listado y detalle.
+- **T6 (Descarga de PDF y ruta de alta de revisión):** `RevisionService.descargarPdf` usa `{ responseType: 'blob' }` con `URL.createObjectURL` + `URL.revokeObjectURL` para no corromper el binario ni filtrar memoria. Además, se detectó que `RevisionController.java` en el backend combina `@RequestMapping("/api/v1/revisiones")` con `@PostMapping("/pacientes/{id}/revisiones")`, quedando anotado para corregirse mañana en la prueba E2E.
+- **T7 (Edición en línea de feedback):** Se usó un mapa `feedbackPorId: Record<string, string>` para no mutar el objeto de la fila hasta recibir confirmación `200 OK` del `PATCH`.
+- **T8 (`AppComponent` y specs HTTP):** Se agregaron `RouterLink` y `RouterLinkActive` en `AppComponent` y se implementaron 14 tests unitarios con `provideHttpClientTesting()` y `HttpTestingController` (14/14 verdes en `ChromeHeadless`).
+
 ## Risk
 
 Risk: item 5 (delivery/environment — frontend nuevo, dependencias, puerto, CORS contra `http://localhost:8080`). Mitigación: generar proyecto Angular 18 isolado, configurar proxy a backend, tests que pinchen cada endpoint contra la spec, no tocar `opencode.json` ni `spring-petclinic/` (sin permiso).

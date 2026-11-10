@@ -2,13 +2,12 @@
 
 > Ábrelo en VS Code cuando inicies una sesión. Marca lo que vayas haciendo y avisa si cambia el alcance.
 
-## Estado actual (2026-11-02)
+## Estado actual (2026-11-10)
 
 - Rama activa: `feat/recordatorios` (desde `main`)
-- Último commit en main: `689d278` — `feat(revisiones): GET /api/v1/revisiones y GET /api/v1/revisiones/{id} con deltas mensuales`
-- Último commit en feat/recordatorios: `171b197` — `feat(recordatorios): GET /api/v1/recordatorios listar pendientes` (sin commitear aún: PATCH feedback)
-- Suite de tests: **35/35 verdes** (`mvn21.cmd test`)
-- Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd`
+- Suite de tests Backend: **39/39 verdes** (`mvn21.cmd test`)
+- Suite de tests Frontend: **14/14 verdes** (`npx ng test --watch=false --browsers=ChromeHeadless`) y `tsc --noEmit` limpio
+- Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd` y Angular 18 en `frontend/`
 
 ## Hecho (cierra delete-paciente + medicion-biometrica POST + revisiones + recordatorios)
 
@@ -24,11 +23,9 @@
 
 ## Pendiente para el MVP (en orden sugerido)
 
-### Sesiones siguientes (hasta MVP)
-
-### Sesiones siguientes (hasta MVP)
-- [ ] `POST /api/v1/pacientes` — alta de paciente (falta en controller; existe en openapi.yaml)
-- [ ] `GET /api/v1/pacientes/{id}` — obtener paciente por ID (200/404)
+### Sesiones siguientes (hasta MVP — Plan para mañana)
+- [x] `POST /api/v1/pacientes` — alta de paciente (201 Created, 400 sin nombre/email)
+- [x] `GET /api/v1/pacientes/{id}` — obtener paciente por ID (200/404)
 - [x] Generación de PDF de plan de dieta/entrenamiento (OpenPDF) → `GET /api/v1/revisiones/{id}/pdf` (hecho, commiteado en feat/recordatorios)
 - [x] Frontend Angular 18 (`npm run dev`) conectado a los endpoints
   - [x] T1: Generar proyecto Angular 18
@@ -38,10 +35,11 @@
   - [x] T4: Soft-delete de paciente
   - [x] T6: Revisiones mensuales (listar, crear, PDF)
   - [x] T7: Recordatorios pendientes + feedback
-  - [x] T8: Tests que pinchen cada endpoint
+  - [x] T8: Tests que pinchen cada endpoint (14/14 verdes en ChromeHeadless)
   - [x] T9: Documentar en docs/CHANGELOG.md
-- [ ] `.env` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (para RDS/S3)
-- [ ] PR de `feat/recordatorios` a `main` (tu decisión)
+- [ ] **Mañana 1:** Alinear ruta `POST /api/v1/pacientes/{id}/revisiones` en `RevisionController.java` y ejecutar prueba E2E local (`:4200` ↔ `:8080`)
+- [ ] **Mañana 2:** `.env` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (para RDS/S3)
+- [ ] **Mañana 3:** PR de `feat/recordatorios` a `main` (`gh auth login` o desde GitHub)
 
 ## Comandos clave (usar en la terminal integrada de VS Code)
 

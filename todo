@@ -16,12 +16,11 @@
 - [done] Frontend Angular 18 — T7: recordatorios pendientes + feedback (S10, S11)
 - [done] Frontend Angular 18 — T8: tests que pinchan cada endpoint (200/201/404) (S1-S11)
 - [done] Frontend Angular 18 — T9: documentar dificultades y comandos en docs/CHANGELOG.md (S1-S11)
-- [pending] .env con DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3 (RDS/S3)
-- [blocked] PR de feat/recordatorios a main (gh no autenticado; rama ya pusheada con 5 commits: 171b197, e7867a0, 61ac33a, b958430, 8feebdf)
+- [pending] Mañana 1: Alinear ruta POST /api/v1/pacientes/{id}/revisiones en RevisionController.java y verificar flujo E2E (:4200 <-> :8080)
+- [pending] Mañana 2: .env con DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3 (RDS/S3)
+- [blocked] Mañana 3: PR de feat/recordatorios a main (requiere gh auth login o creación manual en GitHub)
 
-=== Cierre de sesión — 2026-11-06 ===
-Estado: rama feat/recordatorios, último commit 8feebdf (docs sincronizadas). Suite 39/39 verdes, BUILD SUCCESS.
-Frontend: proyecto Angular 18 generado en frontend/; T1 y T2 completados (proyecto + servicio HTTP base). TypeScript compila sin errores.
+=== Cierre de sesión — 2026-11-10 ===
+Estado: rama feat/recordatorios. Backend 39/39 verdes (BUILD SUCCESS) y Frontend Angular 18 T1-T9 completados con 14/14 tests unitarios verdes en ChromeHeadless y tsc --noEmit limpio.
 Sin commitear (no tocar, sin permiso): opencode.json y spring-petclinic (son ajenos).
-Bloqueado: PR feat/recordatorios -> main porque `gh` no está autenticado (`gh auth status` falla). Se requiere `gh auth login` (OAuth en navegador) o crear PR manualmente en https://github.com/Alvar0dev/Nutricional-Coach.
-Siguiente paso sugerido: seguir con T3 (páginas de pacientes) del frontend; el PR se desbloquea cuando se autentique gh.
+Siguiente paso para mañana: (1) ajustar ruta POST /api/v1/pacientes/{id}/revisiones en RevisionController.java y correr prueba E2E completa, (2) configurar .env para RDS/S3 y (3) abrir PR de feat/recordatorios a main.

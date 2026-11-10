@@ -15,7 +15,7 @@
 - [x] `GET /api/v1/recordatorios` — listar recordatorios pendientes (200 con lista RecordatorioDTO)
 - [x] `PATCH /api/v1/recordatorios/{id}` — actualizar feedback del paciente (200/404)
 
-### Frontend Angular 18 (`npm run dev`) — EN PROGRESO
+### Frontend Angular 18 (`npm run dev`) — HECHO, verificado (14/14 tests verdes)
 - [x] T1: Generar proyecto Angular 18 (carpeta `frontend/`, routing, CSS, npm)
 - [x] T2: Servicio HTTP base `http://localhost:8080/api/v1` (`core/api.config.ts`, `core/api.service.ts`, `provideHttpClient()` en `app.config.ts`)
 - [x] T3: Páginas de pacientes (alta S1, listar S2, detalle S3)
@@ -26,11 +26,10 @@
 - [x] T8: Tests que pinchen cada endpoint (200/201/404) (S1-S11)
 - [x] T9: Documentar dificultades y comandos en `docs/CHANGELOG.md` (S1-S11)
 
-### Infra / Entorno
-- [ ] `.env` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (RDS/S3)
-
-### Release (BLOQUEADO)
-- [ ] PR de `feat/recordatorios` a `main` — `gh` no autenticado. Rama ya pusheada (5 commits: 171b197, e7867a0, 61ac33a, b958430, 8feebdf). Requiere `gh auth login` o crear PR manualmente en GitHub.
+### Pendientes para mañana (Cierre del MVP)
+- [ ] **1. Alinear ruta `POST /api/v1/pacientes/{id}/revisiones` en `RevisionController.java` y prueba E2E:** En `RevisionController`, el `@RequestMapping("/api/v1/revisiones")` a nivel de clase sumado a `@PostMapping("/pacientes/{id}/revisiones")` mapea `/api/v1/revisiones/pacientes/{id}/revisiones` en vez de `/api/v1/pacientes/{id}/revisiones`. Corregir mapping + test en backend y probar flujo completo levantando backend (`:8080`) y frontend (`:4200`).
+- [ ] **2. Infra / Entorno (`.env`):** Crear `.env` (o plantilla `.env.example`) con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (RDS/S3).
+- [ ] **3. Release / PR (`feat/recordatorios` → `main`):** Autenticar `gh auth login` o abrir el PR en GitHub con todos los commits de backend y frontend.
 
 ## Comandos clave (terminal integrada de VS Code)
 ```

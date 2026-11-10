@@ -187,91 +187,60 @@ Ninguno nuevo: endpoint de consulta de solo lectura; genera un archivo PDF desca
 ## Riesgo
 Ninguno nuevo: páginas de consulta y creación aisladas sobre mediciones de un paciente existente; no se tocó `opencode.json` ni `spring-petclinic/` (sin permiso).
 
-## Día 16 — 2026-11-10: Frontend T4 soft-delete de paciente (S4)
+## Día 16 — 2026-11-10: Cierre completo del Frontend Angular 18 (T4, T6, T7, T8, T9)
 
 ## Logro
-- Implementado T4 del frontend Angular 18 en rama `feat/recordatorios`: baja lógica de paciente (`DELETE /api/v1/pacientes/{id}`, S4) desde el listado y el detalle de pacientes.
-- Archivos modificados:
-  - `frontend/src/app/core/services/paciente.service.ts` (`eliminar(id): Observable<void>` consumiendo `DELETE /api/v1/pacientes/{id}` sin tragar errores HTTP)
-  - `frontend/src/app/pages/pacientes-list/` (botón "Eliminar" con estado deshabilitado durante la petición, confirmación y manejo de 204 vs 404)
-  - `frontend/src/app/pages/pacientes-detalle/` (botón "Eliminar" con confirmación, redirección a `/pacientes` tras 204 y mensaje en caso de 404)
-  - `todo`, `TODO.md`, `PLAN_PENDIENTE_MVP.md`, `odd/tasks/frontend-angular.md` (planificación sincronizada: T4 marcado como hecho, entrada L7)
-- `tsc --noEmit -p tsconfig.app.json`: exit 0 (TypeScript compila sin errores).
+- Completadas todas las tareas restantes del frontend Angular 18 en la rama `feat/recordatorios` en unidades de trabajo atómicas:
+  - **T4 (`45d228b`) — Soft-delete de paciente (S4):** `PacienteService.eliminar(id): Observable<void>` contra `DELETE /api/v1/pacientes/{id}`, botón "Eliminar" con confirmación y manejo diferenciado de `204 No Content` vs `404 Not Found` tanto en `PacientesListComponent` como en `PacientesDetalleComponent`.
+  - **T6 (`7bd6270`) — Revisiones mensuales y descarga PDF (S7, S8, S9):** `RevisionDTO`, `RevisionService` (`listar`, `obtenerPorId`, `crear`, `descargarPdf` con `responseType: 'blob'`), páginas `RevisionesListComponent`, `RevisionesNuevoComponent` (con selección de mediciones del paciente y cálculo automático de `deltaPeso`, `deltaGrasa` y `deltaMusculo`) y `RevisionesDetalleComponent` (detalle y descarga de `application/pdf`).
+  - **T7 (`674b0d6`) — Recordatorios pendientes y feedback (S10, S11):** `RecordatorioDTO`, `RecordatorioFeedbackDTO`, `RecordatorioService` (`listarPendientes`, `actualizarFeedback`) y `RecordatoriosListComponent` con edición en línea por fila.
+  - **T8 y T9 (`ce8a3ce`) — Suite de tests unitarios (S1–S11) y cierre documental:** Specs con `provideHttpClientTesting()` y `HttpTestingController` para `PacienteService`, `MedicionService`, `RevisionService`, `RecordatorioService` y `AppComponent`, además del script `npm run dev` en `frontend/package.json`.
+- Verificación ejecutada:
+  - `cd frontend && node_modules/.bin/tsc --noEmit -p tsconfig.app.json` → `exit 0`
+  - `cd frontend && node_modules/.bin/tsc --noEmit -p tsconfig.spec.json` → `exit 0`
+  - `cd frontend && npx ng test --watch=false --browsers=ChromeHeadless` → **14 of 14 SUCCESS**
 
-## Dificultad 1
-**Problema:** El borrador inicial en `PacienteService.eliminar()` usaba `catchError(() => of(false))`, lo que convertía cualquier error 404 o 500 en una emisión exitosa en `next` y eliminaba visualmente al paciente de la tabla aunque el backend hubiera fallado.  
-**Solución:** Cambiar la firma a `eliminar(id: string): Observable<void>` delegando directamente en `this.http.delete<void>(\`${this.base}/${id}\`)` y manejar `HttpErrorResponse` en el bloque `error` de los componentes (`err.status === 404 ? 'Paciente no encontrado.' : 'No se pudo eliminar el paciente.'`).  
+## Dificultades encontradas y soluciones
 
-**Por qué:** Preserva la semántica HTTP de Angular `HttpClient` y garantiza que la UI solo refleje la baja cuando el backend responde `204 No Content`.
+### Dificultad 1 — Proyecto duplicado y ambiguo en Engram al iniciar la sesión
+**Problema:** `mem_current_project` detectó dos entradas para el mismo directorio (`nutricional-coach` por `git_remote` con 19 observaciones y `nutritional coach` por nombre de carpeta con 2 observaciones antiguas), bloqueando la lectura inicial de memoria.  
+**Solución:** Inspeccionar ambas entradas, confirmar que `nutricional-coach` contenía todo el progreso real hasta Día 15 y eliminar definitivamente el duplicado obsoleto con `engram delete project "nutritional coach" --hard`.  
+**Por qué:** Evita dividir el historial de sesiones entre dos claves distintas y deja `nutricional-coach` como proyecto canónico único.
 
-## Riesgo
- Bajo (mutación controlada con soft-delete en backend y diálogo de confirmación en cliente).
+### Dificultad 2 — `catchError(() => of(false))` ocultaba errores 404/500 en `PacienteService.eliminar()` (T4)
+**Problema:** El borrador previo en `PacienteService.eliminar()` capturaba cualquier error HTTP y emitía `false` por el canal `next`. En `PacientesListComponent`, el callback `next` filtraba al paciente de la tabla sin comprobar el booleano y el bloque `error` nunca se ejecutaba, borrando visualmente al paciente aunque el backend respondiera `404` o `500`.  
+**Solución:** Cambiar la firma a `eliminar(id: string): Observable<void>` delegando directamente en `this.http.delete<void>(\`${this.base}/${id}\`)` y capturar `HttpErrorResponse` en el bloque `error` de los componentes (`err.status === 404 ? 'Paciente no encontrado.' : 'No se pudo eliminar el paciente.'`).  
+**Por qué:** Preserva la semántica estándar de `HttpClient` en Angular: `next` solo se ejecuta cuando el servidor confirma la baja con `204 No Content`.
 
-## Día 16 (cont.) — 2026-11-10: Frontend T6 revisiones mensuales y descarga PDF (S7, S8, S9)
+### Dificultad 3 — Descarga binaria de `application/pdf` y gestión de memoria en el navegador (T6)
+**Problema:** Por defecto `HttpClient.get()` intenta parsear la respuesta como JSON, lo que falla al recibir los bytes de un PDF generado con OpenPDF; además, crear URLs temporales con `URL.createObjectURL` sin revocarlas produce fugas de memoria en la sesión del navegador.  
+**Solución:** Configurar `{ responseType: 'blob' }` en `RevisionService.descargarPdf(id)`, generar una URL efímera con `window.URL.createObjectURL(blob)`, disparar la descarga mediante un elemento `<a download="revision-${id}.pdf">` y liberar inmediatamente el recurso con `window.URL.revokeObjectURL(url)`.  
+**Por qué:** Garantiza que el binario PDF llegue íntegro al disco del usuario y mantiene limpio el heap del navegador.
 
-## Logro
-- Implementado T6 del frontend Angular 18 en rama `feat/recordatorios`: listado, detalle, creación con cálculo de deltas y descarga de PDF de revisiones mensuales.
-- Archivos nuevos/modificados:
-  - `frontend/src/app/core/models/revision.dto.ts` (`RevisionDTO` alineado a `docs/openapi.yaml`)
-  - `frontend/src/app/core/services/revision.service.ts` (`listar()`, `obtenerPorId(id)`, `crear(pacienteId, revision)`, `descargarPdf(id)` con `responseType: 'blob'`)
-  - `frontend/src/app/pages/revisiones-list/` (S7 y S9: listado de revisiones y descarga directa de PDF)
-  - `frontend/src/app/pages/revisiones-nuevo/` (S8: alta de revisión con selección de mediciones del paciente y cálculo automático de `deltaPeso`, `deltaGrasa` y `deltaMusculo`)
-  - `frontend/src/app/pages/revisiones-detalle/` (S7 y S9: vista de detalle de revisión y botón de descarga PDF mediante `URL.createObjectURL(blob)`)
-  - `frontend/src/app/app.routes.ts`, `frontend/src/app/app.component.html`, `frontend/src/app/pages/pacientes-detalle/` (rutas y navegación)
-- `tsc --noEmit -p tsconfig.app.json`: exit 0 (TypeScript compila sin errores).
+### Dificultad 4 — Edición concurrente por fila en la tabla de recordatorios (T7)
+**Problema:** Si el `[(ngModel)]` del input de feedback mutara directamente `rec.feedbackPaciente` en la tabla, un fallo `404` o de red en `PATCH /api/v1/recordatorios/{id}` dejaría la UI mostrando un dato no persistido.  
+**Solución:** Mantener un diccionario auxiliar `feedbackPorId: Record<string, string>` indexado por `id` del recordatorio y reemplazar el registro en `this.recordatorios` únicamente cuando el `PATCH` devuelve `200 OK` con el `RecordatorioDTO` actualizado.  
+**Por qué:** Desacopla el estado del formulario en edición del estado confirmado por el backend.
 
-## Dificultad 1
-**Problema:** Manejar la descarga binaria de `application/pdf` desde Angular sin corromper el archivo ni dejar object URLs colgadas en memoria.  
-**Solución:** Invocar `this.http.get(\`${this.base}/${id}/pdf\`, { responseType: 'blob' })`, generar una URL temporal con `window.URL.createObjectURL(blob)`, disparar un `<a download="revision-${id}.pdf">` programático y liberar la referencia con `window.URL.revokeObjectURL(url)`.  
+### Dificultad 5 — Directivas de navegación en componente standalone `AppComponent` y test inicial roto (T8)
+**Problema:** `app.component.html` utilizaba `routerLink` y `routerLinkActive`, pero `AppComponent` solo importaba `RouterOutlet`; además, el test autogenerado `app.component.spec.ts` buscaba un `<h1>Hello, frontend</h1>` que ya había sido reemplazado por la barra `<nav>`.  
+**Solución:** Añadir `RouterLink` y `RouterLinkActive` a `imports` en `AppComponent` y actualizar `app.component.spec.ts` proveyendo `provideRouter([])` y verificando los enlaces de navegación (`Pacientes`, `Revisiones`, `Recordatorios`).  
+**Por qué:** En Angular 18 standalone, cada directiva usada en el template debe declararse explícitamente en el componente para que el router intercepte la navegación sin recargar la página.
 
-**Por qué:** Evita parsear el PDF como JSON (comportamiento por defecto de `HttpClient`) y libera memoria inmediatamente después de iniciar la descarga en el navegador.
+### Dificultad 6 — Hallazgo en el mapeo de `POST /pacientes/{id}/revisiones` en el backend (para abordar mañana)
+**Problema:** Al revisar `RevisionController.java` (sin modificarlo por la regla de no tocar `src/` sin permiso explícito), se detectó que la clase tiene `@RequestMapping("/api/v1/revisiones")` y el método `crearRevision` tiene `@PostMapping("/pacientes/{id}/revisiones")`, lo que en Spring Boot resuelve a `/api/v1/revisiones/pacientes/{id}/revisiones` en vez de `/api/v1/pacientes/{id}/revisiones` como define `docs/openapi.yaml`.  
+**Solución:** El frontend (`RevisionService.crear`) se construyó respetando estrictamente `docs/openapi.yaml` (`POST /api/v1/pacientes/{id}/revisiones`), y se dejó anotado en los pendientes de mañana ajustar el path en `RevisionController.java` durante la prueba de integración E2E.  
+**Por qué:** Respeta simultáneamente la regla "Spec primero (`docs/openapi.yaml`)" y el límite de no modificar `src/` sin autorización.
 
-## Riesgo
-Ninguno nuevo: operaciones de lectura/creación y descarga binaria sobre endpoints ya verificados en el backend.
-
-## Día 16 (cont.) — 2026-11-10: Frontend T7 recordatorios pendientes y actualización de feedback (S10, S11)
-
-## Logro
-- Implementado T7 del frontend Angular 18 en rama `feat/recordatorios`: listado de recordatorios pendientes (`GET /api/v1/recordatorios`, S10) y actualización en línea del feedback del paciente (`PATCH /api/v1/recordatorios/{id}`, S11).
-- Archivos nuevos/modificados:
-  - `frontend/src/app/core/models/recordatorio.dto.ts` (`RecordatorioDTO` y `RecordatorioFeedbackDTO` alineados a `docs/openapi.yaml`)
-  - `frontend/src/app/core/services/recordatorio.service.ts` (`listarPendientes()` y `actualizarFeedback(id, feedbackPaciente)`)
-  - `frontend/src/app/pages/recordatorios-list/` (`RecordatoriosListComponent` con tabla de recordatorios pendientes, input de feedback por fila y guardado mediante PATCH)
-  - `frontend/src/app/app.routes.ts` y `frontend/src/app/app.component.html` (ruta `/recordatorios` y enlace en barra de navegación)
-- `tsc --noEmit -p tsconfig.app.json`: exit 0 (TypeScript compila sin errores).
-
-## Dificultad 1
-**Problema:** Permitir editar el feedback de cada fila de forma independiente sin mutar el objeto original antes de que el servidor confirme con `200 OK`.  
-**Solución:** Mantener un mapa `feedbackPorId: Record<string, string>` indexado por `recordatorio.id` y reemplazar el elemento en `this.recordatorios` únicamente cuando `PATCH /api/v1/recordatorios/{id}` responde `200 OK`.  
-
-**Por qué:** Evita estados inconsistentes en la tabla si la petición PATCH falla con 404 o error de red.
+## Por qué se construyó así (Decisiones de Arquitectura Frontend)
+1. **Alineación estricta Spec-First (`docs/openapi.yaml`):** Todos los modelos (`PacienteDTO`, `MedicionBiometricaDTO`, `RevisionDTO`, `RecordatorioDTO`, `RecordatorioFeedbackDTO`) reflejan exactamente los nombres y tipos de los schemas OpenAPI antes de escribir la lógica de servicios o vistas.
+2. **Capa de servicios desacoplada por dominio:** Cada agregado del dominio (`PacienteService`, `MedicionService`, `RevisionService`, `RecordatorioService`) encapsula las rutas y verbos HTTP a partir de `API_BASE_URL`, evitando URLs hardcodeadas en los componentes visuales.
+3. **Componentes Standalone de Angular 18 sin dependencias pesadas:** Se utilizaron componentes standalone (`CommonModule`, `FormsModule`) y validación HTML5 nativa (`required`, `min="0"`, `step="0.1"`), logrando un bundle ligero, compilación rápida y cero librerías externas innecesarias.
+4. **Cálculo reactivo de deltas con opción de ajuste manual (T6):** En `RevisionesNuevoComponent`, al seleccionar la medición anterior y la actual de un paciente se calculan automáticamente `deltaPeso`, `deltaGrasa` y `deltaMusculo` (redondeados a 2 decimales), pero los campos siguen siendo editables por si el nutricionista registra una revisión manual.
+5. **Testing determinista con `provideHttpClientTesting()` (T8):** Los tests unitarios de servicios verifican método HTTP, URL exacta, payload enviado, tipo de respuesta (`json` o `blob`) y manejo de códigos `200`, `201`, `204` y `404` mediante `HttpTestingController`, ejecutándose en `0.04s` en `ChromeHeadless` sin depender de que el backend esté levantado.
 
 ## Riesgo
-Ninguno nuevo: edición acotada al campo `feedbackPaciente` definido en el contrato OpenAPI.
-
-## Día 16 (cierre) — 2026-11-10: Frontend T8 tests de endpoints (S1-S11) y T9 documentación completa
-
-## Logro
-- Implementados T8 y T9 del frontend Angular 18 en rama `feat/recordatorios`:
-  - `frontend/src/app/core/services/paciente.service.spec.ts` (S1 POST 201, S2 GET 200, S3 GET 200/404, S4 DELETE 204/404)
-  - `frontend/src/app/core/services/medicion.service.spec.ts` (S5 POST 201, S6 GET 200/404)
-  - `frontend/src/app/core/services/revision.service.spec.ts` (S7 GET 200/404, S8 POST 201, S9 GET PDF blob 200/404)
-  - `frontend/src/app/core/services/recordatorio.service.spec.ts` (S10 GET 200, S11 PATCH 200/404)
-  - `frontend/src/app/app.component.ts` y `frontend/src/app/app.component.spec.ts` (directivas `RouterLink`/`RouterLinkActive` en barra de navegación y test con `provideRouter([])`)
-  - `frontend/package.json` (script `"dev": "ng serve --proxy-config proxy.conf.json"` para cumplir S12 `npm run dev`)
-- Comandos de verificación ejecutados:
-  - `cd frontend && node_modules/.bin/tsc --noEmit -p tsconfig.app.json` → exit 0
-  - `cd frontend && node_modules/.bin/tsc --noEmit -p tsconfig.spec.json` → exit 0
-  - `cd frontend && npx ng test --watch=false --browsers=ChromeHeadless` → 14 of 14 SUCCESS
-
-## Dificultad 1
-**Problema:** `AppComponent` usaba `routerLink` y `routerLinkActive` en `app.component.html`, pero en `app.component.ts` solo importaba `RouterOutlet`, por lo que los enlaces de navegación no se activaban como directivas de Angular Router ni pasaban el test de `AppComponent` sin proveedor de rutas.  
-**Solución:** Importar `RouterLink` y `RouterLinkActive` en `AppComponent` y proveer `provideRouter([])` en `app.component.spec.ts`.  
-
-**Por qué:** En componentes standalone de Angular 18 cada directiva usada en la plantilla debe declararse explícitamente en el arreglo `imports` del componente.
-
-## Riesgo
-Ninguno nuevo: cierre completo de las tareas T1–T9 del frontend Angular 18 sin tocar `opencode.json` ni `spring-petclinic/`.
+Ninguno nuevo en el frontend: las tareas T1–T9 están cerradas y verificadas con `tsc --noEmit` y 14/14 tests en Karma/ChromeHeadless. Queda documentado el ajuste de ruta en `RevisionController.java` para la prueba E2E de mañana.
 
 ## Día 14 — 2026-11-06: Frontend T3 páginas de pacientes (alta, listar, detalle)
 
