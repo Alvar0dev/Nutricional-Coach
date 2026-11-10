@@ -37,7 +37,7 @@
   - [x] T5: Mediciones biométricas por paciente (registro + listado)
   - [x] T4: Soft-delete de paciente
   - [x] T6: Revisiones mensuales (listar, crear, PDF)
-  - [ ] T7: Recordatorios pendientes + feedback
+  - [x] T7: Recordatorios pendientes + feedback
   - [ ] T8: Tests que pinchen cada endpoint
   - [ ] T9: Documentar en docs/CHANGELOG.md
 - [ ] `.env` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (para RDS/S3)

@@ -22,7 +22,7 @@
 - [x] T4: Soft-delete de paciente (S4)
 - [x] T5: Mediciones biométricas por paciente (S5, S6)
 - [x] T6: Revisiones mensuales (listar S7, crear S8, descargar PDF S9)
-- [ ] T7: Recordatorios pendientes + actualizar feedback (S10, S11)
+- [x] T7: Recordatorios pendientes + actualizar feedback (S10, S11)
 - [ ] T8: Tests que pinchen cada endpoint (200/201/404) (S1-S11)
 - [ ] T9: Documentar dificultades y comandos en `docs/CHANGELOG.md` (S1-S11)
 

@@ -28,7 +28,7 @@ Especificación: `docs/constitution.md` §3 (alineación spec-código)
 | T4 | S4 | Acción de soft-delete de paciente | Hecho |
 | T5 | S5, S6 | Formulario y listado de mediciones biométricas por paciente | Hecho |
 | T6 | S7, S8, S9 | Páginas de revisiones mensuales (listar, crear, descargar PDF) | Hecho |
-| T7 | S10, S11 | Página de recordatorios pendientes + actualizar feedback | Pendiente |
+| T7 | S10, S11 | Página de recordatorios pendientes + actualizar feedback | Hecho |
 | T8 | S1-S11 | Tests que pinchen cada endpoint (200/201/404) | Pendiente |
 | T9 | S1-S11 | Documentar dificultades y comandos en `docs/CHANGELOG.md` | Pendiente |
 
@@ -50,6 +50,7 @@ Especificación: `docs/constitution.md` §3 (alineación spec-código)
   - `tsc --noEmit -p tsconfig.app.json`: exit 0 (TypeScript compila sin errores).
 - **L7** (2026-11-10): T4 completado. Soft-delete de paciente (`DELETE /api/v1/pacientes/{id}`) conectado desde `PacienteService.eliminar(id): Observable<void>`, con confirmación en `PacientesListComponent` y `PacientesDetalleComponent`, actualización del listado local tras 204 o redirección desde detalle, y diferenciación de errores 404 ("Paciente no encontrado.") frente a otros fallos. `tsc --noEmit -p tsconfig.app.json` exit 0.
 - **L8** (2026-11-10): T6 completado. Revisiones mensuales implementadas (S7, S8, S9): `RevisionDTO` en `core/models/revision.dto.ts`, `RevisionService` en `core/services/revision.service.ts` (`listar`, `obtenerPorId`, `crear`, `descargarPdf` con `responseType: 'blob'`), páginas `RevisionesListComponent`, `RevisionesNuevoComponent` (con cálculo automático de deltas entre mediciones del paciente) y `RevisionesDetalleComponent` (detalle + descarga de PDF con `URL.createObjectURL` y `<a download>`). `tsc --noEmit -p tsconfig.app.json` exit 0.
+- **L9** (2026-11-10): T7 completado. Recordatorios pendientes y actualización de feedback implementados (S10, S11): `RecordatorioDTO` y `RecordatorioFeedbackDTO` en `core/models/recordatorio.dto.ts`, `RecordatorioService` en `core/services/recordatorio.service.ts` (`listarPendientes` GET `/recordatorios`, `actualizarFeedback` PATCH `/recordatorios/{id}`), y `RecordatoriosListComponent` con edición en línea y manejo de 200/404. `tsc --noEmit -p tsconfig.app.json` exit 0.
 
 ## Dificultad 1 (T5)
 **Problema:** Al navegar al detalle de un paciente no había forma de acceder a sus mediciones biométricas.  

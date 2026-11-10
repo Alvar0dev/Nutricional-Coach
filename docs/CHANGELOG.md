@@ -229,6 +229,26 @@ Ninguno nuevo: páginas de consulta y creación aisladas sobre mediciones de un 
 ## Riesgo
 Ninguno nuevo: operaciones de lectura/creación y descarga binaria sobre endpoints ya verificados en el backend.
 
+## Día 16 (cont.) — 2026-11-10: Frontend T7 recordatorios pendientes y actualización de feedback (S10, S11)
+
+## Logro
+- Implementado T7 del frontend Angular 18 en rama `feat/recordatorios`: listado de recordatorios pendientes (`GET /api/v1/recordatorios`, S10) y actualización en línea del feedback del paciente (`PATCH /api/v1/recordatorios/{id}`, S11).
+- Archivos nuevos/modificados:
+  - `frontend/src/app/core/models/recordatorio.dto.ts` (`RecordatorioDTO` y `RecordatorioFeedbackDTO` alineados a `docs/openapi.yaml`)
+  - `frontend/src/app/core/services/recordatorio.service.ts` (`listarPendientes()` y `actualizarFeedback(id, feedbackPaciente)`)
+  - `frontend/src/app/pages/recordatorios-list/` (`RecordatoriosListComponent` con tabla de recordatorios pendientes, input de feedback por fila y guardado mediante PATCH)
+  - `frontend/src/app/app.routes.ts` y `frontend/src/app/app.component.html` (ruta `/recordatorios` y enlace en barra de navegación)
+- `tsc --noEmit -p tsconfig.app.json`: exit 0 (TypeScript compila sin errores).
+
+## Dificultad 1
+**Problema:** Permitir editar el feedback de cada fila de forma independiente sin mutar el objeto original antes de que el servidor confirme con `200 OK`.  
+**Solución:** Mantener un mapa `feedbackPorId: Record<string, string>` indexado por `recordatorio.id` y reemplazar el elemento en `this.recordatorios` únicamente cuando `PATCH /api/v1/recordatorios/{id}` responde `200 OK`.  
+
+**Por qué:** Evita estados inconsistentes en la tabla si la petición PATCH falla con 404 o error de red.
+
+## Riesgo
+Ninguno nuevo: edición acotada al campo `feedbackPaciente` definido en el contrato OpenAPI.
+
 ## Día 14 — 2026-11-06: Frontend T3 páginas de pacientes (alta, listar, detalle)
 
 ## Logro

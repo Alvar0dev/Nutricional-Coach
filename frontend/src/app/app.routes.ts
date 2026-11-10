@@ -8,6 +8,7 @@ import { MedicionNuevoComponent } from './pages/medicion-nuevo/medicion-nuevo.co
 import { RevisionesListComponent } from './pages/revisiones-list/revisiones-list.component';
 import { RevisionesNuevoComponent } from './pages/revisiones-nuevo/revisiones-nuevo.component';
 import { RevisionesDetalleComponent } from './pages/revisiones-detalle/revisiones-detalle.component';
+import { RecordatoriosListComponent } from './pages/recordatorios-list/recordatorios-list.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/pacientes', pathMatch: 'full' },
@@ -19,5 +20,6 @@ export const routes: Routes = [
   { path: 'pacientes/:id/revisiones/nueva', component: RevisionesNuevoComponent },
   { path: 'revisiones', component: RevisionesListComponent },
   { path: 'revisiones/nueva', component: RevisionesNuevoComponent },
-  { path: 'revisiones/:id', component: RevisionesDetalleComponent }
+  { path: 'revisiones/:id', component: RevisionesDetalleComponent },
+  { path: 'recordatorios', component: RecordatoriosListComponent }
 ];
