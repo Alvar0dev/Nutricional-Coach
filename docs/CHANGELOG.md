@@ -249,6 +249,30 @@ Ninguno nuevo: operaciones de lectura/creación y descarga binaria sobre endpoin
 ## Riesgo
 Ninguno nuevo: edición acotada al campo `feedbackPaciente` definido en el contrato OpenAPI.
 
+## Día 16 (cierre) — 2026-11-10: Frontend T8 tests de endpoints (S1-S11) y T9 documentación completa
+
+## Logro
+- Implementados T8 y T9 del frontend Angular 18 en rama `feat/recordatorios`:
+  - `frontend/src/app/core/services/paciente.service.spec.ts` (S1 POST 201, S2 GET 200, S3 GET 200/404, S4 DELETE 204/404)
+  - `frontend/src/app/core/services/medicion.service.spec.ts` (S5 POST 201, S6 GET 200/404)
+  - `frontend/src/app/core/services/revision.service.spec.ts` (S7 GET 200/404, S8 POST 201, S9 GET PDF blob 200/404)
+  - `frontend/src/app/core/services/recordatorio.service.spec.ts` (S10 GET 200, S11 PATCH 200/404)
+  - `frontend/src/app/app.component.ts` y `frontend/src/app/app.component.spec.ts` (directivas `RouterLink`/`RouterLinkActive` en barra de navegación y test con `provideRouter([])`)
+  - `frontend/package.json` (script `"dev": "ng serve --proxy-config proxy.conf.json"` para cumplir S12 `npm run dev`)
+- Comandos de verificación ejecutados:
+  - `cd frontend && node_modules/.bin/tsc --noEmit -p tsconfig.app.json` → exit 0
+  - `cd frontend && node_modules/.bin/tsc --noEmit -p tsconfig.spec.json` → exit 0
+  - `cd frontend && npx ng test --watch=false --browsers=ChromeHeadless` → 14 of 14 SUCCESS
+
+## Dificultad 1
+**Problema:** `AppComponent` usaba `routerLink` y `routerLinkActive` en `app.component.html`, pero en `app.component.ts` solo importaba `RouterOutlet`, por lo que los enlaces de navegación no se activaban como directivas de Angular Router ni pasaban el test de `AppComponent` sin proveedor de rutas.  
+**Solución:** Importar `RouterLink` y `RouterLinkActive` en `AppComponent` y proveer `provideRouter([])` en `app.component.spec.ts`.  
+
+**Por qué:** En componentes standalone de Angular 18 cada directiva usada en la plantilla debe declararse explícitamente en el arreglo `imports` del componente.
+
+## Riesgo
+Ninguno nuevo: cierre completo de las tareas T1–T9 del frontend Angular 18 sin tocar `opencode.json` ni `spring-petclinic/`.
+
 ## Día 14 — 2026-11-06: Frontend T3 páginas de pacientes (alta, listar, detalle)
 
 ## Logro
