@@ -282,3 +282,41 @@ Ninguno nuevo en el frontend: las tareas T1–T9 están cerradas y verificadas c
 
 ## Riesgo
 Ninguno nuevo: páginas de consulta y creación aisladas sobre pacientes; no se tocó `opencode.json` ni `spring-petclinic/` (sin permiso). El proxy solo afecta al entorno de desarrollo local del frontend.
+
+## Día 17 — 2026-11-12: Alineación de ruta `POST /api/v1/pacientes/{id}/revisiones` y CORS (`:4200`) en Backend
+
+## Logro
+- Corregido el mapeo HTTP en `RevisionController.java` para que el alta de revisiones mensuales responda en `POST /api/v1/pacientes/{id}/revisiones` (tal como definen `docs/openapi.yaml` y `RevisionService.crear` en el frontend Angular 18), manteniendo intactas las rutas `GET /api/v1/revisiones`, `GET /api/v1/revisiones/{id}` y `GET /api/v1/revisiones/{id}/pdf`.
+- Habilitado CORS declarativo `@CrossOrigin(origins = "http://localhost:4200")` en los 4 controladores REST del backend:
+  - `src/main/java/com/nutricionalcoach/controller/RevisionController.java`
+  - `src/main/java/com/nutricionalcoach/controller/PacienteController.java`
+  - `src/main/java/com/nutricionalcoach/controller/MedicionBiometricaController.java`
+  - `src/main/java/com/nutricionalcoach/controller/RecordatorioController.java`
+- Añadido test de integración HTTP en `src/test/java/com/nutricionalcoach/controller/RevisionControllerTest.java` (`rutasHttpYCors_alineadasConOpenApi`) usando `MockMvcBuilders.standaloneSetup`:
+  - **RED observado:** `POST /api/v1/pacientes/paciente-1/revisiones` devolvía `404 Not Found` antes del cambio (`No mapping for POST /api/v1/pacientes/paciente-1/revisiones`).
+  - **GREEN observado:** `/c/Users/alvar/bin/mvn21.cmd test` pasó **40/40 tests verdes** (`BUILD SUCCESS`), verificando `201 Created`, header `Location: http://localhost/api/v1/pacientes/paciente-1/revisiones/rev-1`, las tres rutas `GET` de revisiones y el header `Access-Control-Allow-Origin: http://localhost:4200`.
+
+## Dificultades encontradas y soluciones
+
+### Dificultad 1 — Falso positivo de los tests unitarios previos frente al enrutamiento HTTP real
+**Problema:** Los tests existentes en `RevisionControllerTest` invocaban directamente los métodos Java (`controller.crearRevision("paciente-1", entrada)`) sin pasar por el `DispatcherServlet` de Spring MVC. Por eso la suite daba 39/39 en verde aunque las anotaciones `@RequestMapping("/api/v1/revisiones")` (clase) + `@PostMapping("/pacientes/{id}/revisiones")` (método) concatenaban `/api/v1/revisiones/pacientes/{id}/revisiones` y devolvían `404` en la ruta contractual `/api/v1/pacientes/{id}/revisiones`.  
+**Solución:** Incorporar `MockMvcBuilders.standaloneSetup(new RevisionController(service)).build()` en `RevisionControllerTest` para ejercitar las rutas reales a través del `TestDispatcherServlet`.  
+**Por qué:** Solo pasando por el motor de mapeo de Spring MVC se verifica de forma determinista el contrato HTTP público (URLs, verbos, códigos de estado y cabeceras).
+
+### Dificultad 2 — Peticiones preflight `OPTIONS` en `MockMvcBuilders.standaloneSetup`
+**Problema:** Al incluir una petición `options("/api/v1/pacientes/paciente-1/revisiones")` con `Access-Control-Request-Method: POST` dentro de `MockMvcBuilders.standaloneSetup`, el test falló con `ServletException: No adapter for handler [AbstractHandlerMapping$PreFlightHttpRequestHandler]`.  
+**Solución:** Verificar la política CORS enviando la cabecera `Origin: http://localhost:4200` directamente sobre las peticiones `POST` y `GET` reales al controlador y comprobando que Spring inyecta `Access-Control-Allow-Origin: http://localhost:4200` en la respuesta.  
+**Por qué:** La configuración ligera de `standaloneSetup` registra `RequestMappingHandlerAdapter` para métodos `@RequestMapping`, donde el `CorsInterceptor` evalúa `@CrossOrigin` e inyecta los headers CORS sin requerir el `HttpRequestHandlerAdapter` adicional del contexto web completo.
+
+### Dificultad 3 — Bloqueo de configuración en Revisión Nativa (RDD)
+**Problema:** Al cerrar la implementación y ejecutar el flujo de revisión nativa (`gentle_review` con linaje `review-c9fcbac37591d76a`), el árbol fue clasificado como `high_risk` por la presencia de cambios previos no commiteados en `opencode.json` (`process_boundary`), y `gentle_review_capture_group` se detuvo con `pi-host-relay-transport-failure` porque la clave `review-readability` no tiene modelo asignado en `C:\Users\alvar\.gentle-shell\gentle-ai\models.json`.  
+**Solución:** Se respetó la regla `automatic_retry: false` (bloqueo de categoría `configuration`, actor `user`) documentando el estado exacto del linaje sin forzar reintentos ni tocar `opencode.json`.  
+**Por qué:** El arnés prohíbe reintentar capturas bloqueadas por configuración de usuario o modificar archivos fuera del alcance autorizado.
+
+## Por qué se construyó así (Decisiones de Arquitectura Backend)
+1. **Raíz común `@RequestMapping("/api/v1")` en `RevisionController`:** Dado que el controlador gestiona tanto la colección `/api/v1/revisiones` (`GET /revisiones`, `GET /revisiones/{id}`, `GET /revisiones/{id}/pdf`) como el sub-recurso anidado bajo paciente (`POST /api/v1/pacientes/{id}/revisiones`), mover el prefijo de clase a `/api/v1` y explicitar los sub-paths en cada método alinea el 100% de los endpoints con `docs/openapi.yaml` manteniendo toda la cohesión del caso de uso en un único controlador.
+2. **CORS declarativo (`@CrossOrigin(origins = "http://localhost:4200")`) en los 4 controladores REST:** Como el repositorio aún no define una clase `@SpringBootApplication` ni un paquete de `@Configuration` global, declarar `@CrossOrigin(origins = "http://localhost:4200")` directamente en `PacienteController`, `MedicionBiometricaController`, `RevisionController` y `RecordatorioController` garantiza que la política CORS viaje junto a cada controlador, sea comprobable en tests unitarios con `standaloneSetup` y limite el acceso exclusivamente al origen local de Angular (`http://localhost:4200`).
+3. **Test de contrato HTTP rápido y sin base de datos:** Usar `MockMvcBuilders.standaloneSetup` permite validar rutas y CORS en ~0.45 segundos dentro de `mvn21.cmd test` sin levantar JPA ni base de datos en memoria.
+
+## Riesgo
+Ninguno: las rutas `GET` existentes de revisiones mantienen exactamente su URL y comportamiento (comprobado en `rutasHttpYCors_alineadasConOpenApi`), y la suite completa sube de 39/39 a **40/40 tests en verde**.

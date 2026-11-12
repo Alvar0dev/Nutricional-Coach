@@ -16,11 +16,12 @@
 - [done] Frontend Angular 18 — T7: recordatorios pendientes + feedback (S10, S11)
 - [done] Frontend Angular 18 — T8: tests que pinchan cada endpoint (200/201/404) (S1-S11)
 - [done] Frontend Angular 18 — T9: documentar dificultades y comandos en docs/CHANGELOG.md (S1-S11)
-- [pending] Mañana 1: Alinear ruta POST /api/v1/pacientes/{id}/revisiones en RevisionController.java y verificar flujo E2E (:4200 <-> :8080)
-- [pending] Mañana 2: .env con DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3 (RDS/S3)
+- [done] Backend: Alinear ruta POST /api/v1/pacientes/{id}/revisiones en RevisionController.java, habilitar @CrossOrigin(origins = "http://localhost:4200") en los 4 controladores y añadir test MockMvc (suite 40/40 verdes)
+- [pending] Mañana 1: Prueba de integración E2E local (:4200 <-> :8080) levantando backend y frontend
+- [pending] Mañana 2: .env y .env.example con DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3 (RDS/S3)
 - [blocked] Mañana 3: PR de feat/recordatorios a main (requiere gh auth login o creación manual en GitHub)
 
-=== Cierre de sesión — 2026-11-10 ===
-Estado: rama feat/recordatorios. Backend 39/39 verdes (BUILD SUCCESS) y Frontend Angular 18 T1-T9 completados con 14/14 tests unitarios verdes en ChromeHeadless y tsc --noEmit limpio.
+=== Cierre de sesión — 2026-11-12 ===
+Estado: rama feat/recordatorios. Backend 40/40 verdes (BUILD SUCCESS, incluye test MockMvc de rutas y CORS) y Frontend Angular 18 T1-T9 con 14/14 tests unitarios verdes en ChromeHeadless y tsc --noEmit limpio.
 Sin commitear (no tocar, sin permiso): opencode.json y spring-petclinic (son ajenos).
-Siguiente paso para mañana: (1) ajustar ruta POST /api/v1/pacientes/{id}/revisiones en RevisionController.java y correr prueba E2E completa, (2) configurar .env para RDS/S3 y (3) abrir PR de feat/recordatorios a main.
+Siguiente paso para mañana: (1) prueba de integración E2E completa (:4200 <-> :8080), (2) configurar .env/.env.example para RDS/S3 y (3) abrir PR de feat/recordatorios a main.

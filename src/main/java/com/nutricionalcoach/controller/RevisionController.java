@@ -5,6 +5,7 @@ import com.nutricionalcoach.service.RevisionService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,8 @@ import java.util.List;
  * y GET /api/v1/revisiones + GET /api/v1/revisiones/{id} (listar y obtener por ID).
  */
 @RestController
-@RequestMapping("/api/v1/revisiones")
+@RequestMapping("/api/v1")
+@CrossOrigin(origins = "http://localhost:4200")
 public class RevisionController {
 
     private final RevisionService revisionService;
@@ -36,7 +38,7 @@ public class RevisionController {
      *
      * @return 200 OK con la lista de RevisionDTO
      */
-    @GetMapping
+    @GetMapping("/revisiones")
     public ResponseEntity<List<RevisionDTO>> listarRevisiones() {
         List<RevisionDTO> revisiones = revisionService.listarRevisiones();
         return ResponseEntity.ok(revisiones);
@@ -48,7 +50,7 @@ public class RevisionController {
      * @param id UUID de la revisión
      * @return 200 OK con la revisión, 404 Not Found si no existe
      */
-    @GetMapping("/{id}")
+    @GetMapping("/revisiones/{id}")
     public ResponseEntity<RevisionDTO> obtenerRevisionPorId(@PathVariable String id) {
         RevisionDTO revision = revisionService.obtenerRevisionPorId(id);
         if (revision == null) {
@@ -80,7 +82,7 @@ public class RevisionController {
      * @param id UUID de la revisión
      * @return 200 OK con el PDF como application/pdf, 404 si no existe
      */
-    @GetMapping(value = "/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @GetMapping(value = "/revisiones/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> descargarPdf(@PathVariable String id) {
         byte[] pdf = revisionService.generarPdfRevision(id);
         if (pdf == null) {
