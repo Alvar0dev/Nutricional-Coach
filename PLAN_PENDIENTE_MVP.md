@@ -2,9 +2,10 @@
 
 > Ábrelo en VS Code cuando inicies una sesión. Marca lo que vayas haciendo y avisa si cambia el alcance.
 
-## Estado actual (2026-11-12)
+## Estado actual (2026-11-13)
 
-- Rama activa: `feat/recordatorios` (desde `main`)
+- Rama activa: `feat/springboot-entrypoint-h2` (desde `main` actualizado tras merge de PR #1)
+- MVP: **Mergeado en `main`** (commit `462393a`, PR #1 en GitHub)
 - Suite de tests Backend: **40/40 verdes** (`mvn21.cmd test`)
 - Suite de tests Frontend: **14/14 verdes** (`npx ng test --watch=false --browsers=ChromeHeadless`) y `tsc --noEmit` limpio
 - Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd` y Angular 18 en `frontend/`
@@ -38,9 +39,10 @@
   - [x] T8: Tests que pinchen cada endpoint (14/14 verdes en ChromeHeadless)
   - [x] T9: Documentar en docs/CHANGELOG.md
 - [x] Alinear ruta `POST /api/v1/pacientes/{id}/revisiones` en `RevisionController.java`, habilitar `@CrossOrigin(origins = "http://localhost:4200")` en los 4 controladores REST y verificar con `MockMvc` (`40/40` tests verdes)
-- [ ] **Mañana 1:** Ejecutar prueba de integración E2E local levantando backend (`:8080`) y frontend (`:4200`) (verificando clase `@SpringBootApplication` y datasource local para arranque en vivo)
-- [ ] **Mañana 2:** `.env` y `.env.example` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (para RDS/S3)
-- [ ] **Mañana 3:** PR de `feat/recordatorios` a `main` (`gh auth login` o desde GitHub)
+- [x] **Release / PR #1:** PR de `feat/recordatorios` a `main` creado y mergeado en GitHub (commit `462393a`, PR #1)
+- [ ] **Mañana 1:** Dependencia H2 en `pom.xml`, clase `@SpringBootApplication` y `application.properties` para arranque en vivo
+- [ ] **Mañana 2:** Ejecutar prueba de integración E2E local levantando backend (`:8080`) y frontend (`:4200`)
+- [ ] **Mañana 3:** `.env` y `.env.example` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (para RDS/S3)
 
 ## Comandos clave (usar en la terminal integrada de VS Code)
 

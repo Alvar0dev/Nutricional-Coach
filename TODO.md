@@ -26,13 +26,22 @@
 - [x] T8: Tests que pinchen cada endpoint (200/201/404) (S1-S11)
 - [x] T9: Documentar dificultades y comandos en `docs/CHANGELOG.md` (S1-S11)
 
-### Hecho hoy (Día 17 — 2026-11-12)
+### Hecho (Día 17 — 2026-11-12)
 - [x] **Alinear ruta `POST /api/v1/pacientes/{id}/revisiones` en `RevisionController.java` y habilitar CORS (`http://localhost:4200`):** Ajustado `@RequestMapping("/api/v1")` en `RevisionController`, añadido `@CrossOrigin(origins = "http://localhost:4200")` en los 4 controladores REST y verificado con `MockMvc` (`40/40` tests verdes).
 
-### Pendientes para mañana (Cierre del MVP)
-- [ ] **1. Punto de entrada `@SpringBootApplication`, configuración JPA/H2 local y prueba E2E (`:4200` ↔ `:8080`):** Verificar/crear la clase principal `@SpringBootApplication` y `application.properties` para levantar el backend en `:8080` (`mvn21.cmd spring-boot:run`) junto al frontend en `:4200` (`npm start`) y probar el flujo completo de negocio en vivo.
-- [ ] **2. Infra / Entorno (`.env`):** Crear `.env` (y plantilla `.env.example`) con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (RDS/S3).
-- [ ] **3. Release / PR (`feat/recordatorios` → `main`):** Autenticar `gh auth login` o abrir el PR en GitHub con todos los commits de backend y frontend.
+### Hecho hoy (Día 18 — 2026-11-13)
+- [x] **Release / PR #1 MVP mergeado en `main`:**
+  - Verificadas suites completas: Backend 40/40 tests verdes (`mvn21.cmd test`) y Frontend 14/14 tests Jasmine/Karma verdes en `ChromeHeadless` con `tsc --noEmit` limpio.
+  - Creado Pull Request #1 en GitHub (`https://github.com/Alvar0dev/Nutricional-Coach/pull/1`) mediante `gh pr create` con token de Git Credential Manager.
+  - Pull Request #1 mergeado en `main` en GitHub (commit `462393a`).
+  - Sincronizado `main` local (`git pull origin main`, fast-forward de 16 commits).
+  - Creada rama aislada de trabajo `feat/springboot-entrypoint-h2` para el arranque local.
+  - Diagnosticada necesidad de `com.h2database:h2` en `pom.xml`, `@SpringBootApplication` y `application.properties`.
+
+### Pendientes para mañana (Puesta en marcha y E2E)
+- [ ] **1. Dependencia H2, punto de entrada `@SpringBootApplication` y `application.properties`:** Agregar `com.h2database:h2` a `pom.xml`, crear `com.nutricionalcoach.NutricionalCoachApplication` y configurar `src/main/resources/application.properties` con base en memoria `jdbc:h2:mem:nutricionaldb`, consola web `/h2-console` y `hibernate.ddl-auto=update`.
+- [ ] **2. Prueba E2E en vivo (`:4200` ↔ `:8080`):** Levantar backend (`mvn21.cmd spring-boot:run`) y frontend (`npm start`) y validar el flujo de negocio completo desde el navegador.
+- [ ] **3. Infra / Entorno (`.env`):** Crear `.env` y plantilla `.env.example` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (RDS/S3).
 
 ## Comandos clave (terminal integrada de VS Code)
 ```
