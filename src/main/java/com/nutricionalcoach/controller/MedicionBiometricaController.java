@@ -3,6 +3,7 @@ package com.nutricionalcoach.controller;
 import com.nutricionalcoach.dto.MedicionBiometricaDTO;
 import com.nutricionalcoach.service.MedicionBiometricaService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/pacientes/{id}/mediciones")
+@CrossOrigin(origins = "http://localhost:4200")
 public class MedicionBiometricaController {
 
     private final MedicionBiometricaService medicionService;

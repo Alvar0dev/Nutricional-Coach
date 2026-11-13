@@ -1,0 +1,48 @@
+<h2>Recordatorios pendientes</h2>
+
+<div *ngIf="error" class="error">{{ error }}</div>
+<div *ngIf="errorFeedback" class="error">{{ errorFeedback }}</div>
+<div *ngIf="exitoFeedback" class="exito">{{ exitoFeedback }}</div>
+
+<div *ngIf="cargando">Cargando recordatorios...</div>
+
+<table *ngIf="!cargando && recordatorios.length > 0">
+  <thead>
+    <tr>
+      <th>Fecha programada</th>
+      <th>Paciente ID</th>
+      <th>Tipo</th>
+      <th>Estado</th>
+      <th>Feedback del paciente</th>
+      <th>Acción</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let rec of recordatorios">
+      <td>{{ rec.fechaProgramada || '-' }}</td>
+      <td>{{ rec.pacienteId }}</td>
+      <td>{{ rec.tipo || '-' }}</td>
+      <td>{{ rec.estado || 'PENDIENTE' }}</td>
+      <td>
+        <input
+          type="text"
+          [(ngModel)]="feedbackPorId[rec.id!]"
+          placeholder="Escribir feedback del paciente..."
+        />
+      </td>
+      <td>
+        <button
+          type="button"
+          (click)="guardarFeedback(rec)"
+          [disabled]="guardandoId === rec.id"
+        >
+          {{ guardandoId === rec.id ? 'Guardando...' : 'Guardar feedback' }}
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="!cargando && !error && recordatorios.length === 0">
+  No hay recordatorios pendientes.
+</div>

@@ -19,7 +19,8 @@ S3: "Todo cambio debe tener test que pase" — ver `docs/constitution.md` §4, `
 |----|-----------|-------|--------|--------|
 | T1 | S1 | inline | done | `7513c36` feat(pacientes): listar pacientes activos con GET /api/v1/pacientes |
 | T2 | S1, S2 | inline | done | `29161e0` Dia 8 - T2: GET /api/v1/pacientes/{id}/mediciones |
-| T3 | S3 | inline | pending | Documentar inmutabilidad en `docs/CHANGELOG.md` |
+| T3 | S3 | inline | done | `d9b02c6` feat: agregar GET /api/v1/pacientes/{id} y documentar T3 inmutabilidad |
+| T4 | S2 | inline | done | `171b197` feat(recordatorios): GET /api/v1/recordatorios listar pendientes |
 
 ## Log
 

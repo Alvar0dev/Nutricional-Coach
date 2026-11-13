@@ -1,0 +1,38 @@
+<h2>Detalle de la revisión mensual</h2>
+
+<div *ngIf="error" class="error">{{ error }}</div>
+<div *ngIf="errorPdf" class="error">{{ errorPdf }}</div>
+
+<div *ngIf="cargando && !revision">Cargando revisión...</div>
+
+<div *ngIf="revision && !error">
+  <dl>
+    <dt>ID</dt>
+    <dd>{{ revision.id }}</dd>
+    <dt>ID Paciente</dt>
+    <dd>{{ revision.pacienteId }}</dd>
+    <dt>Fecha de revisión</dt>
+    <dd>{{ revision.fechaRevision || '-' }}</dd>
+    <dt>Medición anterior</dt>
+    <dd>{{ revision.medicionAnteriorId || '-' }}</dd>
+    <dt>Medición actual</dt>
+    <dd>{{ revision.medicionActualId || '-' }}</dd>
+    <dt>Delta peso (kg)</dt>
+    <dd>{{ revision.deltaPeso ?? '-' }}</dd>
+    <dt>Delta grasa corporal (%)</dt>
+    <dd>{{ revision.deltaGrasa ?? '-' }}</dd>
+    <dt>Delta masa muscular (kg)</dt>
+    <dd>{{ revision.deltaMusculo ?? '-' }}</dd>
+    <dt>Ajustes de dieta</dt>
+    <dd>{{ revision.ajustesDieta || '-' }}</dd>
+    <dt>Ajustes de entrenamiento</dt>
+    <dd>{{ revision.ajustesEntreno || '-' }}</dd>
+    <dt>Comentarios de ajuste</dt>
+    <dd>{{ revision.comentariosAjuste || '-' }}</dd>
+  </dl>
+
+  <button type="button" (click)="descargarPdf()" [disabled]="descargandoPdf">
+    {{ descargandoPdf ? 'Descargando PDF...' : 'Descargar PDF' }}
+  </button>
+  <button type="button" (click)="volver()">Volver al listado</button>
+</div>

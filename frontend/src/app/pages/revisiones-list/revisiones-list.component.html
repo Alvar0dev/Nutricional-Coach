@@ -1,0 +1,46 @@
+<h2>Revisiones mensuales</h2>
+
+<button type="button" (click)="irNueva()">Nueva revisión</button>
+
+<div *ngIf="error" class="error">{{ error }}</div>
+<div *ngIf="errorPdf" class="error">{{ errorPdf }}</div>
+
+<div *ngIf="cargando">Cargando revisiones...</div>
+
+<table *ngIf="!cargando && revisiones.length > 0">
+  <thead>
+    <tr>
+      <th>Fecha</th>
+      <th>Paciente ID</th>
+      <th>Delta peso (kg)</th>
+      <th>Delta grasa (%)</th>
+      <th>Delta músculo (kg)</th>
+      <th>Ajustes dieta</th>
+      <th>Ajustes entreno</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let rev of revisiones">
+      <td>{{ rev.fechaRevision || '-' }}</td>
+      <td>{{ rev.pacienteId }}</td>
+      <td>{{ rev.deltaPeso ?? '-' }}</td>
+      <td>{{ rev.deltaGrasa ?? '-' }}</td>
+      <td>{{ rev.deltaMusculo ?? '-' }}</td>
+      <td>{{ rev.ajustesDieta || '-' }}</td>
+      <td>{{ rev.ajustesEntreno || '-' }}</td>
+      <td>
+        <button type="button" (click)="verDetalle(rev.id!)">Ver detalle</button>
+        <button
+          type="button"
+          (click)="descargarPdf(rev.id!)"
+          [disabled]="descargandoId === rev.id"
+        >
+          {{ descargandoId === rev.id ? 'Descargando...' : 'Descargar PDF' }}
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="!cargando && !error && revisiones.length === 0">No hay revisiones registradas.</div>

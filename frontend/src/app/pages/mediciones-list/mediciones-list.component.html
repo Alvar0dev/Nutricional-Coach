@@ -1,0 +1,33 @@
+<h2>Mediciones del paciente</h2>
+
+<div *ngIf="error" class="error">{{ error }}</div>
+
+<div *ngIf="cargando && !mediciones.length">Cargando mediciones...</div>
+
+<div *ngIf="!cargando && !error && mediciones.length > 0">
+  <button type="button" (click)="irNuevo()">Nueva medición</button>
+  <button type="button" (click)="volver()">Volver al paciente</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Peso (kg)</th>
+        <th>Grasa (%)</th>
+        <th>Masa muscular (kg)</th>
+        <th>Cintura (cm)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of mediciones">
+        <td>{{ m.fecha }}</td>
+        <td>{{ m.pesoKg }}</td>
+        <td>{{ m.grasaPct }}</td>
+        <td>{{ m.masaMuscularKg ?? '-' }}</td>
+        <td>{{ m.cinturaCm ?? '-' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div *ngIf="!cargando && !error && mediciones.length === 0">No hay mediciones registradas para este paciente.</div>

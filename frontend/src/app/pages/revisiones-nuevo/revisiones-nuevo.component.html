@@ -1,0 +1,156 @@
+<h2>Nueva revisión mensual</h2>
+
+<form (ngSubmit)="guardar()" #f="ngForm">
+  <div class="campo">
+    <label for="pacienteId">ID del paciente *</label>
+    <input
+      id="pacienteId"
+      name="pacienteId"
+      type="text"
+      [(ngModel)]="revision.pacienteId"
+      (blur)="cargarMediciones(revision.pacienteId)"
+      required
+    />
+  </div>
+
+  <div class="campo">
+    <label for="fechaRevision">Fecha de revisión</label>
+    <input
+      id="fechaRevision"
+      name="fechaRevision"
+      type="date"
+      [(ngModel)]="revision.fechaRevision"
+    />
+  </div>
+
+  <div class="campo" *ngIf="mediciones.length > 0">
+    <label for="medicionAnteriorSelect">Seleccionar medición anterior</label>
+    <select
+      id="medicionAnteriorSelect"
+      name="medicionAnteriorSelect"
+      [(ngModel)]="revision.medicionAnteriorId"
+      (change)="recalcularDeltas()"
+    >
+      <option value="">-- Seleccionar --</option>
+      <option *ngFor="let m of mediciones" [value]="m.id">
+        {{ m.fecha }} ({{ m.pesoKg }} kg, {{ m.grasaPct }}% grasa)
+      </option>
+    </select>
+  </div>
+
+  <div class="campo" *ngIf="mediciones.length === 0">
+    <label for="medicionAnteriorId">ID medición anterior</label>
+    <input
+      id="medicionAnteriorId"
+      name="medicionAnteriorId"
+      type="text"
+      [(ngModel)]="revision.medicionAnteriorId"
+    />
+  </div>
+
+  <div class="campo" *ngIf="mediciones.length > 0">
+    <label for="medicionActualSelect">Seleccionar medición actual</label>
+    <select
+      id="medicionActualSelect"
+      name="medicionActualSelect"
+      [(ngModel)]="revision.medicionActualId"
+      (change)="recalcularDeltas()"
+    >
+      <option value="">-- Seleccionar --</option>
+      <option *ngFor="let m of mediciones" [value]="m.id">
+        {{ m.fecha }} ({{ m.pesoKg }} kg, {{ m.grasaPct }}% grasa)
+      </option>
+    </select>
+  </div>
+
+  <div class="campo" *ngIf="mediciones.length === 0">
+    <label for="medicionActualId">ID medición actual</label>
+    <input
+      id="medicionActualId"
+      name="medicionActualId"
+      type="text"
+      [(ngModel)]="revision.medicionActualId"
+    />
+  </div>
+
+  <div class="campo">
+    <label for="deltaPeso">Delta peso (kg)</label>
+    <input
+      id="deltaPeso"
+      name="deltaPeso"
+      type="number"
+      step="0.1"
+      [(ngModel)]="revision.deltaPeso"
+    />
+  </div>
+
+  <div class="campo">
+    <label for="deltaGrasa">Delta grasa corporal (%)</label>
+    <input
+      id="deltaGrasa"
+      name="deltaGrasa"
+      type="number"
+      step="0.1"
+      [(ngModel)]="revision.deltaGrasa"
+    />
+  </div>
+
+  <div class="campo">
+    <label for="deltaMusculo">Delta masa muscular (kg)</label>
+    <input
+      id="deltaMusculo"
+      name="deltaMusculo"
+      type="number"
+      step="0.1"
+      [(ngModel)]="revision.deltaMusculo"
+    />
+  </div>
+
+  <div class="campo">
+    <label for="ajustesDieta">Ajustes de dieta</label>
+    <textarea
+      id="ajustesDieta"
+      name="ajustesDieta"
+      rows="3"
+      [(ngModel)]="revision.ajustesDieta"
+    ></textarea>
+  </div>
+
+  <div class="campo">
+    <label for="ajustesEntreno">Ajustes de entrenamiento</label>
+    <textarea
+      id="ajustesEntreno"
+      name="ajustesEntreno"
+      rows="3"
+      [(ngModel)]="revision.ajustesEntreno"
+    ></textarea>
+  </div>
+
+  <div class="campo">
+    <label for="comentariosAjuste">Comentarios de ajuste</label>
+    <textarea
+      id="comentariosAjuste"
+      name="comentariosAjuste"
+      rows="2"
+      [(ngModel)]="revision.comentariosAjuste"
+    ></textarea>
+  </div>
+
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <button type="submit" [disabled]="cargando">
+    {{ cargando ? 'Guardando...' : 'Crear revisión' }}
+  </button>
+  <button type="button" (click)="volver()">Cancelar</button>
+</form>
+
+<div *ngIf="exito && revisionCreada" class="exito">
+  <p>{{ exito }}</p>
+  <p>
+    Deltas registrados: Peso {{ revisionCreada.deltaPeso ?? 0 }} kg |
+    Grasa {{ revisionCreada.deltaGrasa ?? 0 }} % |
+    Músculo {{ revisionCreada.deltaMusculo ?? 0 }} kg
+  </p>
+  <button type="button" (click)="verDetalleCreada()">Ver detalle y PDF</button>
+  <button type="button" (click)="volver()">Volver al listado</button>
+</div>

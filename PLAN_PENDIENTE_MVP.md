@@ -2,34 +2,45 @@
 
 > Ábrelo en VS Code cuando inicies una sesión. Marca lo que vayas haciendo y avisa si cambia el alcance.
 
-## Estado actual (2026-10-25)
+## Estado actual (2026-11-12)
 
-- Rama activa: `feat/soft-delete-mediciones-biometricas`
-- Último commit: `7513c36` — `feat(pacientes): listar pacientes activos con GET /api/v1/pacientes`
-- Suite de tests: **13/13 verdes** (`mvn21.cmd test`)
-- Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd`
+- Rama activa: `feat/recordatorios` (desde `main`)
+- Suite de tests Backend: **40/40 verdes** (`mvn21.cmd test`)
+- Suite de tests Frontend: **14/14 verdes** (`npx ng test --watch=false --browsers=ChromeHeadless`) y `tsc --noEmit` limpio
+- Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd` y Angular 18 en `frontend/`
 
-## Hecho (cierra delete-paciente + medicion-biometrica POST)
+## Hecho (cierra delete-paciente + medicion-biometrica POST + revisiones + recordatorios)
 
 - `DELETE /api/v1/pacientes/{id}` — soft-delete (activo=false + fechaBaja), 204/404
-- `GET /api/v1/pacientes` — listar solo activos, paginación `page`/`size`, 200 (hoy)
+- `GET /api/v1/pacientes` — listar solo activos, paginación `page`/`size`, 200
 - `POST /api/v1/pacientes/{id}/mediciones` — 201 Created + Location header, validación pesoKg/grasaPct >= 0
+- `GET /api/v1/pacientes/{id}` — obtener paciente por ID (200 con PacienteDTO, 404 si no existe)
+- `POST /api/v1/pacientes` — alta de paciente (201 Created, Location header, 400 sin nombre/email)
+- `GET /api/v1/revisiones` y `GET /api/v1/revisiones/{id}` — revisiones mensuales (200 con lista, 200 por ID, 404 si no existe)
+- `POST /api/v1/pacientes/{id}/revisiones` — crear revisión mensual con deltas (201 Created + Location header)
+- `GET /api/v1/recordatorios` — listar recordatorios pendientes (200 con lista de RecordatorioDTO, vacía si no hay ninguno)
+- `PATCH /api/v1/recordatorios/{id}` — actualizar feedback del paciente (200 con RecordatorioDTO, 404 si no existe)
 
 ## Pendiente para el MVP (en orden sugerido)
 
-### Sesión siguiente (corta)
-- [ ] **T2 medicion-biometrica:** `GET /api/v1/pacientes/{id}/mediciones` — listar mediciones de un paciente (200, 404 si no existe). Requiere service + controller + tests.
-- [ ] **T3 medicion-biometrica:** Documentar inmutabilidad en `docs/CHANGELOG.md`.
-
-### Sesiones siguientes (hasta MVP)
-- [ ] `POST /api/v1/pacientes` — alta de paciente (falta en controller; existe en openapi.yaml)
-- [ ] `GET /api/v1/pacientes/{id}` — obtener paciente por ID (200/404)
-- [ ] `GET /api/v1/revisiones` y `GET /api/v1/revisiones/{id}` — revisiones mensuales (en openapi.yaml, sin controller)
-- [ ] `GET /api/v1/recordatorios` — alertas mensuales (en openapi.yaml, sin controller)
-- [ ] Generación de PDF de plan de dieta/entrenamiento (OpenPDF)
-- [ ] Frontend Angular 18 (`npm run dev`) conectado a los endpoints
-- [ ] `.env` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (para RDS/S3)
-- [ ] PR de `feat/soft-delete-mediciones-biometricas` a `main` (tu decisión)
+### Sesiones siguientes (hasta MVP — Plan para mañana)
+- [x] `POST /api/v1/pacientes` — alta de paciente (201 Created, 400 sin nombre/email)
+- [x] `GET /api/v1/pacientes/{id}` — obtener paciente por ID (200/404)
+- [x] Generación de PDF de plan de dieta/entrenamiento (OpenPDF) → `GET /api/v1/revisiones/{id}/pdf` (hecho, commiteado en feat/recordatorios)
+- [x] Frontend Angular 18 (`npm run dev`) conectado a los endpoints
+  - [x] T1: Generar proyecto Angular 18
+  - [x] T2: Servicio HTTP base
+  - [x] T3: Páginas de pacientes (alta, listar, detalle)
+  - [x] T5: Mediciones biométricas por paciente (registro + listado)
+  - [x] T4: Soft-delete de paciente
+  - [x] T6: Revisiones mensuales (listar, crear, PDF)
+  - [x] T7: Recordatorios pendientes + feedback
+  - [x] T8: Tests que pinchen cada endpoint (14/14 verdes en ChromeHeadless)
+  - [x] T9: Documentar en docs/CHANGELOG.md
+- [x] Alinear ruta `POST /api/v1/pacientes/{id}/revisiones` en `RevisionController.java`, habilitar `@CrossOrigin(origins = "http://localhost:4200")` en los 4 controladores REST y verificar con `MockMvc` (`40/40` tests verdes)
+- [ ] **Mañana 1:** Ejecutar prueba de integración E2E local levantando backend (`:8080`) y frontend (`:4200`) (verificando clase `@SpringBootApplication` y datasource local para arranque en vivo)
+- [ ] **Mañana 2:** `.env` y `.env.example` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (para RDS/S3)
+- [ ] **Mañana 3:** PR de `feat/recordatorios` a `main` (`gh auth login` o desde GitHub)
 
 ## Comandos clave (usar en la terminal integrada de VS Code)
 
@@ -56,4 +67,4 @@ git status --short --branch
 
 ---
 
-Última actualización: sesión del 2026-10-25. Si cambias el plan, edita este archivo y avísame.
+Última actualización: sesión del 2026-11-03. Si cambias el plan, edita este archivo y avísame.

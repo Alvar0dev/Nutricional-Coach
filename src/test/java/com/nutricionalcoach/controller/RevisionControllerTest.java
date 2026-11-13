@@ -4,7 +4,11 @@ import com.nutricionalcoach.dto.RevisionDTO;
 import com.nutricionalcoach.service.RevisionService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -17,6 +21,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class RevisionControllerTest {
 
@@ -109,5 +117,78 @@ class RevisionControllerTest {
         assertThat(respuesta.getHeaders().getLocation()).isNotNull();
         assertThat(respuesta.getHeaders().getLocation().toString()).contains("rev-1");
         verify(service, times(1)).crearRevision(any(RevisionDTO.class));
+    }
+
+    @Test
+    void descargarPdfExistente_retorna200ConPdf() {
+        RevisionService service = mock(RevisionService.class);
+        when(service.generarPdfRevision("rev-1")).thenReturn(new byte[]{1, 2, 3, 4});
+
+        RevisionController controller = new RevisionController(service);
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        ResponseEntity<byte[]> respuesta = controller.descargarPdf("rev-1");
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+        assertThat(respuesta.getBody()).isEqualTo(new byte[]{1, 2, 3, 4});
+        assertThat(respuesta.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PDF);
+        assertThat(respuesta.getHeaders().getContentDisposition()).isNotNull();
+        verify(service, times(1)).generarPdfRevision("rev-1");
+    }
+
+    @Test
+    void descargarPdfInexistente_retorna404() {
+        RevisionService service = mock(RevisionService.class);
+        when(service.generarPdfRevision("rev-999")).thenReturn(null);
+
+        RevisionController controller = new RevisionController(service);
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        ResponseEntity<byte[]> respuesta = controller.descargarPdf("rev-999");
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+        verify(service, times(1)).generarPdfRevision("rev-999");
+    }
+
+    @Test
+    void rutasHttpYCors_alineadasConOpenApi() throws Exception {
+        RevisionService service = mock(RevisionService.class);
+        RevisionDTO salida = new RevisionDTO(
+                "rev-1", "paciente-1", "med-1", "med-2",
+                -1.5, -0.5, 0.5, "ajuste", "más proteína", "más cardio",
+                null, LocalDate.of(2024, 7, 1));
+        when(service.crearRevision(any(RevisionDTO.class))).thenReturn(salida);
+        when(service.listarRevisiones()).thenReturn(List.of(salida));
+        when(service.obtenerRevisionPorId("rev-1")).thenReturn(salida);
+        when(service.generarPdfRevision("rev-1")).thenReturn(new byte[]{1, 2, 3, 4});
+
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new RevisionController(service)).build();
+
+        mockMvc.perform(post("/api/v1/pacientes/paciente-1/revisiones")
+                        .header(HttpHeaders.ORIGIN, "http://localhost:4200")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"pacienteId\":\"paciente-1\",\"medicionAnteriorId\":\"med-1\",\"medicionActualId\":\"med-2\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200"))
+                .andExpect(header().string(HttpHeaders.LOCATION, "http://localhost/api/v1/pacientes/paciente-1/revisiones/rev-1"));
+
+        mockMvc.perform(get("/api/v1/revisiones")
+                        .header(HttpHeaders.ORIGIN, "http://localhost:4200"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200"));
+
+        mockMvc.perform(get("/api/v1/revisiones/rev-1")
+                        .header(HttpHeaders.ORIGIN, "http://localhost:4200"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200"));
+
+        mockMvc.perform(get("/api/v1/revisiones/rev-1/pdf")
+                        .header(HttpHeaders.ORIGIN, "http://localhost:4200"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200"));
     }
 }

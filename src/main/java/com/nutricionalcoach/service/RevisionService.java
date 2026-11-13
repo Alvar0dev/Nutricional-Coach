@@ -34,4 +34,12 @@ public interface RevisionService {
      * @return el RevisionDTO si existe, null si no se encuentra
      */
     RevisionDTO obtenerRevisionPorId(String id);
+
+    /**
+     * Genera el PDF del plan de dieta y entreno de una revisión.
+     *
+     * @param id UUID de la revisión
+     * @return los bytes del PDF, o null si la revisión no existe
+     */
+    byte[] generarPdfRevision(String id);
 }

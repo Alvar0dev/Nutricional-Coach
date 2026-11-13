@@ -4,25 +4,24 @@
 - [done] POST /api/v1/pacientes — alta de paciente (201 Created, Location header, tests 201/400 sin nombre/email; suite 20/20 verdes)
 - [done] GET /api/v1/pacientes/{id} — obtener paciente por ID (200/404; suite 22/22 verdes; commit d9b02c6)
 - [done] GET /api/v1/revisiones y GET /api/v1/revisiones/{id} — revisiones mensuales (suite 32/32 verdes)
-- [pending] GET /api/v1/recordatorios — alertas mensuales
-- [pending] Generación de PDF de plan de dieta/entrenamiento (OpenPDF)
-- [pending] Frontend Angular 18 (npm run dev) conectado a los endpoints
-- [pending] .env con DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3
-- [pending] PR de feat/soft-delete-mediciones-biometricas a main
+- [done] GET /api/v1/recordatorios — alertas mensuales pendientes (200 lista RecordatorioDTO; commit 171b197)
+- [done] PATCH /api/v1/recordatorios/{id} — actualizar feedback del paciente (commit 61ac33a)
+- [done] Generación de PDF de plan de dieta/entrenamiento (OpenPDF) — GET /api/v1/revisiones/{id}/pdf (commit b958430; suite 39/39 verdes)
+- [done] Frontend Angular 18 — T1: generar proyecto (npx @angular/cli@18 new frontend --routing --style=css --skip-git; carpeta frontend/)
+- [done] Frontend Angular 18 — T2: servicio HTTP base (src/app/core/api.config.ts API_BASE_URL=http://localhost:8080/api/v1; src/app/core/api.service.ts ApiService con get/post/patch/delete; app.config.ts con provideHttpClient(); tsc --noEmit limpio)
+- [done] Frontend Angular 18 — T3: páginas de pacientes (alta S1, listar S2, detalle S3)
+- [done] Frontend Angular 18 — T4: soft-delete de paciente (S4)
+- [done] Frontend Angular 18 — T5: mediciones biométricas por paciente (S5, S6)
+- [done] Frontend Angular 18 — T6: revisiones mensuales (listar S7, crear S8, descargar PDF S9)
+- [done] Frontend Angular 18 — T7: recordatorios pendientes + feedback (S10, S11)
+- [done] Frontend Angular 18 — T8: tests que pinchan cada endpoint (200/201/404) (S1-S11)
+- [done] Frontend Angular 18 — T9: documentar dificultades y comandos en docs/CHANGELOG.md (S1-S11)
+- [done] Backend: Alinear ruta POST /api/v1/pacientes/{id}/revisiones en RevisionController.java, habilitar @CrossOrigin(origins = "http://localhost:4200") en los 4 controladores y añadir test MockMvc (suite 40/40 verdes)
+- [pending] Mañana 1: Prueba de integración E2E local (:4200 <-> :8080) levantando backend y frontend
+- [pending] Mañana 2: .env y .env.example con DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3 (RDS/S3)
+- [blocked] Mañana 3: PR de feat/recordatorios a main (requiere gh auth login o creación manual en GitHub)
 
-=== Cierre de sesión — 2026-11-01 ===
-
-Hoy se completaron ambas tareas solicitadas:
-
-- GET /api/v1/pacientes/{id} (200 con PacienteDTO, 404 si no existe): PacienteController.obtenerPacientePorId, PacienteService.obtenerPacientePorId, PacienteServiceImpl (delegación a findById + toDto), 2 tests nuevos (200 id existente, 404 id inexistente).
-- T3 inmutabilidad documentada en docs/CHANGELOG.md (entrada Día 10: soft-delete activo=false + fechaBaja, findByActivoTrue, trazabilidad de mediciones/revisiones).
-
-Suite: 22/22 verdes, BUILD SUCCESS, sin regresiones.
-Commit d9b02c6 pusheado a origin/main (5 archivos, +82/−1).
-Estado git: rama limpia, solo quedan opencode.json y spring-petclinic sin commitear (son ajenos, sin permiso).
-
-Próximos pasos posibles:
-- T2 medicion-biometrica: GET /api/v1/pacientes/{id}/mediciones (verificar estado real en main)
-- GET /api/v1/revisiones y GET /api/v1/revisiones/{id}
-- GET /api/v1/recordatorios
-- Groq: pendiente decisión de usuario (no integrar sin confirmar)
+=== Cierre de sesión — 2026-11-12 ===
+Estado: rama feat/recordatorios. Backend 40/40 verdes (BUILD SUCCESS, incluye test MockMvc de rutas y CORS) y Frontend Angular 18 T1-T9 con 14/14 tests unitarios verdes en ChromeHeadless y tsc --noEmit limpio.
+Sin commitear (no tocar, sin permiso): opencode.json y spring-petclinic (son ajenos).
+Siguiente paso para mañana: (1) prueba de integración E2E completa (:4200 <-> :8080), (2) configurar .env/.env.example para RDS/S3 y (3) abrir PR de feat/recordatorios a main.
