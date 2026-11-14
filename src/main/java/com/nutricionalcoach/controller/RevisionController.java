@@ -70,6 +70,9 @@ public class RevisionController {
     public ResponseEntity<RevisionDTO> crearRevision(
             @PathVariable String id,
             @RequestBody RevisionDTO dto) {
+        if (dto != null && (dto.getPacienteId() == null || dto.getPacienteId().isBlank())) {
+            dto.setPacienteId(id);
+        }
         RevisionDTO creada = revisionService.crearRevision(dto);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{revisionId}").buildAndExpand(creada.getId()).toUri();

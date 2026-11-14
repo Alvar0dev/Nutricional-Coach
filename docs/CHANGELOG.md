@@ -363,3 +363,32 @@ Ninguno: las rutas `GET` existentes de revisiones mantienen exactamente su URL y
 
 ## Riesgo
 Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama `feat/springboot-entrypoint-h2` arranca limpia a partir de ese estado verificado.
+
+---
+
+# Día 19 — 2026-11-14 — Punto de entrada Spring Boot + H2 y Verificación E2E en vivo (`:4200` ↔ `:8080`)
+
+## Cambios realizados
+- **Dependencia H2 y punto de entrada Spring Boot (TODO 1):**
+  - Añadida dependencia `com.h2database:h2` (`scope=runtime`) en `pom.xml`.
+  - Creada la clase principal `@SpringBootApplication` en `src/main/java/com/nutricionalcoach/NutricionalCoachApplication.java`.
+  - Creado `src/main/resources/application.properties` con datasource H2 en memoria (`jdbc:h2:mem:nutricionaldb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`), `spring.jpa.hibernate.ddl-auto=update` y consola web habilitada en `/h2-console`.
+  - Anotados con `@Entity`, `@Table` e `@Id` los modelos de dominio `Paciente`, `MedicionBiometrica`, `Revision` y `Recordatorio` para que Hibernate y Spring Data JPA creen las tablas automáticamente al levantar el contexto real.
+  - Ajustado `RevisionController.crearRevision` para propagar `@PathVariable String id` hacia `dto.setPacienteId(id)` cuando el cliente invoca `POST /api/v1/pacientes/{id}/revisiones` sin duplicar `pacienteId` en el cuerpo JSON.
+  - Creado `src/test/java/com/nutricionalcoach/NutricionalCoachApplicationTest.java` (`@SpringBootTest` + `@AutoConfigureMockMvc`), cubriendo el flujo E2E completo contra H2 y cabeceras CORS `Origin: http://localhost:4200`. Suite backend: **41/41 tests verdes**.
+- **Verificación E2E en vivo (TODO 2):**
+  - Levantados simultáneamente el backend (`mvn21.cmd spring-boot:run` en `:8080`) y el frontend Angular 18 (`npm start` en `:4200`).
+  - Verificados sobre HTTP real:
+    - Frontend Angular en `http://localhost:4200/` (`200 OK`, `<app-root>`).
+    - Consola H2 en `http://localhost:8080/h2-console` (`200 OK`).
+    - Alta y listado de pacientes (`POST /api/v1/pacientes` → `201 Created`, `Access-Control-Allow-Origin: http://localhost:4200`).
+    - Registro y consulta de 2 mediciones biométricas (`POST` y `GET /api/v1/pacientes/{id}/mediciones` → `201`/`200`).
+    - Creación de revisión mensual con cálculo de deltas (`POST /api/v1/pacientes/{id}/revisiones` → `201 Created`) y descarga del plan en PDF con OpenPDF (`GET /api/v1/revisiones/{id}/pdf` → `200 OK`, `application/pdf`, `1115 bytes`).
+    - Consulta de recordatorios pendientes (`GET /api/v1/recordatorios` → `200 OK`) y baja lógica soft-delete (`DELETE /api/v1/pacientes/{id}` → `204 No Content`).
+
+## Dificultades encontradas y cómo se resolvieron
+1. **Entidades JPA sin anotaciones de persistencia en arranque real:** Los tests unitarios previos usaban mocks de Mockito sobre los repositorios, por lo que no requerían `@Entity` ni `@Id`. Al levantar el contexto real con `@SpringBootTest` y H2, Spring Data JPA requería las anotaciones `@Entity`, `@Table` e `@Id` en las cuatro clases del paquete `model`.
+2. **Propagación de `@PathVariable id` en `POST /api/v1/pacientes/{id}/revisiones`:** Durante la prueba E2E contra H2 se detectó que si el cliente enviaba el `id` del paciente únicamente en la ruta URL sin repetir `pacienteId` en el JSON, `RevisionServiceImpl` lanzaba `IllegalArgumentException: El paciente es obligatorio`. Se corrigió en `RevisionController.crearRevision` asignando `dto.setPacienteId(id)` cuando no viene informado en el body.
+
+## Riesgo
+`Risk: item 5 (adds com.h2database:h2 runtime dependency in pom.xml)` — mitigado con `scope=runtime`, suite completa de 41/41 tests en verde y prueba E2E en vivo verificada.

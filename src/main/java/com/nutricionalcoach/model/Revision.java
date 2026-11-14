@@ -1,5 +1,8 @@
 package com.nutricionalcoach.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -7,8 +10,11 @@ import java.util.UUID;
  * Entidad de dominio: revisión mensual de un paciente.
  * Calcula deltas entre dos mediciones biométricas y registra ajustes de dieta/entreno.
  */
+@Entity
+@Table(name = "revisiones")
 public class Revision {
 
+    @Id
     private String id;
     private String pacienteId;
     private String medicionAnteriorId;
