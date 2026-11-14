@@ -1,52 +1,47 @@
 # DEV_RUNBOOK.md — Comandos ejecutables y entornos
 
-Estado: 2026-10-22. Proyecto en fase ODD; build root pendiente.
+Estado: 2026-11-14 (Día 19). Backend Spring Boot 3.4 + H2 y Frontend Angular 18 operativos y verificados E2E.
 
 ## Entorno requerido
 
-- Java 21 (proyecto principal — planeado) / Java 17 (subproyecto `spring-petclinic/` — ver `SETUP.md`)
-- Maven (`mvn`) o Gradle (`gradlew`) — hoy no configurado en raíz; solo `spring-petclinic/gradlew` disponible
-- `.env` (no creado aún): variables requeridas para conectividad futura con RDS y S3. Plantilla mínima: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
-- Docker Compose (`docker-compose.yml` en `spring-petclinic/` — referencia de servicios locales; no es obligatorio para Nutricional-Coach hoy)
+- Java 21 (`C:\Users\alvar\bin\mvn21.cmd` — proyecto principal) / Java 17 (subproyecto `spring-petclinic/` — ver `SETUP.md`)
+- Maven 3.9.9 vía wrapper `C:\Users\alvar\bin\mvn21.cmd` (raíz) y Node.js / npm en `frontend/`
+- `.env` (pendiente para mañana — TODO 1): variables requeridas para conectividad futura con RDS y S3. Plantilla mínima: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
+- Base de datos local por defecto: H2 en memoria (`jdbc:h2:mem:nutricionaldb`), consola disponible en `http://localhost:8080/h2-console`
 
 ## Comandos exactos
 
 ### Compilar / build
 
 ```bash
-# Proyecto principal (cuando se configure build root — pendiente)
-# mvn clean compile
-# mvn spring-boot:run
+# Proyecto principal (Backend Spring Boot 3.4 + Java 21)
+C:\Users\alvar\bin\mvn21.cmd clean compile
 
-# Subproyecto referencia (Java 17 — ver SETUP.md)
-cd spring-petclinic
-.
-/gradlew build
+# Frontend Angular 18
+cd frontend
+npx tsc --noEmit -p tsconfig.app.json
 ```
 
-### Levantar local (cuando el build esté configurado)
+### Levantar local
 
 ```bash
-# Backend (Spring Boot — pendiente configuración raíz)
-# mvn spring-boot:run
-# o con perfil local: java -jar target/*.jar --spring.profiles.active=local
+# Backend en http://localhost:8080 (y consola H2 en http://localhost:8080/h2-console)
+C:\Users\alvar\bin\mvn21.cmd spring-boot:run
 
-# Frontend (Angular 18 — pendiente)
-# npm run dev
+# Frontend Angular 18 en http://localhost:4200
+cd frontend
+npm start
 ```
 
 ### Suite de tests
 
 ```bash
-# Subproyecto existente (Java 17, Gradle Wrapper)
-cd spring-petclinic
-.
-/gradlew test              # suite completa
-./gradlew test -Pdb=hsqldb  # sin base de datos externa
+# Backend — suite completa (41/41 verdes, incluye NutricionalCoachApplicationTest E2E con H2)
+C:\Users\alvar\bin\mvn21.cmd test
 
-# Proyecto principal — tests recientes creados (pending build root)
-# mvn test
-# mvn test -Dtest=PacienteControllerTest
+# Frontend — suite completa en ChromeHeadless (14/14 verdes)
+cd frontend
+npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
 ### Linter / verificación estática

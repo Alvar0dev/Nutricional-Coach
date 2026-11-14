@@ -40,9 +40,11 @@
   - [x] T9: Documentar en docs/CHANGELOG.md
 - [x] Alinear ruta `POST /api/v1/pacientes/{id}/revisiones` en `RevisionController.java`, habilitar `@CrossOrigin(origins = "http://localhost:4200")` en los 4 controladores REST y verificar con `MockMvc` (`40/40` tests verdes)
 - [x] **Release / PR #1:** PR de `feat/recordatorios` a `main` creado y mergeado en GitHub (commit `462393a`, PR #1)
-- [x] **Mañana 1:** Dependencia H2 en `pom.xml`, clase `@SpringBootApplication`, entidades JPA y `application.properties` para arranque en vivo (suite `41/41` verdes)
-- [x] **Mañana 2:** Ejecutar prueba de integración E2E local levantando backend (`:8080`) y frontend (`:4200`)
-- [ ] **Mañana 3:** `.env` y `.env.example` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (para RDS/S3)
+- [x] **Hecho (Día 19):** Dependencia H2 en `pom.xml`, clase `@SpringBootApplication`, entidades JPA y `application.properties` para arranque en vivo (suite `41/41` verdes)
+- [x] **Hecho (Día 19):** Prueba de integración E2E local levantando backend (`:8080`) y frontend (`:4200`) y test `@SpringBootTest` completo
+- [ ] **Mañana 1 (Infra / Entorno Cloud):** Crear `.env` y `.env.example` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` y parametrizar datasource con fallback a H2
+- [ ] **Mañana 2 (Release de rama a `main`):** Crear Pull Request `feat/springboot-entrypoint-h2` → `main`, mergear y sincronizar `main` local
+- [ ] **Mañana 3 (Demo Seed opcional):** `DataInitializer` bajo perfil local para precargar paciente, mediciones, revisión y recordatorio pendiente en `:4200`
 
 ## Comandos clave (usar en la terminal integrada de VS Code)
 

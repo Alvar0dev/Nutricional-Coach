@@ -42,8 +42,10 @@
 - [x] **1. Dependencia H2, punto de entrada `@SpringBootApplication` y `application.properties`:** Agregado `com.h2database:h2` a `pom.xml`, creada `com.nutricionalcoach.NutricionalCoachApplication`, configurado `src/main/resources/application.properties` (`jdbc:h2:mem:nutricionaldb`, `/h2-console`, `ddl-auto=update`), anotadas las 4 entidades JPA (`@Entity`, `@Table`, `@Id`), ajustado `RevisionController.crearRevision` para propagar `@PathVariable id` al DTO cuando no viene en el body, y creado `NutricionalCoachApplicationTest` (suite **41/41 tests verdes**).
 - [x] **2. Prueba E2E en vivo (`:4200` ↔ `:8080`):** Levantados backend (`mvn21.cmd spring-boot:run` en `:8080`) y frontend (`npm start` en `:4200`), validando en vivo H2 Console (`200`), alta y listado de pacientes (`201`/`200` + CORS `:4200`), registro y consulta de mediciones (`201`/`200`), creación de revisión mensual y descarga de PDF OpenPDF (`201`/`200 application/pdf`, `1115 bytes`), recordatorios (`200`) y baja lógica soft-delete (`204`).
 
-### Pendientes (Infraestructura / Cloud)
-- [ ] **3. Infra / Entorno (`.env`):** Crear `.env` y plantilla `.env.example` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (RDS/S3).
+### Pendientes para mañana (Infraestructura Cloud y Entrega a `main`)
+- [ ] **1. Infra / Entorno Cloud (`.env` y `.env.example`):** Crear plantilla `.env.example` (y `.env` local ignorado en git) con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, y parametrizar `application.properties` con valores por defecto hacia H2 local para permitir transición transparente a AWS RDS/S3.
+- [ ] **2. Pull Request y Merge a `main` (`feat/springboot-entrypoint-h2` → `main`):** Abrir PR con el punto de entrada Spring Boot, configuración H2, test E2E y plantilla de entorno Cloud, mergear en `main` y sincronizar el repositorio local.
+- [ ] **3. Datos semilla para Demo (`DataInitializer` opcional en perfil `local`):** Precargar un paciente de ejemplo con mediciones, revisión mensual y un recordatorio `PENDIENTE` al arrancar en local para poder probar visualmente todas las pantallas en `http://localhost:4200` desde el primer segundo.
 
 ## Comandos clave (terminal integrada de VS Code)
 ```
