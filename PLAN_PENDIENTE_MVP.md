@@ -2,10 +2,11 @@
 
 > Ábrelo en VS Code cuando inicies una sesión. Marca lo que vayas haciendo y avisa si cambia el alcance.
 
-## Estado actual (2026-11-12)
+## Estado actual (2026-11-16)
 
-- Rama activa: `feat/recordatorios` (desde `main`)
-- Suite de tests Backend: **40/40 verdes** (`mvn21.cmd test`)
+- Rama activa: `feat/springboot-entrypoint-h2` (desde `main` actualizado tras merge de PR #1)
+- MVP: **Mergeado en `main`** (commit `462393a`, PR #1 en GitHub)
+- Suite de tests Backend: **43/43 verdes** (`mvn21.cmd test`, incluye E2E de contexto H2, placeholders Cloud/H2 y `DataInitializerTest` en perfil `local`)
 - Suite de tests Frontend: **14/14 verdes** (`npx ng test --watch=false --browsers=ChromeHeadless`) y `tsc --noEmit` limpio
 - Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd` y Angular 18 en `frontend/`
 
@@ -38,9 +39,12 @@
   - [x] T8: Tests que pinchen cada endpoint (14/14 verdes en ChromeHeadless)
   - [x] T9: Documentar en docs/CHANGELOG.md
 - [x] Alinear ruta `POST /api/v1/pacientes/{id}/revisiones` en `RevisionController.java`, habilitar `@CrossOrigin(origins = "http://localhost:4200")` en los 4 controladores REST y verificar con `MockMvc` (`40/40` tests verdes)
-- [ ] **Mañana 1:** Ejecutar prueba de integración E2E local levantando backend (`:8080`) y frontend (`:4200`) (verificando clase `@SpringBootApplication` y datasource local para arranque en vivo)
-- [ ] **Mañana 2:** `.env` y `.env.example` con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, credenciales S3 (para RDS/S3)
-- [ ] **Mañana 3:** PR de `feat/recordatorios` a `main` (`gh auth login` o desde GitHub)
+- [x] **Release / PR #1:** PR de `feat/recordatorios` a `main` creado y mergeado en GitHub (commit `462393a`, PR #1)
+- [x] **Hecho (Día 19):** Dependencia H2 en `pom.xml`, clase `@SpringBootApplication`, entidades JPA y `application.properties` para arranque en vivo (suite `41/41` verdes)
+- [x] **Hecho (Día 19):** Prueba de integración E2E local levantando backend (`:8080`) y frontend (`:4200`) y test `@SpringBootTest` completo
+- [x] **Hecho (Día 20):** Infra / Entorno Cloud (`.env.example` versionado y `.env` local gitignored con `DB_URL`, `DB_DRIVER`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_BUCKET`; `application.properties` parametrizado con fallback a H2; test en `NutricionalCoachApplicationTest`, suite **42/42 verdes**)
+- [x] **Hecho (Día 20):** Demo Seed (`DataInitializer` bajo `@Profile("local")` idempotente que precarga paciente `pac-demo-1`, 2 mediciones, revisión `rev-demo-1` con PDF y recordatorio `rec-demo-1` `PENDIENTE`, verificado en `DataInitializerTest`, suite **43/43 verdes**)
+- [x] **Hecho (Día 20):** Release de rama a `main` (`feat/springboot-entrypoint-h2` → `main` vía PR #2 en GitHub, mergeado y sincronizado en `main` local)
 
 ## Comandos clave (usar en la terminal integrada de VS Code)
 

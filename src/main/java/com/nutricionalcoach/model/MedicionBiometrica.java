@@ -1,5 +1,8 @@
 package com.nutricionalcoach.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -7,8 +10,11 @@ import java.util.UUID;
  * Entidad de dominio: medición biométrica.
  * Inmutable una vez creada (no hay PUT ni DELETE en la especificación).
  */
+@Entity
+@Table(name = "mediciones_biometricas")
 public class MedicionBiometrica {
 
+    @Id
     private String id;
     private String pacienteId;
     private LocalDate fecha;

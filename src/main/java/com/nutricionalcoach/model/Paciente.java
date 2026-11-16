@@ -1,5 +1,8 @@
 package com.nutricionalcoach.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -7,8 +10,11 @@ import java.util.UUID;
  * Entidad de dominio: paciente.
  * Usa soft-delete (activo=false + fechaBaja) en lugar de eliminación física.
  */
+@Entity
+@Table(name = "pacientes")
 public class Paciente {
 
+    @Id
     private String id;
     private String nombre;
     private String apellidos;
@@ -26,13 +32,13 @@ public class Paciente {
 
     public Paciente(String id, String nombre, String apellidos, String email,
                     String telefono, String objetivo, LocalDate fechaAlta) {
-        this.id = id;
+        this.id = (id != null && !id.isBlank()) ? id : UUID.randomUUID().toString();
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.email = email;
         this.telefono = telefono;
         this.objetivo = objetivo;
-        this.fechaAlta = fechaAlta;
+        this.fechaAlta = (fechaAlta != null) ? fechaAlta : LocalDate.now();
         this.activo = true;
     }
 
