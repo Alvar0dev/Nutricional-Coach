@@ -422,19 +422,37 @@ Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama
 # Día 20 — 2026-11-16 — Entorno Cloud/H2 (`.env`), `DataInitializer` local y Release a `main`
 
 ## Cambios realizados
-- **Entorno Cloud / H2 parametrizado (TODO 1):**
+- **Entorno Cloud / H2 parametrizado (TODO 1, commit `60b8bc9`):**
   - Creadas la plantilla versionada `.env.example` y `.env` local (ignorado en `.gitignore`) con `DB_URL`, `DB_DRIVER`, `DB_USER`, `DB_PASSWORD`, `JPA_DDL_AUTO`, `JPA_SHOW_SQL`, `H2_CONSOLE_ENABLED`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` y `AWS_S3_BUCKET`.
-  - Parametrizado `src/main/resources/application.properties` con `spring.config.import=optional:file:.env[.properties]` y valores por defecto hacia H2 en memoria (`jdbc:h2:mem:nutricionaldb`).
-  - Añadido test `NutricionalCoachApplicationTest.resolvesCloudEnvironmentPlaceholdersWithH2Fallback` (RED → GREEN).
-- **Datos semilla para demo en perfil `local` (TODO 3):**
-  - Creado `src/main/java/com/nutricionalcoach/config/DataInitializer.java` (`@Component`, `@Profile("local")`) idempotente: precarga `pac-demo-1`, dos mediciones (`med-demo-1`, `med-demo-2`), la revisión `rev-demo-1` (con descarga PDF funcional) y el recordatorio `rec-demo-1` (`PENDIENTE`).
-  - Creado `src/test/java/com/nutricionalcoach/config/DataInitializerTest.java` con `@ActiveProfiles("local")` y base H2 aislada (`jdbc:h2:mem:nutricionaldb_local_seed`). Suite backend completa: **43/43 tests verdes**.
-- **Release a `main` (TODO 2):**
-  - Publicado y mergeado Pull Request de `feat/springboot-entrypoint-h2` hacia `main` en GitHub y sincronizada la rama `main` local.
+  - Parametrizado `src/main/resources/application.properties` con `spring.config.import=optional:file:.env[.properties]` y placeholders `${VAR:default}` con fallback por defecto hacia H2 en memoria (`jdbc:h2:mem:nutricionaldb`).
+  - Añadido test TDD `NutricionalCoachApplicationTest.resolvesCloudEnvironmentPlaceholdersWithH2Fallback` (RED con `aws.region = null` → GREEN `42/42`).
+- **Datos semilla para demo en perfil `local` (TODO 3, commit `5296640`):**
+  - Creado `src/main/java/com/nutricionalcoach/config/DataInitializer.java` (`@Component`, `@Profile("local")`) idempotente (`pacienteRepository.count() > 0`): precarga `pac-demo-1` (Carlos Méndez), dos mediciones (`med-demo-1`, `med-demo-2`), la revisión `rev-demo-1` (con descarga PDF `/api/v1/revisiones/rev-demo-1/pdf`) y el recordatorio `rec-demo-1` (`PENDIENTE`).
+  - Creado `src/test/java/com/nutricionalcoach/config/DataInitializerTest.java` con `@ActiveProfiles("local")` y base H2 aislada (`jdbc:h2:mem:nutricionaldb_local_seed`), pasando la suite backend completa a **43/43 tests verdes**.
+- **Release a `main` (TODO 2, PR #2 / merge `033bb28`):**
+  - Pusheada `feat/springboot-entrypoint-h2` a `origin`, creado y mergeado Pull Request #2 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/2`) en `main`, y sincronizada la rama `main` local mediante fast-forward (`462393a..033bb28`).
 
 ## Dificultades encontradas y cómo se resolvieron
-- **Aislamiento de H2 en memoria entre perfiles en tests (`DB_CLOSE_DELAY=-1`):** Al ejecutar `mvn21.cmd test`, `DataInitializerTest` (`local`) y `NutricionalCoachApplicationTest` (`default`) compartían la misma JVM de Surefire y la misma URL `jdbc:h2:mem:nutricionaldb`, filtrando `pac-demo-1` hacia el test E2E de base vacía. Se resolvió aislando `DataInitializerTest` con `spring.datasource.url=jdbc:h2:mem:nutricionaldb_local_seed;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`, dejando ambos perfiles verdes en la misma ejecución (**43/43**).
-- **Activación opcional del perfil `local`:** Se dejó `# SPRING_PROFILES_ACTIVE=local` comentado en `.env.example` para evitar activar el perfil `local` de forma accidental cuando `.env` se importa durante la suite por defecto; la demo se levanta explícitamente con `mvn21.cmd spring-boot:run -Dspring-boot.run.profiles=local`.
+
+### Dificultad 1 — Contaminación cruzada de la base H2 en memoria (`DB_CLOSE_DELAY=-1`) entre contextos `@SpringBootTest`
+**Problema:** Al ejecutar la suite completa (`mvn21.cmd test`), `DataInitializerTest` (`@ActiveProfiles("local")`) corrió antes que `NutricionalCoachApplicationTest` (perfil `default`) dentro de la misma JVM de Surefire. Al compartir ambos la misma URL `jdbc:h2:mem:nutricionaldb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`, los registros semilla (`pac-demo-1`) permanecían en memoria y hacían fallar `NutricionalCoachApplicationTest.contextLoadsAndExecutesFullE2EFlowInH2` en `$[0].id` (esperaba el paciente recién creado, pero encontraba `pac-demo-1`).  
+**Solución:** Se aisló `DataInitializerTest` configurando `@SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:nutricionaldb_local_seed;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE")`.  
+**Por qué:** Mantiene `NutricionalCoachApplicationTest` probando la configuración real por defecto (`nutricionaldb` inicialmente vacía) y permite verificar el perfil `local` en la misma ejecución de Maven sin interferencias entre contextos de Spring.
+
+### Dificultad 2 — Extracción del token OAuth desde `git credential fill` en Windows PowerShell 5.1 para `gh pr create` / `gh pr merge`
+**Problema:** Al intentar inyectar el token del Git Credential Manager de Windows hacia `gh.exe` desde PowerShell 5.1 (tanto por pipeline nativo como mediante `System.Diagnostics.ProcessStartInfo`), `git credential fill` rechazaba la entrada con `fatal: refusing to work with credential missing protocol field` o `missing host field` por el manejo de saltos de línea/codificación de flujo y eliminación de comillas internas de PowerShell 5.1 al invocar binarios nativos.  
+**Solución:** Se invocó Git Bash con un pipeline sin comillas internas: `& "C:\Program Files\Git\bin\bash.exe" -c '(echo protocol=https; echo host=github.com; echo) | git credential fill'`, extrayendo la línea `password=` hacia `$env:GH_TOKEN` para ejecutar `gh pr create` y `gh pr merge`.  
+**Por qué:** Envía líneas ASCII con LF puro sin BOM ni alteración de comillas, permitiendo automatizar el ciclo completo de PR en GitHub sin intervención manual ni re-login interactivo.
+
+### Dificultad 3 — Prevención de activación accidental del perfil `local` al importar `.env`
+**Problema:** Dado que `application.properties` importa `.env` automáticamente (`spring.config.import=optional:file:.env[.properties]`) tanto en `spring-boot:run` como en `@SpringBootTest`, definir `SPRING_PROFILES_ACTIVE=local` sin comentar en `.env` activaría `DataInitializer` durante los tests del perfil por defecto.  
+**Solución:** Se documentó `# SPRING_PROFILES_ACTIVE=local` comentado en `.env.example` y se fijó la activación explícita por línea de comandos (`mvn21.cmd spring-boot:run -Dspring-boot.run.profiles=local`).  
+**Por qué:** Garantiza determinismo (BD vacía por defecto en tests y despliegues estándar) y convierte la carga de datos semilla en un modo opt-in explícito con un único flag.
+
+## Por qué se ha construido así (Decisiones de Arquitectura y Diseño)
+1. **Configuración externa 12-Factor con `spring.config.import=optional:file:.env[.properties]` y fallback a H2:** Evita añadir dependencias externas (`dotenv-java`) aprovechando el soporte nativo de Spring Boot 3.4. Permite clonar y arrancar en local o CI sin configuración previa, y pasar a AWS EC2/RDS/S3 simplemente inyectando variables de entorno o `.env`.
+2. **Semilla de datos (`DataInitializer`) idempotente y acotada a `@Profile("local")`:** Protege producción y las suites de regresión de datos inesperados, mientras habilita una demo instantánea en `:4200` con el grafo completo de negocio (paciente, mediciones, revisión con PDF y recordatorio pendiente) sin duplicar registros en reinicios con BD persistente.
+3. **Commits por unidad de trabajo (`60b8bc9` y `5296640`) e integración vía PR #2 (`033bb28`):** Cada cambio (infraestructura `.env`/H2 por un lado, semilla `@Profile("local")` + docs por otro) viaja acompañado de su propio test y documentación, facilitando auditoría, rollback selectivo y revisión acotada antes de fusionar a `main`.
 
 ## Riesgo
-`Risk: none` — configuración con fallback seguro a H2 local, `DataInitializer` aislado bajo `@Profile("local")` y suite completa de 43/43 tests en verde.
+`Risk: none` — configuración con fallback seguro a H2 local, `DataInitializer` aislado bajo `@Profile("local")` y suite completa de 43/43 tests backend (más 14/14 frontend) en verde.

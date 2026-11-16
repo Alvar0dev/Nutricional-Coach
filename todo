@@ -26,5 +26,10 @@
 - [done] Día 20 - 2: Pull Request feat/springboot-entrypoint-h2 -> main, merge y sincronización local
 
 === Cierre de sesión — 2026-11-16 (Día 20) ===
-Estado: feat/springboot-entrypoint-h2 fusionada en main. Backend 43/43 tests verdes (incluyendo placeholders .env/Cloud con fallback H2 y DataInitializer en perfil local).
+Estado: feat/springboot-entrypoint-h2 fusionada en main (PR #2, commit 033bb28) y sincronizada con origin/main. Backend 43/43 tests verdes y Frontend Angular 18 14/14 tests verdes.
 Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
+
+=== Pendientes para mañana (Post-MVP — AWS Free Tier y Producción) ===
+- [pending] Mañana 1: Añadir driver PostgreSQL (runtime) en pom.xml + application-prod.properties (H2 console disabled) para AWS RDS
+- [pending] Mañana 2: Extraer PdfStorageService (local por defecto + soporte configurable AWS S3 bucket)
+- [pending] Mañana 3: Validar build de producción (mvn21.cmd clean package -DskipTests + ng build) y documentar checklist de despliegue AWS EC2 + RDS + S3 en DEV_RUNBOOK.md

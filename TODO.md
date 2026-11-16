@@ -45,7 +45,12 @@
 ### Hecho hoy (Día 20 — 2026-11-16)
 - [x] **1. Infra / Entorno Cloud (`.env` y `.env.example`):** Creadas la plantilla `.env.example` (versionada) y `.env` local (ignorada por git) con `DB_URL`, `DB_DRIVER`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` y `AWS_S3_BUCKET`, parametrizando `src/main/resources/application.properties` (`spring.config.import=optional:file:.env[.properties]`) con fallback por defecto a H2 en memoria y verificado en `NutricionalCoachApplicationTest.resolvesCloudEnvironmentPlaceholdersWithH2Fallback` (suite **42/42 tests verdes**).
 - [x] **3. Datos semilla para Demo (`DataInitializer` en perfil `local`):** Creado `com.nutricionalcoach.config.DataInitializer` (`@Profile("local")`) idempotente que precarga 1 paciente (`pac-demo-1`), 2 mediciones (`med-demo-1`, `med-demo-2`), 1 revisión (`rev-demo-1` con descarga PDF) y 1 recordatorio `PENDIENTE` (`rec-demo-1`), verificado en `DataInitializerTest` con BD H2 aislada (suite **43/43 tests verdes**).
-- [x] **2. Pull Request y Merge a `main` (`feat/springboot-entrypoint-h2` → `main`):** PR #2 con punto de entrada Spring Boot, configuración H2, test E2E, entorno Cloud/`.env` y `DataInitializer` demo creado, mergeado en `main` y sincronizado localmente.
+- [x] **2. Pull Request y Merge a `main` (`feat/springboot-entrypoint-h2` → `main`):** PR #2 con punto de entrada Spring Boot, configuración H2, test E2E, entorno Cloud/`.env` y `DataInitializer` demo creado, mergeado en `main` (`033bb28`) y sincronizado localmente.
+
+### Pendientes para mañana (Post-MVP — Preparación Cloud AWS Free Tier y Producción)
+- [ ] **1. Driver PostgreSQL y perfil `prod` para AWS RDS:** Añadir `org.postgresql:postgresql` (`runtime`) en `pom.xml`, crear `src/main/resources/application-prod.properties` (H2 console deshabilitada, datasource parametrizado con `DB_URL`, `DB_USER`, `DB_PASSWORD`) y test de carga de configuración `prod`.
+- [ ] **2. Almacenamiento de PDFs en AWS S3 / local (`PdfStorageService`):** Extraer interfaz `PdfStorageService` con implementación local por defecto y adaptador configurable hacia `aws.s3.bucket` (`nutricional-coach-pdfs`) para respaldar los PDFs de revisiones.
+- [ ] **3. Empaquetado de producción y guía de despliegue en EC2 Free Tier:** Validar `mvn21.cmd clean package -DskipTests` (JAR ejecutable) y `npm run build` en Angular 18, dejando documentado en `DEV_RUNBOOK.md` el checklist y comandos de despliegue en AWS EC2 + RDS + S3.
 
 ## Comandos clave (terminal integrada de VS Code)
 ```

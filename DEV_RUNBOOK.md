@@ -62,8 +62,8 @@ npm test -- --watch=false --browsers=ChromeHeadless
 
 | Entorno | Propósito | Cómo entrar |
 |---------|-----------|-------------|
-| `local` | Desarrollo local | `mvn spring-boot:run` + `npm run dev` (pendiente) |
-| `dev` | Integración temprana | AWS EC2 (Free Tier) — planeado, no configurado |
+| `local` | Desarrollo local | `mvn21.cmd spring-boot:run` (o `-Dspring-boot.run.profiles=local` para datos semilla) + `npm start` en `frontend/` |
+| `dev` | Integración temprana | AWS EC2 (Free Tier) — `.env` / placeholders listos, pendiente driver PostgreSQL + guía de despliegue |
 | `test` | Pruebas con datos mínimos | H2 / HSQLDB (`-Pdb=hsqldb` en subproyecto) |
 
 ## Gotchas / peculiaridades conocidas
