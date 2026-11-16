@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -38,6 +39,9 @@ class NutricionalCoachApplicationTest {
 
     @Autowired
     private RecordatorioRepository recordatorioRepository;
+
+    @Autowired
+    private Environment environment;
 
     @Test
     void contextLoadsAndExecutesFullE2EFlowInH2() throws Exception {
@@ -199,5 +203,19 @@ class NutricionalCoachApplicationTest {
         mockMvc.perform(get("/api/v1/pacientes"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void resolvesCloudEnvironmentPlaceholdersWithH2Fallback() {
+        assertThat(environment.getProperty("spring.datasource.url"))
+                .isEqualTo("jdbc:h2:mem:nutricionaldb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE");
+        assertThat(environment.getProperty("spring.datasource.username"))
+                .isEqualTo("sa");
+        assertThat(environment.getProperty("spring.datasource.driverClassName"))
+                .isEqualTo("org.h2.Driver");
+        assertThat(environment.getProperty("aws.region"))
+                .isEqualTo("eu-west-1");
+        assertThat(environment.getProperty("aws.accessKeyId")).isNotNull();
+        assertThat(environment.getProperty("aws.secretAccessKey")).isNotNull();
     }
 }
