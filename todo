@@ -21,11 +21,10 @@
 - [done] Sincronización local de main y creación de rama feat/springboot-entrypoint-h2
 - [done] Día 19 - 1: Dependencia H2 en pom.xml, @SpringBootApplication, entidades JPA y application.properties (suite 41/41 verdes, commit 0070b41)
 - [done] Día 19 - 2: Prueba de integración E2E local (:4200 <-> :8080) levantando backend y frontend + NutricionalCoachApplicationTest completo
-- [pending] Mañana 1: Crear .env y .env.example (DB_URL, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3) y parametrizar datasource con fallback a H2
-- [pending] Mañana 2: Pull Request feat/springboot-entrypoint-h2 -> main, merge y sincronización local
-- [pending] Mañana 3: DataInitializer opcional (perfil local) con datos semilla para demo en :4200
+- [done] Día 20 - 1: Crear .env y .env.example (DB_URL, DB_DRIVER, DB_USER, DB_PASSWORD, AWS_REGION, credenciales S3, AWS_S3_BUCKET) y parametrizar application.properties con fallback a H2 (suite 42/42 verdes)
+- [done] Día 20 - 3: DataInitializer (perfil local) con paciente, 2 mediciones, revisión mensual + PDF y recordatorio PENDIENTE (DataInitializerTest + suite 43/43 verdes)
+- [done] Día 20 - 2: Pull Request feat/springboot-entrypoint-h2 -> main, merge y sincronización local
 
-=== Cierre de sesión — 2026-11-14 (Día 19) ===
-Estado: rama feat/springboot-entrypoint-h2 pusheada a origin. Backend 41/41 tests verdes y Frontend Angular 18 14/14 tests unitarios verdes. Flujo E2E (:4200 <-> :8080) verificado en vivo y automatizado en NutricionalCoachApplicationTest.
-Sin commitear (no tocar, sin permiso): opencode.json y spring-petclinic (son ajenos).
-Siguiente paso para mañana: (1) configurar .env/.env.example y parametrización Cloud RDS/S3, (2) abrir y mergear PR de feat/springboot-entrypoint-h2 a main, y (3) valorar DataInitializer para datos de demostración.
+=== Cierre de sesión — 2026-11-16 (Día 20) ===
+Estado: feat/springboot-entrypoint-h2 fusionada en main. Backend 43/43 tests verdes (incluyendo placeholders .env/Cloud con fallback H2 y DataInitializer en perfil local).
+Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.

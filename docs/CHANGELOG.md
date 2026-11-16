@@ -416,3 +416,25 @@ Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama
 
 ## Riesgo
 `Risk: item 5 (adds com.h2database:h2 runtime dependency in pom.xml)` — mitigado con `scope=runtime`, suite completa de 41/41 tests backend y 14/14 tests frontend en verde, verificación E2E en vivo y auditoría independiente `PASS`.
+
+---
+
+# Día 20 — 2026-11-16 — Entorno Cloud/H2 (`.env`), `DataInitializer` local y Release a `main`
+
+## Cambios realizados
+- **Entorno Cloud / H2 parametrizado (TODO 1):**
+  - Creadas la plantilla versionada `.env.example` y `.env` local (ignorado en `.gitignore`) con `DB_URL`, `DB_DRIVER`, `DB_USER`, `DB_PASSWORD`, `JPA_DDL_AUTO`, `JPA_SHOW_SQL`, `H2_CONSOLE_ENABLED`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` y `AWS_S3_BUCKET`.
+  - Parametrizado `src/main/resources/application.properties` con `spring.config.import=optional:file:.env[.properties]` y valores por defecto hacia H2 en memoria (`jdbc:h2:mem:nutricionaldb`).
+  - Añadido test `NutricionalCoachApplicationTest.resolvesCloudEnvironmentPlaceholdersWithH2Fallback` (RED → GREEN).
+- **Datos semilla para demo en perfil `local` (TODO 3):**
+  - Creado `src/main/java/com/nutricionalcoach/config/DataInitializer.java` (`@Component`, `@Profile("local")`) idempotente: precarga `pac-demo-1`, dos mediciones (`med-demo-1`, `med-demo-2`), la revisión `rev-demo-1` (con descarga PDF funcional) y el recordatorio `rec-demo-1` (`PENDIENTE`).
+  - Creado `src/test/java/com/nutricionalcoach/config/DataInitializerTest.java` con `@ActiveProfiles("local")` y base H2 aislada (`jdbc:h2:mem:nutricionaldb_local_seed`). Suite backend completa: **43/43 tests verdes**.
+- **Release a `main` (TODO 2):**
+  - Publicado y mergeado Pull Request de `feat/springboot-entrypoint-h2` hacia `main` en GitHub y sincronizada la rama `main` local.
+
+## Dificultades encontradas y cómo se resolvieron
+- **Aislamiento de H2 en memoria entre perfiles en tests (`DB_CLOSE_DELAY=-1`):** Al ejecutar `mvn21.cmd test`, `DataInitializerTest` (`local`) y `NutricionalCoachApplicationTest` (`default`) compartían la misma JVM de Surefire y la misma URL `jdbc:h2:mem:nutricionaldb`, filtrando `pac-demo-1` hacia el test E2E de base vacía. Se resolvió aislando `DataInitializerTest` con `spring.datasource.url=jdbc:h2:mem:nutricionaldb_local_seed;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`, dejando ambos perfiles verdes en la misma ejecución (**43/43**).
+- **Activación opcional del perfil `local`:** Se dejó `# SPRING_PROFILES_ACTIVE=local` comentado en `.env.example` para evitar activar el perfil `local` de forma accidental cuando `.env` se importa durante la suite por defecto; la demo se levanta explícitamente con `mvn21.cmd spring-boot:run -Dspring-boot.run.profiles=local`.
+
+## Riesgo
+`Risk: none` — configuración con fallback seguro a H2 local, `DataInitializer` aislado bajo `@Profile("local")` y suite completa de 43/43 tests en verde.

@@ -38,21 +38,22 @@
   - Creada rama aislada de trabajo `feat/springboot-entrypoint-h2` para el arranque local.
   - Diagnosticada necesidad de `com.h2database:h2` en `pom.xml`, `@SpringBootApplication` y `application.properties`.
 
-### Hecho hoy (Día 19 — 2026-11-14)
+### Hecho (Día 19 — 2026-11-14)
 - [x] **1. Dependencia H2, punto de entrada `@SpringBootApplication` y `application.properties`:** Agregado `com.h2database:h2` a `pom.xml`, creada `com.nutricionalcoach.NutricionalCoachApplication`, configurado `src/main/resources/application.properties` (`jdbc:h2:mem:nutricionaldb`, `/h2-console`, `ddl-auto=update`), anotadas las 4 entidades JPA (`@Entity`, `@Table`, `@Id`), ajustado `RevisionController.crearRevision` para propagar `@PathVariable id` al DTO cuando no viene en el body, y creado `NutricionalCoachApplicationTest` (suite **41/41 tests verdes**).
 - [x] **2. Prueba E2E en vivo (`:4200` ↔ `:8080`):** Levantados backend (`mvn21.cmd spring-boot:run` en `:8080`) y frontend (`npm start` en `:4200`), validando en vivo H2 Console (`200`), alta y listado de pacientes (`201`/`200` + CORS `:4200`), registro y consulta de mediciones (`201`/`200`), creación de revisión mensual y descarga de PDF OpenPDF (`201`/`200 application/pdf`, `1115 bytes`), recordatorios (`200`) y baja lógica soft-delete (`204`).
 
-### Pendientes para mañana (Infraestructura Cloud y Entrega a `main`)
-- [ ] **1. Infra / Entorno Cloud (`.env` y `.env.example`):** Crear plantilla `.env.example` (y `.env` local ignorado en git) con `DB_URL`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, y parametrizar `application.properties` con valores por defecto hacia H2 local para permitir transición transparente a AWS RDS/S3.
-- [ ] **2. Pull Request y Merge a `main` (`feat/springboot-entrypoint-h2` → `main`):** Abrir PR con el punto de entrada Spring Boot, configuración H2, test E2E y plantilla de entorno Cloud, mergear en `main` y sincronizar el repositorio local.
-- [ ] **3. Datos semilla para Demo (`DataInitializer` opcional en perfil `local`):** Precargar un paciente de ejemplo con mediciones, revisión mensual y un recordatorio `PENDIENTE` al arrancar en local para poder probar visualmente todas las pantallas en `http://localhost:4200` desde el primer segundo.
+### Hecho hoy (Día 20 — 2026-11-16)
+- [x] **1. Infra / Entorno Cloud (`.env` y `.env.example`):** Creadas la plantilla `.env.example` (versionada) y `.env` local (ignorada por git) con `DB_URL`, `DB_DRIVER`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` y `AWS_S3_BUCKET`, parametrizando `src/main/resources/application.properties` (`spring.config.import=optional:file:.env[.properties]`) con fallback por defecto a H2 en memoria y verificado en `NutricionalCoachApplicationTest.resolvesCloudEnvironmentPlaceholdersWithH2Fallback` (suite **42/42 tests verdes**).
+- [x] **3. Datos semilla para Demo (`DataInitializer` en perfil `local`):** Creado `com.nutricionalcoach.config.DataInitializer` (`@Profile("local")`) idempotente que precarga 1 paciente (`pac-demo-1`), 2 mediciones (`med-demo-1`, `med-demo-2`), 1 revisión (`rev-demo-1` con descarga PDF) y 1 recordatorio `PENDIENTE` (`rec-demo-1`), verificado en `DataInitializerTest` con BD H2 aislada (suite **43/43 tests verdes**).
+- [x] **2. Pull Request y Merge a `main` (`feat/springboot-entrypoint-h2` → `main`):** PR #2 con punto de entrada Spring Boot, configuración H2, test E2E, entorno Cloud/`.env` y `DataInitializer` demo creado, mergeado en `main` y sincronizado localmente.
 
 ## Comandos clave (terminal integrada de VS Code)
 ```
 # Backend
 mvn21.cmd clean compile   # compilar
-mvn21.cmd test            # tests (41/41 verdes)
+mvn21.cmd test            # tests (43/43 verdes)
 mvn21.cmd spring-boot:run # ejecutar backend en http://localhost:8080
+mvn21.cmd spring-boot:run -Dspring-boot.run.profiles=local # ejecutar backend con datos semilla de demo
 
 # Frontend
 cd frontend
