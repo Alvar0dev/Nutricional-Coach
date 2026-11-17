@@ -1,6 +1,6 @@
 # DEV_RUNBOOK.md — Comandos ejecutables y entornos
 
-Estado: 2026-11-16 (Día 20). Backend Spring Boot 3.4 + H2 (parametrizado con `.env` y fallback local) y Frontend Angular 18 operativos y verificados E2E.
+Estado: 2026-11-17 (Día 21). Backend Spring Boot 3.4 + H2 (local) / PostgreSQL RDS (`prod`, `application-prod.properties`) y Frontend Angular 18 operativos.
 
 ## Entorno requerido
 
@@ -39,7 +39,7 @@ npm start
 ### Suite de tests
 
 ```bash
-# Backend — suite completa (43/43 verdes, incluye NutricionalCoachApplicationTest E2E, placeholders .env y DataInitializerTest)
+# Backend — suite completa (45/45 verdes, incluye E2E H2, placeholders .env, DataInitializerTest y ProdProfileConfigTest)
 C:\Users\alvar\bin\mvn21.cmd test
 
 # Frontend — suite completa en ChromeHeadless (14/14 verdes)
@@ -63,7 +63,7 @@ npm test -- --watch=false --browsers=ChromeHeadless
 | Entorno | Propósito | Cómo entrar |
 |---------|-----------|-------------|
 | `local` | Desarrollo local | `mvn21.cmd spring-boot:run` (o `-Dspring-boot.run.profiles=local` para datos semilla) + `npm start` en `frontend/` |
-| `dev` | Integración temprana | AWS EC2 (Free Tier) — `.env` / placeholders listos, pendiente driver PostgreSQL + guía de despliegue |
+| `dev` / `prod` | AWS EC2 + RDS (PostgreSQL) | Driver PostgreSQL + `application-prod.properties` listos (`-Dspring-boot.run.profiles=prod`), pendiente guía de despliegue EC2 |
 | `test` | Pruebas con datos mínimos | H2 / HSQLDB (`-Pdb=hsqldb` en subproyecto) |
 
 ## Gotchas / peculiaridades conocidas
