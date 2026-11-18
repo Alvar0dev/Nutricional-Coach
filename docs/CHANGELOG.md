@@ -456,3 +456,33 @@ Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama
 
 ## Riesgo
 `Risk: none` — configuración con fallback seguro a H2 local, `DataInitializer` aislado bajo `@Profile("local")` y suite completa de 43/43 tests backend (más 14/14 frontend) en verde.
+
+---
+
+# Día 21 — 2026-11-17 — Driver PostgreSQL y perfil `prod` para AWS RDS (`feat/aws-rds-prod-profile`)
+
+## Cambios realizados
+- **Driver PostgreSQL (`scope=runtime`) en `pom.xml`:** Añadida la dependencia `org.postgresql:postgresql` sin versión fija, resuelta a `42.7.4` por el BOM de `spring-boot-starter-parent:3.4.0`.
+- **Perfil `prod` (`src/main/resources/application-prod.properties`):** Configurado `spring.datasource.url=${DB_URL}`, `spring.datasource.driverClassName=org.postgresql.Driver`, `spring.datasource.username=${DB_USER}`, `spring.datasource.password=${DB_PASSWORD}`, `spring.jpa.hibernate.ddl-auto=${PROD_JPA_DDL_AUTO:validate}`, `spring.jpa.show-sql=false`, `spring.jpa.open-in-view=false` y consola H2 deshabilitada (`spring.h2.console.enabled=false`). Documentado `# PROD_JPA_DDL_AUTO=validate` en `.env.example`.
+- **Verificación TDD e independiente:** Creado `src/test/java/com/nutricionalcoach/config/ProdProfileConfigTest.java` (RED inicial por falta del driver y consola H2 activa → GREEN `2/2`). Ejecutada la suite completa `mvn21.cmd test` (**45/45 tests verdes**). El verificador independiente de solo lectura (`odd-verifier`) auditó el diff y re-ejecutó `mvn21.cmd test` tanto en copia limpia temporal sin `.env` como en el workspace con veredicto **PASS** (`45/45`).
+- **Tracking y runbook:** Actualizados `TODO.md`, `PLAN_PENDIENTE_MVP.md`, `DEV_RUNBOOK.md` y `todo` en la rama `feat/aws-rds-prod-profile`.
+
+## Dificultades encontradas y cómo se resolvieron
+
+### Dificultad 1 — Precedencia de `SpringApplicationBuilder.properties(...)` frente a `spring.config.import=optional:file:.env[.properties]`
+**Problema:** En la primera ejecución de `ProdProfileConfigTest`, al inyectar `DB_URL`, `DB_USER` y `DB_PASSWORD` mediante `SpringApplicationBuilder.properties(...)`, Spring Boot resolvió `spring.datasource.url` usando el `.env` local de desarrollo (`jdbc:h2:mem:nutricionaldb`) en lugar de la URL PostgreSQL del test. Esto se debe a que `.properties(...)` escribe en `defaultProperties`, que posee menor prioridad que un archivo importado explícitamente con `spring.config.import`.  
+**Solución:** En el test se pasaron los parámetros como argumentos CLI en `.run("--DB_URL=...", "--DB_USER=...", "--DB_PASSWORD=...")` (precedencia superior, equivalente a variables de entorno del SO o flags de ejecución en producción). Además, en `application-prod.properties` se fijaron `spring.datasource.driverClassName=org.postgresql.Driver` y `spring.h2.console.enabled=false` literalmente (sin leer `DB_DRIVER` ni `H2_CONSOLE_ENABLED` del `.env`), y se separó `PROD_JPA_DDL_AUTO:validate` de `JPA_DDL_AUTO`.  
+**Por qué:** Protege el entorno `prod` frente a valores residuales de un `.env` de desarrollo (`org.h2.Driver`, consola H2 habilitada o `ddl-auto=update`), asegurando que activar el perfil `prod` nunca exponga `/h2-console` ni use H2 por accidente.
+
+### Dificultad 2 — Verificación del perfil `prod` sin instancia AWS RDS / PostgreSQL viva
+**Problema:** Levantar un `@SpringBootTest` completo con `NutricionalCoachApplication` bajo `@ActiveProfiles("prod")` intentaría inicializar el pool Hikari y leer metadatos JDBC contra un servidor PostgreSQL real, fallando en entornos locales o de CI sin base de datos PostgreSQL levantada.  
+**Solución:** `ProdProfileConfigTest` valida en dos niveles: carga efectiva del driver en el classpath (`Class.forName("org.postgresql.Driver")`) y arranque de un contexto mínimo `SpringApplicationBuilder(EmptyConfig.class).web(WebApplicationType.NONE).profiles("prod")` que ejecuta el cargador real de configuración de Spring Boot (`ConfigDataEnvironmentPostProcessor`) y enlaza `DataSourceProperties` con `Binder`.  
+**Por qué:** Garantiza de forma determinista y sin dependencias externas que el driver está empaquetado y que `application.properties` + `application-prod.properties` resuelven correctamente los valores de RDS, dejando explícitamente acotada la prueba de conexión TCP/esquema real para el momento de conectar una instancia RDS viva.
+
+## Por qué se ha construido así (Decisiones de Arquitectura y Diseño)
+1. **Dependencia `org.postgresql:postgresql` en `scope=runtime` gestionada por el BOM de Spring Boot:** Evita anclar versiones manuales incompatibles y mantiene el código Java acoplado exclusivamente a JPA/JDBC estándar.
+2. **Hardening explícito en `application-prod.properties`:** Desactivar `spring.h2.console.enabled=false` sin placeholder, fijar `org.postgresql.Driver` y adoptar `PROD_JPA_DDL_AUTO:validate` por defecto previene fugas de configuración de desarrollo al desplegar en AWS.
+3. **Auditoría independiente obligatoria (`odd-verifier`) ante cambios en `pom.xml`:** Al añadir una dependencia (`Risk: item 5`), se ejecutó la verificación en copia limpia sin `.env` y en el workspace, asegurando reproducibilidad y ausencia de regresiones en el resto de perfiles (`default` y `local`).
+
+## Riesgo
+`Risk: item 5 (adds org.postgresql:postgresql runtime dependency in pom.xml)` — mitigado con `scope=runtime`, suite completa de **45/45 tests verdes** y auditoría independiente `odd-verifier` con resultado **PASS** en copia limpia y workspace; la conectividad JDBC real y validación Hibernate contra AWS RDS PostgreSQL quedan pendientes hasta disponer de instancia viva.

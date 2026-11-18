@@ -29,7 +29,12 @@
 Estado: feat/springboot-entrypoint-h2 fusionada en main (PR #2, commit 033bb28) y sincronizada con origin/main. Backend 43/43 tests verdes y Frontend Angular 18 14/14 tests verdes.
 Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
 
+=== Cierre de sesión — 2026-11-17 (Día 21) ===
+Estado: Rama feat/aws-rds-prod-profile pusheada a origin con TODO 1 completado (PostgreSQL runtime driver + application-prod.properties + ProdProfileConfigTest, 45/45 tests verdes, odd-verifier PASS) y documentación del Día 21 actualizada.
+Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
+
 === Pendientes para mañana (Post-MVP — AWS Free Tier y Producción) ===
-- [pending] Mañana 1: Añadir driver PostgreSQL (runtime) en pom.xml + application-prod.properties (H2 console disabled) para AWS RDS
+- [done] Día 21 - 1: Añadir driver PostgreSQL (runtime) en pom.xml + application-prod.properties (H2 console disabled, org.postgresql.Driver) + ProdProfileConfigTest (suite 45/45 verdes)
+- [pending] Mañana 1: Abrir y mergear PR feat/aws-rds-prod-profile -> main y sincronizar main local
 - [pending] Mañana 2: Extraer PdfStorageService (local por defecto + soporte configurable AWS S3 bucket)
 - [pending] Mañana 3: Validar build de producción (mvn21.cmd clean package -DskipTests + ng build) y documentar checklist de despliegue AWS EC2 + RDS + S3 en DEV_RUNBOOK.md

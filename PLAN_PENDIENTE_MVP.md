@@ -2,11 +2,11 @@
 
 > Ábrelo en VS Code cuando inicies una sesión. Marca lo que vayas haciendo y avisa si cambia el alcance.
 
-## Estado actual (2026-11-16)
+## Estado actual (2026-11-17)
 
-- Rama activa: `main` (sincronizada con `origin/main` tras merge de PR #2, commit `033bb28`)
+- Rama activa: `feat/aws-rds-prod-profile` (desde `main` en `5a52381`)
 - MVP: **Mergeado en `main`** (commit `462393a`, PR #1 en GitHub)
-- Suite de tests Backend: **43/43 verdes** (`mvn21.cmd test`, incluye E2E de contexto H2, placeholders Cloud/H2 y `DataInitializerTest` en perfil `local`)
+- Suite de tests Backend: **45/45 verdes** (`mvn21.cmd test`, incluye E2E H2, placeholders Cloud/H2, `DataInitializerTest` y `ProdProfileConfigTest`)
 - Suite de tests Frontend: **14/14 verdes** (`npx ng test --watch=false --browsers=ChromeHeadless`) y `tsc --noEmit` limpio
 - Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd` y Angular 18 en `frontend/`
 
@@ -47,7 +47,8 @@
 - [x] **Hecho (Día 20):** Release de rama a `main` (`feat/springboot-entrypoint-h2` → `main` vía PR #2 en GitHub, mergeado y sincronizado en `main` local, commit `033bb28`)
 
 ### Siguientes pasos (Post-MVP — Preparación Cloud AWS Free Tier y Producción)
-- [ ] **Mañana 1 (PostgreSQL + perfil `prod` para AWS RDS):** Añadir `org.postgresql:postgresql` (`runtime`) en `pom.xml`, crear `application-prod.properties` (sin consola H2) y test de configuración `prod`.
+- [x] **Hecho (Día 21):** PostgreSQL + perfil `prod` para AWS RDS (`org.postgresql:postgresql` `runtime` en `pom.xml`, `application-prod.properties` con H2 console deshabilitada, `ProdProfileConfigTest`, suite **45/45 verdes**, verificación independiente `PASS`)
+- [ ] **Mañana 1 (PR y Merge a `main`):** Abrir PR #3 (`feat/aws-rds-prod-profile` → `main`), mergear y sincronizar `main` local.
 - [ ] **Mañana 2 (Almacenamiento PDF en S3 / local):** Definir `PdfStorageService` con implementación local y adaptador hacia `aws.s3.bucket` para los PDFs generados en `RevisionService`.
 - [ ] **Mañana 3 (Empaquetado y guía de despliegue AWS EC2):** Validar `mvn21.cmd clean package -DskipTests` y `npm run build` (Angular 18) y documentar el checklist de despliegue EC2 + RDS + S3 en `DEV_RUNBOOK.md`.
 
@@ -76,4 +77,4 @@ git status --short --branch
 
 ---
 
-Última actualización: sesión del 2026-11-16 (Día 20). Si cambias el plan, edita este archivo y avísame.
+Última actualización: sesión del 2026-11-17 (Día 21). Si cambias el plan, edita este archivo y avísame.
