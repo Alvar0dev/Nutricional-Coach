@@ -47,19 +47,23 @@
 - [x] **3. Datos semilla para Demo (`DataInitializer` en perfil `local`):** Creado `com.nutricionalcoach.config.DataInitializer` (`@Profile("local")`) idempotente que precarga 1 paciente (`pac-demo-1`), 2 mediciones (`med-demo-1`, `med-demo-2`), 1 revisión (`rev-demo-1` con descarga PDF) y 1 recordatorio `PENDIENTE` (`rec-demo-1`), verificado en `DataInitializerTest` con BD H2 aislada (suite **43/43 tests verdes**).
 - [x] **2. Pull Request y Merge a `main` (`feat/springboot-entrypoint-h2` → `main`):** PR #2 con punto de entrada Spring Boot, configuración H2, test E2E, entorno Cloud/`.env` y `DataInitializer` demo creado, mergeado en `main` (`033bb28`) y sincronizado localmente.
 
-### Hecho hoy (Día 21 — 2026-11-17)
+### Hecho (Día 21 — 2026-11-17)
 - [x] **1. Driver PostgreSQL y perfil `prod` para AWS RDS:** Añadida dependencia `org.postgresql:postgresql` (`scope=runtime`) en `pom.xml`, creado `src/main/resources/application-prod.properties` (H2 console deshabilitada, `org.postgresql.Driver`, `DB_URL`/`DB_USER`/`DB_PASSWORD` y `ddl-auto=${PROD_JPA_DDL_AUTO:validate}`) y verificado en `ProdProfileConfigTest` (suite **45/45 tests verdes**).
 
+### Hecho hoy (Día 22 — 2026-11-18)
+- [x] **1. Pull Request y Merge a `main` (`feat/aws-rds-prod-profile` → `main`):** Creado y mergeado PR #3 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/3`, commit `897831f`), `main` sincronizada localmente y abierta rama `feat/pdf-storage-service`.
+- [x] **2. Almacenamiento de PDFs en AWS S3 / local (`PdfStorageService`):** Extraída interfaz `PdfStorageService` con `LocalPdfStorageService` (por defecto, `aws.s3.enabled=false`) y `S3PdfStorageService` (`aws.s3.enabled=true`, URI `s3://<bucket>/revisiones/revision-<id>.pdf`), conectada en `RevisionServiceImpl` y verificada en `PdfStorageServiceTest` (suite **49/49 tests verdes**).
+
 ### Pendientes para mañana (Post-MVP — Preparación Cloud AWS Free Tier y Producción)
-- [ ] **1. Pull Request y Merge a `main` (`feat/aws-rds-prod-profile` → `main`):** Abrir PR #3 en GitHub con el driver PostgreSQL, `application-prod.properties` y `ProdProfileConfigTest`, mergear en `main` y sincronizar localmente (o agrupar tras `PdfStorageService` si se decide en la sesión).
-- [ ] **2. Almacenamiento de PDFs en AWS S3 / local (`PdfStorageService`):** Extraer interfaz `PdfStorageService` con implementación local por defecto y adaptador configurable hacia `aws.s3.bucket` (`nutricional-coach-pdfs`) para respaldar los PDFs de revisiones.
-- [ ] **3. Empaquetado de producción y guía de despliegue en EC2 Free Tier:** Validar `mvn21.cmd clean package -DskipTests` (JAR ejecutable) y `npm run build` en Angular 18, dejando documentado en `DEV_RUNBOOK.md` el checklist y comandos de despliegue en AWS EC2 + RDS + S3.
+- [ ] **1. Pull Request #4 y Merge a `main` (`feat/pdf-storage-service` → `main`):** Abrir PR #4 en GitHub con `PdfStorageService` (`LocalPdfStorageService` + `S3PdfStorageService`), `PdfStorageServiceTest` y documentación del Día 22, mergear en `main` y sincronizar localmente.
+- [ ] **2. Empaquetado de producción y guía de despliegue en EC2 Free Tier:** Validar `mvn21.cmd clean package -DskipTests` (JAR ejecutable) y `npm run build` en Angular 18, dejando documentado en `DEV_RUNBOOK.md` el checklist y comandos de despliegue en AWS EC2 + RDS + S3.
+- [ ] **3. Verificación integral pre-despliegue Cloud:** Re-ejecutar las suites completas de Backend (`49/49`) y Frontend Angular 18 (`14/14` + `tsc --noEmit`) sobre `main` consolidado.
 
 ## Comandos clave (terminal integrada de VS Code)
 ```
 # Backend
 mvn21.cmd clean compile   # compilar
-mvn21.cmd test            # tests (45/45 verdes)
+mvn21.cmd test            # tests (49/49 verdes)
 mvn21.cmd spring-boot:run # ejecutar backend en http://localhost:8080
 mvn21.cmd spring-boot:run -Dspring-boot.run.profiles=local # ejecutar backend con datos semilla de demo
 

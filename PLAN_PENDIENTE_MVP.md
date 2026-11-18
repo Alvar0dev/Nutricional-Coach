@@ -2,11 +2,11 @@
 
 > Ábrelo en VS Code cuando inicies una sesión. Marca lo que vayas haciendo y avisa si cambia el alcance.
 
-## Estado actual (2026-11-17)
+## Estado actual (2026-11-18)
 
-- Rama activa: `feat/aws-rds-prod-profile` (desde `main` en `5a52381`)
+- Rama activa: `feat/pdf-storage-service` (desde `main` tras merge de PR #3, commit `897831f`)
 - MVP: **Mergeado en `main`** (commit `462393a`, PR #1 en GitHub)
-- Suite de tests Backend: **45/45 verdes** (`mvn21.cmd test`, incluye E2E H2, placeholders Cloud/H2, `DataInitializerTest` y `ProdProfileConfigTest`)
+- Suite de tests Backend: **49/49 verdes** (`mvn21.cmd test`, incluye E2E H2, placeholders Cloud/H2, `DataInitializerTest`, `ProdProfileConfigTest` y `PdfStorageServiceTest`)
 - Suite de tests Frontend: **14/14 verdes** (`npx ng test --watch=false --browsers=ChromeHeadless`) y `tsc --noEmit` limpio
 - Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd` y Angular 18 en `frontend/`
 
@@ -48,9 +48,11 @@
 
 ### Siguientes pasos (Post-MVP — Preparación Cloud AWS Free Tier y Producción)
 - [x] **Hecho (Día 21):** PostgreSQL + perfil `prod` para AWS RDS (`org.postgresql:postgresql` `runtime` en `pom.xml`, `application-prod.properties` con H2 console deshabilitada, `ProdProfileConfigTest`, suite **45/45 verdes**, verificación independiente `PASS`)
-- [ ] **Mañana 1 (PR y Merge a `main`):** Abrir PR #3 (`feat/aws-rds-prod-profile` → `main`), mergear y sincronizar `main` local.
-- [ ] **Mañana 2 (Almacenamiento PDF en S3 / local):** Definir `PdfStorageService` con implementación local y adaptador hacia `aws.s3.bucket` para los PDFs generados en `RevisionService`.
-- [ ] **Mañana 3 (Empaquetado y guía de despliegue AWS EC2):** Validar `mvn21.cmd clean package -DskipTests` y `npm run build` (Angular 18) y documentar el checklist de despliegue EC2 + RDS + S3 en `DEV_RUNBOOK.md`.
+- [x] **Hecho (Día 22):** PR #3 (`feat/aws-rds-prod-profile` → `main`, commit `897831f`) mergeado y sincronizado en `main` local.
+- [x] **Hecho (Día 22):** Almacenamiento PDF (`PdfStorageService` + `LocalPdfStorageService` por defecto + `S3PdfStorageService` activable con `aws.s3.enabled=true` y `aws.s3.bucket`), integrado en `RevisionServiceImpl` y verificado en `PdfStorageServiceTest` (suite **49/49 verdes**).
+- [ ] **Mañana 1 (PR #4 y Merge a `main`):** Abrir PR #4 (`feat/pdf-storage-service` → `main`), mergear y sincronizar `main` local.
+- [ ] **Mañana 2 (Empaquetado y guía de despliegue AWS EC2):** Validar `mvn21.cmd clean package -DskipTests` y `npm run build` (Angular 18) y documentar el checklist de despliegue EC2 + RDS + S3 en `DEV_RUNBOOK.md`.
+- [ ] **Mañana 3 (Verificación integral pre-despliegue):** Re-ejecutar suites completas de Backend (`49/49`) y Frontend Angular 18 (`14/14` + `tsc --noEmit`) sobre `main`.
 
 ## Comandos clave (usar en la terminal integrada de VS Code)
 
@@ -77,4 +79,4 @@ git status --short --branch
 
 ---
 
-Última actualización: sesión del 2026-11-17 (Día 21). Si cambias el plan, edita este archivo y avísame.
+Última actualización: sesión del 2026-11-18 (Día 22). Si cambias el plan, edita este archivo y avísame.
