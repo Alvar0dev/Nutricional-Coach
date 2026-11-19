@@ -1,6 +1,6 @@
 # DEV_RUNBOOK.md — Comandos ejecutables y entornos
 
-Estado: 2026-11-18 (Día 22). Backend Spring Boot 3.4 + H2 (local) / PostgreSQL RDS (`prod`) / `PdfStorageService` (local y S3 configurable) y Frontend Angular 18 operativos.
+Estado: 2026-11-19 (Día 23). Backend Spring Boot 3.4 (H2 local / RDS `prod` / `PdfStorageService`) y Frontend Angular 18 (`API_BASE_URL = '/api/v1'`) empaquetados para producción y verificados. Guía paso a paso de AWS en `aws Tutorial.md`.
 
 ## Entorno requerido
 
@@ -22,6 +22,19 @@ cd frontend
 npx tsc --noEmit -p tsconfig.app.json
 ```
 
+### Empaquetar para producción (AWS EC2)
+
+```bash
+# Backend fat JAR ejecutable (~56 MB en target/nutricional-coach-1.0.0-SNAPSHOT.jar)
+C:\Users\alvar\bin\mvn21.cmd clean package -DskipTests
+
+# Frontend Angular 18 optimizado (estáticos en frontend/dist/frontend/browser/)
+cd frontend
+npm run build
+```
+
+> Ver guía completa de aprovisionamiento RDS, S3, EC2 (swap + Java 21 + `systemd`) y proxy inverso Nginx en `aws Tutorial.md`.
+
 ### Levantar local
 
 ```bash
@@ -42,7 +55,7 @@ npm start
 # Backend — suite completa (49/49 verdes, incluye E2E H2, placeholders .env, DataInitializerTest, ProdProfileConfigTest y PdfStorageServiceTest)
 C:\Users\alvar\bin\mvn21.cmd test
 
-# Frontend — suite completa en ChromeHeadless (14/14 verdes)
+# Frontend — suite completa en ChromeHeadless (15/15 verdes)
 cd frontend
 npm test -- --watch=false --browsers=ChromeHeadless
 ```
@@ -63,7 +76,7 @@ npm test -- --watch=false --browsers=ChromeHeadless
 | Entorno | Propósito | Cómo entrar |
 |---------|-----------|-------------|
 | `local` | Desarrollo local | `mvn21.cmd spring-boot:run` (o `-Dspring-boot.run.profiles=local` para datos semilla) + `npm start` en `frontend/` |
-| `dev` / `prod` | AWS EC2 + RDS + S3 | Driver PostgreSQL + `application-prod.properties` + `PdfStorageService` (`aws.s3.enabled=true`) listos, pendiente guía de despliegue EC2 |
+| `dev` / `prod` | AWS EC2 + RDS + S3 | Driver PostgreSQL + `application-prod.properties` + `PdfStorageService` + empaquetado JAR/`dist/` listos; guía en `aws Tutorial.md` |
 | `test` | Pruebas con datos mínimos | H2 / HSQLDB (`-Pdb=hsqldb` en subproyecto) |
 
 ## Gotchas / peculiaridades conocidas

@@ -50,14 +50,17 @@
 ### Hecho (Día 21 — 2026-11-17)
 - [x] **1. Driver PostgreSQL y perfil `prod` para AWS RDS:** Añadida dependencia `org.postgresql:postgresql` (`scope=runtime`) en `pom.xml`, creado `src/main/resources/application-prod.properties` (H2 console deshabilitada, `org.postgresql.Driver`, `DB_URL`/`DB_USER`/`DB_PASSWORD` y `ddl-auto=${PROD_JPA_DDL_AUTO:validate}`) y verificado en `ProdProfileConfigTest` (suite **45/45 tests verdes**).
 
-### Hecho hoy (Día 22 — 2026-11-18)
+### Hecho (Día 22 — 2026-11-18)
 - [x] **1. Pull Request y Merge a `main` (`feat/aws-rds-prod-profile` → `main`):** Creado y mergeado PR #3 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/3`, commit `897831f`), `main` sincronizada localmente y abierta rama `feat/pdf-storage-service`.
 - [x] **2. Almacenamiento de PDFs en AWS S3 / local (`PdfStorageService`):** Extraída interfaz `PdfStorageService` con `LocalPdfStorageService` (por defecto, `aws.s3.enabled=false`) y `S3PdfStorageService` (`aws.s3.enabled=true`, URI `s3://<bucket>/revisiones/revision-<id>.pdf`), conectada en `RevisionServiceImpl` y verificada en `PdfStorageServiceTest` (suite **49/49 tests verdes**).
 
-### Pendientes para mañana (Post-MVP — Preparación Cloud AWS Free Tier y Producción)
-- [ ] **1. Pull Request #4 y Merge a `main` (`feat/pdf-storage-service` → `main`):** Abrir PR #4 en GitHub con `PdfStorageService` (`LocalPdfStorageService` + `S3PdfStorageService`), `PdfStorageServiceTest` y documentación del Día 22, mergear en `main` y sincronizar localmente.
-- [ ] **2. Empaquetado de producción y guía de despliegue en EC2 Free Tier:** Validar `mvn21.cmd clean package -DskipTests` (JAR ejecutable) y `npm run build` en Angular 18, dejando documentado en `DEV_RUNBOOK.md` el checklist y comandos de despliegue en AWS EC2 + RDS + S3.
-- [ ] **3. Verificación integral pre-despliegue Cloud:** Re-ejecutar las suites completas de Backend (`49/49`) y Frontend Angular 18 (`14/14` + `tsc --noEmit`) sobre `main` consolidado.
+### Hecho hoy (Día 23 — 2026-11-19)
+- [x] **1. Pull Request #4 y Merge a `main` (`feat/pdf-storage-service` → `main`):** Creado y mergeado PR #4 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/4`, commit `197983d`) y sincronizada `main` localmente.
+- [x] **2. Empaquetado de producción y guía AWS Free Tier (`aws Tutorial.md`):** Cambiado `API_BASE_URL` a `'/api/v1'` en `frontend/src/app/core/api.config.ts` (compatible con `proxy.conf.json` y Nginx) con test TDD en `api.config.spec.ts`; validados `mvn21.cmd clean package` (**49/49 verdes**, `target/nutricional-coach-1.0.0-SNAPSHOT.jar`), `tsc --noEmit`, `ng test` (**15/15 verdes**) y `npm run build` (`frontend/dist/frontend/`); creada guía `aws Tutorial.md` y actualizado `DEV_RUNBOOK.md`.
+
+### Pendientes (Despliegue AWS Free Tier)
+- [ ] **1. Pull Request #5 y Merge a `main` (`feat/prod-packaging-aws-guide` → `main`):** Abrir PR con `API_BASE_URL='/api/v1'`, `aws Tutorial.md` y `DEV_RUNBOOK.md`, mergear y sincronizar `main`.
+- [ ] **2. Provisión y despliegue real en AWS Free Tier:** Ejecutar los pasos de `aws Tutorial.md` (RDS PostgreSQL, S3, EC2 + Nginx + `systemd` con `PROD_JPA_DDL_AUTO=update` inicial y luego `validate`).
 
 ## Comandos clave (terminal integrada de VS Code)
 ```

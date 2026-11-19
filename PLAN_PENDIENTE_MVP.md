@@ -2,12 +2,12 @@
 
 > Ábrelo en VS Code cuando inicies una sesión. Marca lo que vayas haciendo y avisa si cambia el alcance.
 
-## Estado actual (2026-11-18)
+## Estado actual (2026-11-19)
 
-- Rama activa: `feat/pdf-storage-service` (desde `main` tras merge de PR #3, commit `897831f`)
+- Rama activa: `feat/prod-packaging-aws-guide` (desde `main` tras merge de PR #4, commit `197983d`)
 - MVP: **Mergeado en `main`** (commit `462393a`, PR #1 en GitHub)
-- Suite de tests Backend: **49/49 verdes** (`mvn21.cmd test`, incluye E2E H2, placeholders Cloud/H2, `DataInitializerTest`, `ProdProfileConfigTest` y `PdfStorageServiceTest`)
-- Suite de tests Frontend: **14/14 verdes** (`npx ng test --watch=false --browsers=ChromeHeadless`) y `tsc --noEmit` limpio
+- Suite de tests Backend: **49/49 verdes** (`mvn21.cmd clean package`, incluye JAR ejecutable en `target/`)
+- Suite de tests Frontend: **15/15 verdes** (`npm test -- --watch=false --browsers=ChromeHeadless`), `tsc --noEmit` y `npm run build` (`frontend/dist/frontend/`) limpios
 - Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd` y Angular 18 en `frontend/`
 
 ## Hecho (cierra delete-paciente + medicion-biometrica POST + revisiones + recordatorios)
@@ -50,9 +50,10 @@
 - [x] **Hecho (Día 21):** PostgreSQL + perfil `prod` para AWS RDS (`org.postgresql:postgresql` `runtime` en `pom.xml`, `application-prod.properties` con H2 console deshabilitada, `ProdProfileConfigTest`, suite **45/45 verdes**, verificación independiente `PASS`)
 - [x] **Hecho (Día 22):** PR #3 (`feat/aws-rds-prod-profile` → `main`, commit `897831f`) mergeado y sincronizado en `main` local.
 - [x] **Hecho (Día 22):** Almacenamiento PDF (`PdfStorageService` + `LocalPdfStorageService` por defecto + `S3PdfStorageService` activable con `aws.s3.enabled=true` y `aws.s3.bucket`), integrado en `RevisionServiceImpl` y verificado en `PdfStorageServiceTest` (suite **49/49 verdes**).
-- [ ] **Mañana 1 (PR #4 y Merge a `main`):** Abrir PR #4 (`feat/pdf-storage-service` → `main`), mergear y sincronizar `main` local.
-- [ ] **Mañana 2 (Empaquetado y guía de despliegue AWS EC2):** Validar `mvn21.cmd clean package -DskipTests` y `npm run build` (Angular 18) y documentar el checklist de despliegue EC2 + RDS + S3 en `DEV_RUNBOOK.md`.
-- [ ] **Mañana 3 (Verificación integral pre-despliegue):** Re-ejecutar suites completas de Backend (`49/49`) y Frontend Angular 18 (`14/14` + `tsc --noEmit`) sobre `main`.
+- [x] **Hecho (Día 23):** PR #4 (`feat/pdf-storage-service` → `main`, commit `197983d`) mergeado y sincronizado en `main` local.
+- [x] **Hecho (Día 23):** Empaquetado de producción + guía AWS (`API_BASE_URL='/api/v1'`, `api.config.spec.ts`, `mvn21.cmd clean package` **49/49 verdes**, `ng test` **15/15 verdes**, `npm run build` limpio, `aws Tutorial.md` y `DEV_RUNBOOK.md`).
+- [ ] **Pendiente 1 (PR #5 a `main`):** Abrir y mergear PR de `feat/prod-packaging-aws-guide` → `main` y sincronizar localmente.
+- [ ] **Pendiente 2 (Despliegue real en AWS Free Tier):** Ejecutar `aws Tutorial.md` sobre EC2 + RDS PostgreSQL + S3.
 
 ## Comandos clave (usar en la terminal integrada de VS Code)
 
@@ -79,4 +80,4 @@ git status --short --branch
 
 ---
 
-Última actualización: sesión del 2026-11-18 (Día 22). Si cambias el plan, edita este archivo y avísame.
+Última actualización: sesión del 2026-11-19 (Día 23). Si cambias el plan, edita este archivo y avísame.

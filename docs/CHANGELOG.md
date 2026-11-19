@@ -522,3 +522,45 @@ Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama
 
 ## Riesgo
 `Risk: none` — comportamiento local por defecto sin cambios externos ni nuevas dependencias en `pom.xml`, con suite completa de **49/49 tests verdes**.
+
+---
+
+# Día 23 — 2026-11-19 — Merge PR #4 a `main`, `API_BASE_URL` relativo, Empaquetado y Guía AWS (`aws Tutorial.md`)
+
+## Cambios realizados
+- **Merge PR #4 a `main` (TODO 1, commit `197983d`):**
+  - Creado y mergeado en GitHub el Pull Request #4 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/4`, rama `feat/pdf-storage-service` → `main`), sincronizada `main` localmente por fast-forward (`897831f..197983d`) y abierta la rama `feat/prod-packaging-aws-guide`.
+- **Rutas relativas en Frontend (`API_BASE_URL = '/api/v1'`):**
+  - Actualizado `frontend/src/app/core/api.config.ts` a `'/api/v1'` y comentario de `api.service.ts` para resolver contra `proxy.conf.json` en desarrollo y Nginx reverse proxy en EC2.
+  - Añadido test TDD `frontend/src/app/core/api.config.spec.ts` (RED `1 FAILED, 14 SUCCESS` → GREEN `15 SUCCESS` en `ChromeHeadless`).
+- **Empaquetado de producción verificado (TODO 2):**
+  - Backend: `mvn21.cmd clean package` (**49/49 tests verdes**), generando `target/nutricional-coach-1.0.0-SNAPSHOT.jar` (`56,258,069` bytes).
+  - Frontend: `npx tsc --noEmit -p tsconfig.app.json` limpio, `ng test --watch=false --browsers=ChromeHeadless` (**15/15 verdes**), y `npm run build` generando `frontend/dist/frontend` (`349.09 kB` iniciales / `87.86 kB` transferidos).
+- **Documentación operativa AWS y runbook:**
+  - Creada la guía paso a paso `aws Tutorial.md` en la raíz (AWS Budgets, Security Groups, RDS PostgreSQL privado, S3 privado, EC2 Ubuntu 24.04 con 2 GB swap + Java 21 + `systemd` + Nginx, endurecimiento `PROD_JPA_DDL_AUTO=update` → `validate` y checklist post-despliegue).
+  - Actualizados `DEV_RUNBOOK.md`, `TODO.md`, `PLAN_PENDIENTE_MVP.md` y `todo`.
+
+## Dificultades encontradas y cómo se resolvieron
+
+### Dificultad 1 — URL absoluta `http://localhost:8080/api/v1` incompatible con despliegue detrás de Nginx en EC2
+**Problema:** Con `API_BASE_URL` apuntando a `http://localhost:8080/api/v1`, cualquier navegador remoto que abriese la aplicación desplegada en EC2 enviaría las llamadas API al `localhost` del propio usuario en lugar del servidor EC2, además de chocar con `@CrossOrigin(origins = "http://localhost:4200")` en los controladores.  
+**Solución:** Se cambió `API_BASE_URL` a ruta relativa `'/api/v1'`, validando con `api.config.spec.ts` y verificando que todos los `*.service.spec.ts` consumen `API_BASE_URL` dinámicamente sin host hardcodeado.  
+**Por qué:** `frontend/proxy.conf.json` ya redirige `/api/v1` a `http://localhost:8080` en `npm start`, y en producción Nginx atiende `/` y `/api/v1` bajo el mismo origen (`same-origin`), eliminando errores de CORS sin mantener builds separados.
+
+### Dificultad 2 — Restricciones reales de AWS Free Tier (IPv4 pública, 1 GB de RAM y *Free Plan* por créditos)
+**Problema:** AWS cobra `$0.005/hora` por IPv4 públicas adicionales (como exponer RDS públicamente), las cuentas nuevas desde julio de 2025 usan *Free Plan* por créditos ($200 / 6 meses) en lugar de cuotas clásicas de 12 meses, y las instancias de 1 GB RAM (`t2.micro`/`t3.micro`) pueden sufrir *OutOfMemory* al correr JVM + Nginx o al ejecutar `ng build` directamente en la EC2.  
+**Solución:** En `aws Tutorial.md` se definió RDS con `Public access: No` (accesible únicamente desde el Security Group de EC2), 2 GB de swap en EC2, límites de heap JVM (`-Xms256m -Xmx512m`) en `systemd`, alarma de AWS Budgets a `$1.00 USD` y compilación local de artefactos antes de subirlos vía `scp`.  
+**Por qué:** Evita sobrecostos por IPv4 o autoescalado de almacenamiento y protege la estabilidad del servidor en instancias pequeñas.
+
+### Dificultad 3 — Ubicación de la guía AWS respetando los límites de `AGENTS.md`
+**Problema:** `AGENTS.md` protege modificaciones libres dentro de `docs/` salvo archivos ODD específicos (`docs/CHANGELOG.md`, `docs/constitution.md`).  
+**Solución:** Se creó la guía como `aws Tutorial.md` en la raíz del proyecto junto a `SETUP.md` y `DEV_RUNBOOK.md`, reflejando exactamente los nombres reales de tablas JPA (`pacientes`, `mediciones_biometricas`, `revisiones`, `recordatorios`).  
+**Por qué:** Respeta las convenciones de acceso del repositorio y entrega el nombre exacto solicitado por el usuario.
+
+## Por qué se ha construido así (Decisiones de Arquitectura y Diseño)
+1. **Reverse Proxy *Same-Origin* (`/api/v1` en Nginx y `proxy.conf.json`):** Permite exponer únicamente los puertos `80`/`443` en la EC2 manteniendo Tomcat (`127.0.0.1:8080`) y RDS (`5432`) cerrados a Internet.
+2. **Separación de compilación local y ejecución en EC2:** Mantiene la instancia Free Tier ligera (solo JRE 21 + Nginx, sin Node.js, Angular CLI ni Maven instalados en producción).
+3. **Commits por unidad de trabajo en `feat/prod-packaging-aws-guide`:** Separa el cambio ejecutable de frontend (`API_BASE_URL` + test) de la documentación operativa (`aws Tutorial.md`, `DEV_RUNBOOK.md` y `CHANGELOG.md`) para facilitar la revisión del PR #5.
+
+## Riesgo
+`Risk: none` — suite backend **49/49** (con JAR empaquetado) y suite frontend **15/15** (`tsc` y `ng build` limpios) verificadas tras el último cambio ejecutable; el aprovisionamiento real en la cuenta AWS queda listo para ejecutarse manualmente con `aws Tutorial.md`.
