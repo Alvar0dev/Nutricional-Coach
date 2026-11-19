@@ -486,3 +486,39 @@ Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama
 
 ## Riesgo
 `Risk: item 5 (adds org.postgresql:postgresql runtime dependency in pom.xml)` — mitigado con `scope=runtime`, suite completa de **45/45 tests verdes** y auditoría independiente `odd-verifier` con resultado **PASS** en copia limpia y workspace; la conectividad JDBC real y validación Hibernate contra AWS RDS PostgreSQL quedan pendientes hasta disponer de instancia viva.
+
+---
+
+# Día 22 — 2026-11-18 — Merge PR #3 a `main` y Abstracción `PdfStorageService` (Local / AWS S3)
+
+## Cambios realizados
+- **Merge PR #3 a `main` (TODO 1, commit `897831f`):**
+  - Creado y mergeado en GitHub el Pull Request #3 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/3`, rama `feat/aws-rds-prod-profile` → `main`) con el driver PostgreSQL `runtime`, `application-prod.properties` y `ProdProfileConfigTest`.
+  - Sincronizada la rama `main` local por fast-forward (`5a52381..897831f`) y abierta la rama aislada `feat/pdf-storage-service`.
+- **Abstracción `PdfStorageService` (TODO 2, commit `ee391e9`):**
+  - Creada la interfaz `src/main/java/com/nutricionalcoach/service/PdfStorageService.java` (`storePdf`, `loadPdf`).
+  - Creada la implementación por defecto `LocalPdfStorageService.java` (`@ConditionalOnProperty(name = "aws.s3.enabled", havingValue = "false", matchIfMissing = true)`), respaldada en memoria con `ConcurrentHashMap` y retorno de ruta `/api/v1/revisiones/{id}/pdf`.
+  - Creado el adaptador `S3PdfStorageService.java` (`@ConditionalOnProperty(name = "aws.s3.enabled", havingValue = "true")`), parametrizado con `aws.s3.bucket` y `aws.region`, generando claves `revisiones/revision-{id}.pdf` y URI `s3://{bucket}/revisiones/revision-{id}.pdf` (actualmente simulado en memoria sin dependencia del SDK de AWS).
+  - Cableado en `RevisionServiceImpl`: lee desde `pdfStorageService.loadPdf(id)` antes de regenerar con OpenPDF y persiste tras generar mediante `pdfStorageService.storePdf(id, pdfBytes)` asignando `pdfUrl` si estaba vacío.
+  - Añadida la propiedad `aws.s3.enabled=${AWS_S3_ENABLED:false}` en `src/main/resources/application.properties` y `AWS_S3_ENABLED=false` en `.env.example`.
+  - Creado `src/test/java/com/nutricionalcoach/service/PdfStorageServiceTest.java` (TDD: RED → GREEN `4/4`, cubriendo almacenamiento local, URI S3, selección condicional vía `ApplicationContextRunner` y delegación/caché desde `RevisionServiceImpl`). Suite backend completa: **49/49 tests verdes**.
+
+## Dificultades encontradas y cómo se resolvieron
+
+### Dificultad 1 — Compatibilidad con `@InjectMocks` de Mockito en `RevisionServiceImplTest` al añadir un segundo colaborador
+**Problema:** `RevisionServiceImplTest` solo define `@Mock private RevisionRepository revisionRepository` e instancia `RevisionServiceImpl` con `@InjectMocks`. Si `RevisionServiceImpl` expusiera únicamente un constructor de 2 argumentos o no tolerase `null`, Mockito fallaría o dejaría `pdfStorageService` en `null` provocando `NullPointerException`.  
+**Solución:** Se conservó el constructor de 1 argumento `RevisionServiceImpl(RevisionRepository)` delegando en `new LocalPdfStorageService()`, se anotó el constructor de 2 argumentos con `@Autowired` para la inyección de Spring y se añadió un fallback defensivo `(pdfStorageService != null) ? pdfStorageService : new LocalPdfStorageService()`.  
+**Por qué:** Mantiene el 100% de los tests unitarios existentes intactos y sin acoplamiento extra mientras permite que Spring inyecte dinámicamente el bean activo (`LocalPdfStorageService` o `S3PdfStorageService`) en tiempo de ejecución.
+
+### Dificultad 2 — Conmutación local / AWS S3 sin acoplar el build local al SDK de AWS
+**Problema:** Incorporar `software.amazon.awssdk:s3` y llamadas HTTP reales contra S3 antes de provisionar el bucket Free Tier añadiría peso de dependencias en `pom.xml` y exigiría mocks de clientes HTTP o credenciales reales en local/CI.  
+**Solución:** Se aplicó el patrón Puertos y Adaptadores definiendo `PdfStorageService` + selección declarativa `@ConditionalOnProperty(name = "aws.s3.enabled")` probada con `ApplicationContextRunner` en `PdfStorageServiceTest`, mientras `S3PdfStorageService` formatea la clave S3 canónica (`revisiones/revision-{id}.pdf`) y la URI `s3://` manteniendo almacenamiento en memoria hasta enchufar el cliente AWS real.  
+**Por qué:** Deja la arquitectura lista para conectar el SDK de AWS S3 en un único archivo (`S3PdfStorageService`) sin tocar controladores ni lógica de negocio, manteniendo `pom.xml` limpio y `Risk: none` en este incremento.
+
+## Por qué se ha construido así (Decisiones de Arquitectura y Diseño)
+1. **Puerto de salida `PdfStorageService` (Arquitectura Hexagonal):** Desacopla la generación del PDF con OpenPDF dentro de `RevisionServiceImpl` del mecanismo de persistencia o caché elegido por entorno.
+2. **Selección por configuración con `@ConditionalOnProperty(..., matchIfMissing = true)`:** Garantiza que cualquier arranque sin `AWS_S3_ENABLED=true` use `LocalPdfStorageService` sin configuración adicional ni credenciales AWS.
+3. **Copias defensivas (`byte[].clone()`) y caché previa (`loadPdf`):** Evita mutaciones accidentales sobre los bytes almacenados en memoria y evita regenerar con OpenPDF cuando el documento ya fue generado para la revisión.
+
+## Riesgo
+`Risk: none` — comportamiento local por defecto sin cambios externos ni nuevas dependencias en `pom.xml`, con suite completa de **49/49 tests verdes**.

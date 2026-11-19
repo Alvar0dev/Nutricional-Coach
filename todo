@@ -35,6 +35,14 @@ Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
 
 === Pendientes para mañana (Post-MVP — AWS Free Tier y Producción) ===
 - [done] Día 21 - 1: Añadir driver PostgreSQL (runtime) en pom.xml + application-prod.properties (H2 console disabled, org.postgresql.Driver) + ProdProfileConfigTest (suite 45/45 verdes)
-- [pending] Mañana 1: Abrir y mergear PR feat/aws-rds-prod-profile -> main y sincronizar main local
-- [pending] Mañana 2: Extraer PdfStorageService (local por defecto + soporte configurable AWS S3 bucket)
-- [pending] Mañana 3: Validar build de producción (mvn21.cmd clean package -DskipTests + ng build) y documentar checklist de despliegue AWS EC2 + RDS + S3 en DEV_RUNBOOK.md
+- [done] Día 22 - 1: Abrir y mergear PR #3 feat/aws-rds-prod-profile -> main (897831f) y sincronizar main local
+- [done] Día 22 - 2: Extraer PdfStorageService (LocalPdfStorageService por defecto + S3PdfStorageService con aws.s3.enabled=true) conectado en RevisionServiceImpl (suite 49/49 verdes)
+
+=== Cierre de sesión — 2026-11-18 (Día 22) ===
+Estado: Rama feat/pdf-storage-service pusheada a origin con PR #3 mergeado en main (897831f) y TODO 2 completado (PdfStorageService local/S3, 49/49 tests verdes).
+Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
+
+=== Pendientes para mañana (Post-MVP — AWS Free Tier y Producción) ===
+- [pending] Mañana 1: Abrir y mergear PR #4 feat/pdf-storage-service -> main y sincronizar main local
+- [pending] Mañana 2: Validar build de producción (mvn21.cmd clean package -DskipTests + ng build) y documentar checklist de despliegue AWS EC2 + RDS + S3 en DEV_RUNBOOK.md
+- [pending] Mañana 3: Re-ejecutar verificación integral Backend (49/49) + Frontend Angular 18 (14/14 + tsc --noEmit) sobre main consolidado

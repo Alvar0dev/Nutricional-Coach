@@ -6,11 +6,13 @@ import com.lowagie.text.pdf.PdfWriter;
 import com.nutricionalcoach.dto.RevisionDTO;
 import com.nutricionalcoach.model.Revision;
 import com.nutricionalcoach.repository.RevisionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import java.io.ByteArrayOutputStream;
@@ -24,9 +26,16 @@ import java.io.ByteArrayOutputStream;
 public class RevisionServiceImpl implements RevisionService {
 
     private final RevisionRepository revisionRepository;
+    private final PdfStorageService pdfStorageService;
 
     public RevisionServiceImpl(RevisionRepository revisionRepository) {
+        this(revisionRepository, new LocalPdfStorageService());
+    }
+
+    @Autowired
+    public RevisionServiceImpl(RevisionRepository revisionRepository, PdfStorageService pdfStorageService) {
         this.revisionRepository = revisionRepository;
+        this.pdfStorageService = (pdfStorageService != null) ? pdfStorageService : new LocalPdfStorageService();
     }
 
     @Override
@@ -80,6 +89,11 @@ public class RevisionServiceImpl implements RevisionService {
             return null;
         }
 
+        Optional<byte[]> cached = pdfStorageService.loadPdf(id);
+        if (cached.isPresent()) {
+            return cached.get();
+        }
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             Document document = new Document();
@@ -100,7 +114,12 @@ public class RevisionServiceImpl implements RevisionService {
         } catch (Exception e) {
             throw new IllegalStateException("Error generando PDF de la revisión", e);
         }
-        return baos.toByteArray();
+        byte[] pdfBytes = baos.toByteArray();
+        String pdfUrl = pdfStorageService.storePdf(id, pdfBytes);
+        if (revision.getPdfUrl() == null || revision.getPdfUrl().isBlank()) {
+            revision.setPdfUrl(pdfUrl);
+        }
+        return pdfBytes;
     }
 
     private RevisionDTO toDto(Revision revision) {
