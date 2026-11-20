@@ -564,3 +564,42 @@ Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama
 
 ## Riesgo
 `Risk: none` — suite backend **49/49** (con JAR empaquetado) y suite frontend **15/15** (`tsc` y `ng build` limpios) verificadas tras el último cambio ejecutable; el aprovisionamiento real en la cuenta AWS queda listo para ejecutarse manualmente con `aws Tutorial.md`.
+
+---
+
+# Día 24 — 2026-11-20 — Merge PR #5 a `main` y Guía del Emulador AWS Local ($0 con Docker)
+
+## Cambios realizados
+- **Merge PR #5 a `main` (Paso 1, commit `e982e88`):**
+  - Creado y mergeado en GitHub el Pull Request #5 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/5`, rama `feat/prod-packaging-aws-guide` → `main`).
+  - Sincronizada la rama `main` local por fast-forward (`197983d..e982e88`) y abierta la rama `docs/aws-local-emulator-tutorial`.
+- **Guía de Emulador AWS Local en `aws Tutorial.md` (Parte 1):**
+  - Añadida arquitectura comparativa **Emulador Local (Docker, $0)** vs **AWS Free Tier real**.
+  - Documentado stack en `C:\lab-aws-nutricional\` (`docker-compose.yml` + `nginx.conf`) con `postgres:16-alpine` (`:5432`), `localstack/localstack` (`SERVICES=s3`, `:4566`) y `nginx:alpine` (`:80` → `host.docker.internal:8080`).
+  - Documentados los 6 pasos operativos: empaquetado local, creación del bucket con `docker exec localstack_s3 awslocal s3 mb`, arranque del fat JAR con ruta explícita de **Java 21** y argumentos CLI `--spring.profiles.active=prod` (`PROD_JPA_DDL_AUTO=update` → `validate`), verificación E2E en `http://localhost/`, bloqueo de `/h2-console`, persistencia en PostgreSQL y pruebas de S3 en LocalStack.
+  - Actualizados `TODO.md`, `PLAN_PENDIENTE_MVP.md`, `DEV_RUNBOOK.md` y `todo`.
+
+## Dificultades encontradas y cómo se resolvieron
+
+### Dificultad 1 — `java` por defecto en Windows apunta a JDK 17 frente a un JAR compilado para Java 21
+**Problema:** Al verificar `java -version` en PowerShell, el `PATH` del equipo apunta a OpenJDK `17.0.20.1` (necesario para `spring-petclinic/`), por lo que lanzar `java -jar target/nutricional-coach-1.0.0-SNAPSHOT.jar` habría fallado con `UnsupportedClassVersionError`.  
+**Solución:** Se verificó `C:\Users\alvar\bin\mvn21.cmd` y se documentó en `aws Tutorial.md` el comando exacto con `& "C:\Program Files\Eclipse Adoptium\jdk-21.0.5.11-hotspot\bin\java.exe"`.  
+**Por qué:** Permite ejecutar el JAR Java 21 sin modificar la variable global `JAVA_HOME`/`PATH` requerida por el subproyecto `spring-petclinic/`.
+
+### Dificultad 2 — Alcance de LocalStack Community Edition (sin RDS) y reseteo de S3 al recrear contenedores
+**Problema:** LocalStack Community (gratuito) emula **S3** (`:4566`) pero **no** incluye emulación de Amazon RDS PostgreSQL (exclusiva de LocalStack Pro), reinicia los buckets de S3 al recrear el contenedor, y montar scripts `.sh` desde Windows puede fallar por saltos de línea CRLF (`/bin/sh^M`).  
+**Solución:** Se diseñó el `docker-compose.yml` combinando `localstack/localstack` (S3) + `postgres:16-alpine` (RDS mock con volumen persistente `pg_rds_data`) + `nginx:alpine` (proxy inverso EC2), creando el bucket con `docker exec localstack_s3 awslocal s3 mb s3://nutricional-coach-pdfs --region eu-west-1` sin montar `.sh` ni exigir AWS CLI en Windows.  
+**Por qué:** Emula fielmente toda la topología de producción sin costes de licencia ni incidencias por finales de línea Windows/Linux.
+
+### Dificultad 3 — Precedencia de `.env` local de H2 y sintaxis de encadenamiento en PowerShell 5.1
+**Problema:** El `.env` de la raíz define `DB_URL=jdbc:h2:mem:...`, y `application.properties` lo importa automáticamente; además, PowerShell 5.1 rechaza `&&` en comandos encadenados.  
+**Solución:** En el tutorial se inyectan los parámetros de RDS emulado mediante argumentos CLI (`--DB_URL=...`, `--PROD_JPA_DDL_AUTO=...`) que tienen mayor prioridad que `.env` sin modificar el entorno H2 local, y en los comandos PowerShell se utiliza comprobación explícita de `$LASTEXITCODE`.  
+**Por qué:** Garantiza compatibilidad directa con Windows PowerShell 5.1 y permite alternar entre desarrollo local H2 y emulador PostgreSQL `prod` sin editar `.env`.
+
+## Por qué se ha construido así (Decisiones de Arquitectura y Diseño)
+1. **Laboratorio Docker externo (`C:\lab-aws-nutricional\`) fuera del repositorio:** Mantiene Git limpio de volúmenes y rutas de host sin acoplar el código fuente a una carpeta local concreta.
+2. **Ensayo previo del ciclo `PROD_JPA_DDL_AUTO=update` → `validate`:** Reproduce en el emulador exactamente la misma secuencia de creación de tablas y endurecimiento que se ejecutará en Amazon RDS.
+3. **Separación clara entre emulación de infraestructura y SDK S3:** Documenta explícitamente que `S3PdfStorageService` opera en memoria hasta añadir `software.amazon.awssdk:s3` con `AWS_S3_ENDPOINT`, permitiendo probar primero Nginx + PostgreSQL `prod` sin bloquearse.
+
+## Riesgo
+`Risk: none` — cambios exclusivamente documentales sobre la rama `docs/aws-local-emulator-tutorial` (suites verificadas en Día 23: Backend `49/49` y Frontend `15/15`).

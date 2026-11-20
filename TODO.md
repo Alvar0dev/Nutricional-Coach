@@ -54,13 +54,18 @@
 - [x] **1. Pull Request y Merge a `main` (`feat/aws-rds-prod-profile` → `main`):** Creado y mergeado PR #3 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/3`, commit `897831f`), `main` sincronizada localmente y abierta rama `feat/pdf-storage-service`.
 - [x] **2. Almacenamiento de PDFs en AWS S3 / local (`PdfStorageService`):** Extraída interfaz `PdfStorageService` con `LocalPdfStorageService` (por defecto, `aws.s3.enabled=false`) y `S3PdfStorageService` (`aws.s3.enabled=true`, URI `s3://<bucket>/revisiones/revision-<id>.pdf`), conectada en `RevisionServiceImpl` y verificada en `PdfStorageServiceTest` (suite **49/49 tests verdes**).
 
-### Hecho hoy (Día 23 — 2026-11-19)
+### Hecho (Día 23 — 2026-11-19)
 - [x] **1. Pull Request #4 y Merge a `main` (`feat/pdf-storage-service` → `main`):** Creado y mergeado PR #4 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/4`, commit `197983d`) y sincronizada `main` localmente.
 - [x] **2. Empaquetado de producción y guía AWS Free Tier (`aws Tutorial.md`):** Cambiado `API_BASE_URL` a `'/api/v1'` en `frontend/src/app/core/api.config.ts` (compatible con `proxy.conf.json` y Nginx) con test TDD en `api.config.spec.ts`; validados `mvn21.cmd clean package` (**49/49 verdes**, `target/nutricional-coach-1.0.0-SNAPSHOT.jar`), `tsc --noEmit`, `ng test` (**15/15 verdes**) y `npm run build` (`frontend/dist/frontend/`); creada guía `aws Tutorial.md` y actualizado `DEV_RUNBOOK.md`.
 
-### Pendientes (Despliegue AWS Free Tier)
-- [ ] **1. Pull Request #5 y Merge a `main` (`feat/prod-packaging-aws-guide` → `main`):** Abrir PR con `API_BASE_URL='/api/v1'`, `aws Tutorial.md` y `DEV_RUNBOOK.md`, mergear y sincronizar `main`.
-- [ ] **2. Provisión y despliegue real en AWS Free Tier:** Ejecutar los pasos de `aws Tutorial.md` (RDS PostgreSQL, S3, EC2 + Nginx + `systemd` con `PROD_JPA_DDL_AUTO=update` inicial y luego `validate`).
+### Hecho hoy (Día 24 — 2026-11-20)
+- [x] **1. Pull Request #5 y Merge a `main` (`feat/prod-packaging-aws-guide` → `main`):** Creado y mergeado PR #5 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/5`, commit `e982e88`), sincronizada `main` localmente y abierta rama `docs/aws-local-emulator-tutorial`.
+- [x] **2. Guía del Emulador AWS Local ($0 con Docker) en `aws Tutorial.md`:** Documentada la Parte 1 completa (`postgres:16-alpine` + `localstack/localstack` S3 + `nginx:alpine`), tabla comparativa local vs AWS real, ruta explícita de Java 21, flujo `PROD_JPA_DDL_AUTO=update` → `validate` y pruebas E2E/S3 locales.
+
+### Pendientes para mañana (Emulador Local y Despliegue Cloud)
+- [ ] **1. Pull Request #6 y Merge a `main` (`docs/aws-local-emulator-tutorial` → `main`):** Abrir y mergear PR #6 con la actualización de `aws Tutorial.md` y documentación del Día 24, y sincronizar `main`.
+- [ ] **2. Levantar y validar el emulador AWS local ($0):** Ejecutar los Pasos 1–6 de `aws Tutorial.md` (`docker compose up -d` con PostgreSQL + LocalStack S3 + Nginx, arranque del JAR en perfil `prod` y validación E2E completa en `http://localhost/`).
+- [ ] **3. *(Opcional)* Integrar SDK real de AWS S3 (`software.amazon.awssdk:s3`):** Añadir cliente S3 en `S3PdfStorageService.java` con propiedad `AWS_S3_ENDPOINT` (`http://localhost:4566` en LocalStack / estándar en AWS) para persistir PDFs reales en bucket.
 
 ## Comandos clave (terminal integrada de VS Code)
 ```

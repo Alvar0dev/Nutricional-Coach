@@ -4,7 +4,7 @@
 
 ## Estado actual (2026-11-19)
 
-- Rama activa: `feat/prod-packaging-aws-guide` (desde `main` tras merge de PR #4, commit `197983d`)
+- Rama activa: `docs/aws-local-emulator-tutorial` (desde `main` tras merge de PR #5, commit `e982e88`)
 - MVP: **Mergeado en `main`** (commit `462393a`, PR #1 en GitHub)
 - Suite de tests Backend: **49/49 verdes** (`mvn21.cmd clean package`, incluye JAR ejecutable en `target/`)
 - Suite de tests Frontend: **15/15 verdes** (`npm test -- --watch=false --browsers=ChromeHeadless`), `tsc --noEmit` y `npm run build` (`frontend/dist/frontend/`) limpios
@@ -52,8 +52,11 @@
 - [x] **Hecho (Día 22):** Almacenamiento PDF (`PdfStorageService` + `LocalPdfStorageService` por defecto + `S3PdfStorageService` activable con `aws.s3.enabled=true` y `aws.s3.bucket`), integrado en `RevisionServiceImpl` y verificado en `PdfStorageServiceTest` (suite **49/49 verdes**).
 - [x] **Hecho (Día 23):** PR #4 (`feat/pdf-storage-service` → `main`, commit `197983d`) mergeado y sincronizado en `main` local.
 - [x] **Hecho (Día 23):** Empaquetado de producción + guía AWS (`API_BASE_URL='/api/v1'`, `api.config.spec.ts`, `mvn21.cmd clean package` **49/49 verdes**, `ng test` **15/15 verdes**, `npm run build` limpio, `aws Tutorial.md` y `DEV_RUNBOOK.md`).
-- [ ] **Pendiente 1 (PR #5 a `main`):** Abrir y mergear PR de `feat/prod-packaging-aws-guide` → `main` y sincronizar localmente.
-- [ ] **Pendiente 2 (Despliegue real en AWS Free Tier):** Ejecutar `aws Tutorial.md` sobre EC2 + RDS PostgreSQL + S3.
+- [x] **Hecho (Día 24):** PR #5 (`feat/prod-packaging-aws-guide` → `main`, commit `e982e88`) mergeado y sincronizado en `main` local.
+- [x] **Hecho (Día 24):** Parte 1 de `aws Tutorial.md` para emulador local AWS a coste $0 (`postgres:16-alpine` + `localstack/localstack` S3 + `nginx:alpine`, Java 21 explícito, ciclo `update` → `validate` y pruebas E2E locales).
+- [ ] **Mañana 1 (PR #6 a `main`):** Abrir y mergear PR de `docs/aws-local-emulator-tutorial` → `main` y sincronizar localmente.
+- [ ] **Mañana 2 (Prueba en Emulador Local):** Ejecutar la Parte 1 de `aws Tutorial.md` (`docker compose up -d` + JAR en perfil `prod` + verificación E2E en `http://localhost/`).
+- [ ] **Mañana 3 (Opcional — SDK real AWS S3):** Integrar `software.amazon.awssdk:s3` con `AWS_S3_ENDPOINT` en `S3PdfStorageService.java` para subir PDFs reales a LocalStack / S3.
 
 ## Comandos clave (usar en la terminal integrada de VS Code)
 
@@ -80,4 +83,4 @@ git status --short --branch
 
 ---
 
-Última actualización: sesión del 2026-11-19 (Día 23). Si cambias el plan, edita este archivo y avísame.
+Última actualización: sesión del 2026-11-20 (Día 24). Si cambias el plan, edita este archivo y avísame.
