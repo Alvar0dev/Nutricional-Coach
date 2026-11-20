@@ -4,7 +4,7 @@ import { API_BASE_URL } from './api.config';
 
 /**
  * Servicio base de HTTP para consumir la API del backend Nutricional Coach.
- * Todas las peticiones se resuelven contra http://localhost:8080/api/v1.
+ * Todas las peticiones se resuelven contra /api/v1 (proxy local o Nginx en producción).
  */
 @Injectable({ providedIn: 'root' })
 export class ApiService {
