@@ -1,6 +1,6 @@
 # DEV_RUNBOOK.md — Comandos ejecutables y entornos
 
-Estado: 2026-11-20 (Día 24). Backend Spring Boot 3.4 (H2 local / RDS `prod` / `PdfStorageService`) y Frontend Angular 18 (`API_BASE_URL = '/api/v1'`) empaquetados para producción y verificados. Guía paso a paso (emulador local Docker $0 + AWS Free Tier) en `aws Tutorial.md`.
+Estado: 2026-11-21 (Día 25). PR #6 mergeado en `main` (`9e4b203`). Backend Spring Boot 3.4 (H2 local / RDS `prod` / `PdfStorageService`) y Frontend Angular 18 (`API_BASE_URL = '/api/v1'`) empaquetados para producción; laboratorio Docker del emulador AWS local preconfigurado fuera de Git en `C:\lab-aws-nutricional\` siguiendo `aws Tutorial.md`.
 
 ## Entorno requerido
 

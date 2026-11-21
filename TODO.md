@@ -58,14 +58,19 @@
 - [x] **1. Pull Request #4 y Merge a `main` (`feat/pdf-storage-service` → `main`):** Creado y mergeado PR #4 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/4`, commit `197983d`) y sincronizada `main` localmente.
 - [x] **2. Empaquetado de producción y guía AWS Free Tier (`aws Tutorial.md`):** Cambiado `API_BASE_URL` a `'/api/v1'` en `frontend/src/app/core/api.config.ts` (compatible con `proxy.conf.json` y Nginx) con test TDD en `api.config.spec.ts`; validados `mvn21.cmd clean package` (**49/49 verdes**, `target/nutricional-coach-1.0.0-SNAPSHOT.jar`), `tsc --noEmit`, `ng test` (**15/15 verdes**) y `npm run build` (`frontend/dist/frontend/`); creada guía `aws Tutorial.md` y actualizado `DEV_RUNBOOK.md`.
 
-### Hecho hoy (Día 24 — 2026-11-20)
+### Hecho (Día 24 — 2026-11-20)
 - [x] **1. Pull Request #5 y Merge a `main` (`feat/prod-packaging-aws-guide` → `main`):** Creado y mergeado PR #5 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/5`, commit `e982e88`), sincronizada `main` localmente y abierta rama `docs/aws-local-emulator-tutorial`.
 - [x] **2. Guía del Emulador AWS Local ($0 con Docker) en `aws Tutorial.md`:** Documentada la Parte 1 completa (`postgres:16-alpine` + `localstack/localstack` S3 + `nginx:alpine`), tabla comparativa local vs AWS real, ruta explícita de Java 21, flujo `PROD_JPA_DDL_AUTO=update` → `validate` y pruebas E2E/S3 locales.
 
+### Hecho hoy (Día 25 — 2026-11-21)
+- [x] **1. Pull Request #6 y Merge a `main` (`docs/aws-local-emulator-tutorial` → `main`):** Creado y mergeado PR #6 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/6`, commit `9e4b203`) y sincronizada `main` localmente (`e982e88..9e4b203`).
+- [x] **2 (Preparación). Laboratorio Docker en `C:\lab-aws-nutricional\`:** Verificados artefactos compilados (`target/nutricional-coach-1.0.0-SNAPSHOT.jar` y `frontend/dist/frontend/browser/index.html`), binario Java 21 y puertos libres (`80, 4566, 5432, 8080`); creados `C:\lab-aws-nutricional\nginx.conf` y `C:\lab-aws-nutricional\docker-compose.yml` validados offline con `docker compose config --quiet`.
+
 ### Pendientes para mañana (Emulador Local y Despliegue Cloud)
-- [ ] **1. Pull Request #6 y Merge a `main` (`docs/aws-local-emulator-tutorial` → `main`):** Abrir y mergear PR #6 con la actualización de `aws Tutorial.md` y documentación del Día 24, y sincronizar `main`.
-- [ ] **2. Levantar y validar el emulador AWS local ($0):** Ejecutar los Pasos 1–6 de `aws Tutorial.md` (`docker compose up -d` con PostgreSQL + LocalStack S3 + Nginx, arranque del JAR en perfil `prod` y validación E2E completa en `http://localhost/`).
-- [ ] **3. *(Opcional)* Integrar SDK real de AWS S3 (`software.amazon.awssdk:s3`):** Añadir cliente S3 en `S3PdfStorageService.java` con propiedad `AWS_S3_ENDPOINT` (`http://localhost:4566` en LocalStack / estándar en AWS) para persistir PDFs reales en bucket.
+- [ ] **1. Arrancar Docker Desktop y levantar el emulador AWS local ($0):** Ejecutar `docker compose up -d` desde `C:\lab-aws-nutricional\`, crear el bucket `nutricional-coach-pdfs` en LocalStack (`docker exec localstack_s3 awslocal s3 mb s3://nutricional-coach-pdfs --region eu-west-1`) y verificar los 3 contenedores saludables.
+- [ ] **2. Arrancar el Backend `prod` y validar flujo E2E en `http://localhost/`:** Ejecutar el JAR con Java 21 explícito en perfil `prod` (`PROD_JPA_DDL_AUTO=update` → `validate`), comprobar bloqueo de `/h2-console`, probar alta/mediciones/revisión/PDF desde Nginx (`:80`) y validar persistencia en PostgreSQL + pruebas S3 en LocalStack.
+- [ ] **3. *(Opcional)* Integrar SDK real de AWS S3 (`software.amazon.awssdk:s3`):** Añadir cliente S3 en `S3PdfStorageService.java` (en nueva rama `feat/s3-sdk-integration`) con propiedad `AWS_S3_ENDPOINT` (`http://localhost:4566` en LocalStack / estándar en AWS) para persistir PDFs reales en bucket.
+- [ ] **4. *(Cuando el emulador esté validado)* Despliegue real en AWS Free Tier:** Seguir la Parte 2 de `aws Tutorial.md` (Budgets, Security Groups, RDS PostgreSQL privado, S3 privado y EC2 con Nginx + `systemd`).
 
 ## Comandos clave (terminal integrada de VS Code)
 ```

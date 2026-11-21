@@ -603,3 +603,45 @@ Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama
 
 ## Riesgo
 `Risk: none` — cambios exclusivamente documentales sobre la rama `docs/aws-local-emulator-tutorial` (suites verificadas en Día 23: Backend `49/49` y Frontend `15/15`).
+
+---
+
+# Día 25 — 2026-11-21 — Merge PR #6 a `main` y Preparación del Laboratorio Emulador AWS Local (`C:\lab-aws-nutricional\`)
+
+## Cambios realizados
+- **Merge PR #6 a `main` (TODO 1, commit `9e4b203`):**
+  - Creado y mergeado en GitHub el Pull Request #6 (`https://github.com/Alvar0dev/Nutricional-Coach/pull/6`, rama `docs/aws-local-emulator-tutorial` → `main`).
+  - Sincronizada la rama `main` local por fast-forward (`e982e88..9e4b203`), manteniendo intactos `opencode.json` y `spring-petclinic/`.
+- **Preparación del laboratorio Docker emulador AWS fuera de Git (TODO 2):**
+  - Verificado mediante `git diff e982e88..HEAD --stat` que PR #6 solo introdujo cambios documentales, confirmando la vigencia de los artefactos ya compilados (`target/nutricional-coach-1.0.0-SNAPSHOT.jar` y `frontend/dist/frontend/browser/index.html`) y del binario explícito de Java 21 (`C:\Program Files\Eclipse Adoptium\jdk-21.0.5.11-hotspot\bin\java.exe`).
+  - Creados fuera del repositorio en `C:\lab-aws-nutricional\`:
+    - `C:\lab-aws-nutricional\nginx.conf` (SPA Angular 18 en `/` + proxy inverso `/api/v1` hacia `http://host.docker.internal:8080`).
+    - `C:\lab-aws-nutricional\docker-compose.yml` (`postgres:16-alpine` en `:5432`, `localstack/localstack:latest` con `SERVICES=s3` en `:4566`, `nginx:alpine` en `:80` y volúmenes persistentes `pg_rds_data` / `localstack_data`).
+  - Validada la sintaxis del Compose con `docker compose -f "C:\lab-aws-nutricional\docker-compose.yml" config --quiet` (`compose_valid=True`), confirmada la instalación de `Docker Desktop.exe` y comprobado que los puertos `80`, `4566`, `5432` y `8080` están libres.
+- **Documentación y planificación:**
+  - Actualizados `docs/CHANGELOG.md`, `DEV_RUNBOOK.md`, `TODO.md`, `PLAN_PENDIENTE_MVP.md` y `todo` con el estado y plan para mañana.
+
+## Dificultades encontradas y cómo se resolvieron
+
+### Dificultad 1 — Token inválido en `gh auth status` y fallo de entrada en PowerShell 5.1 con `git credential fill`
+**Problema:** `gh auth status` reportó token inválido para `Alvar0dev`, al pasar `bash.exe -lc` con comillas dobles anidadas `git credential fill` falló con `fatal: refusing to work with credential missing host field` (y `/c/Users/alvar/.bashrc` emitió un error de BOM `$'\377\376export'`), y el pipe nativo con arreglo de strings en PowerShell 5.1 falló con `missing protocol field`.  
+**Solución:** Se reutilizó el patrón verificado en el Día 20 invocando Git Bash sin comillas internas (`& "C:\Program Files\Git\bin\bash.exe" -c '(echo protocol=https; echo host=github.com; echo) | git credential fill'`), asignando el resultado en memoria a `$env:GH_TOKEN` dentro de PowerShell (sin imprimirlo) para ejecutar `gh pr create` y `gh pr merge`, y limpiando la variable inmediatamente después.  
+**Por qué:** Evita saltos de línea/codificación alterados por PowerShell 5.1 hacia binarios nativos y el `.bashrc` con BOM de `-lc`, automatizando PR #6 sin exponer credenciales ni requerir re-login interactivo.
+
+### Dificultad 2 — Operador `&&` no soportado en PowerShell 5.1
+**Problema:** Al encadenar `git checkout main && git pull origin main && ...` en PowerShell 5.1, el intérprete lanzó `ParserError: InvalidEndOfLine` porque `&&` no existe como separador de instrucciones en esa versión.  
+**Solución:** Se ejecutaron los pasos secuencialmente con comprobación explícita de `if ($LASTEXITCODE -eq 0)`.  
+**Por qué:** Mantiene control de fallo estricto en cada paso de Git en Windows PowerShell 5.1 sin depender de PowerShell 7.
+
+### Dificultad 3 — Daemon de Docker Desktop aún apagado durante la preparación
+**Problema:** Al comprobar `docker info`, Docker devolvió error de conexión al pipe `//./pipe/docker_engine` porque Docker Desktop aún no se encontraba iniciado mientras el usuario prepara la instalación/arranque del emulador.  
+**Solución:** Se verificó la presencia de `C:\Program Files\Docker\Docker\Docker Desktop.exe`, que los puertos requeridos (`80`, `4566`, `5432`, `8080`) están libres, y se validó la sintaxis del archivo `C:\lab-aws-nutricional\docker-compose.yml` de forma offline con `docker compose config --quiet` (`compose_valid=True`).  
+**Por qué:** Permite dejar todo el entorno Docker preconfigurado y validado sintácticamente sin bloquear el avance hasta que el usuario inicie Docker Desktop.
+
+## Por qué se ha construido así (Decisiones de Arquitectura y Diseño)
+1. **Laboratorio Docker externo (`C:\lab-aws-nutricional\`) fuera de Git:** Mantiene el repositorio libre de volúmenes persistentes, archivos temporales y rutas específicas de Windows sin sacrificar reproducibilidad.
+2. **Reutilización verificada de artefactos sin recompilar:** Al comprobar con `git diff e982e88..HEAD --stat` que PR #6 solo tocó documentación, se validó que el JAR y el `dist/` de Angular empaquetados en el Día 23 siguen vigentes.
+3. **Cierre y sincronización directamente sobre `main`:** Al quedar PR #6 mergeado (`9e4b203`), el estado del proyecto queda unificado en `main` listo para levantar el emulador mañana y abrir rama solo si se implementa el SDK real de S3.
+
+## Riesgo
+`Risk: none` — cambios exclusivamente documentales sobre `main`; los archivos de laboratorio Docker viven fuera del repositorio en `C:\lab-aws-nutricional\`.

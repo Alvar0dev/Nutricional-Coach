@@ -2,12 +2,13 @@
 
 > Ábrelo en VS Code cuando inicies una sesión. Marca lo que vayas haciendo y avisa si cambia el alcance.
 
-## Estado actual (2026-11-19)
+## Estado actual (2026-11-21)
 
-- Rama activa: `docs/aws-local-emulator-tutorial` (desde `main` tras merge de PR #5, commit `e982e88`)
+- Rama activa: `main` (sincronizada con `origin/main` tras merge de PR #6, commit `9e4b203`)
 - MVP: **Mergeado en `main`** (commit `462393a`, PR #1 en GitHub)
-- Suite de tests Backend: **49/49 verdes** (`mvn21.cmd clean package`, incluye JAR ejecutable en `target/`)
-- Suite de tests Frontend: **15/15 verdes** (`npm test -- --watch=false --browsers=ChromeHeadless`), `tsc --noEmit` y `npm run build` (`frontend/dist/frontend/`) limpios
+- Laboratorio Emulador AWS Local: **Preconfigurado fuera de Git** en `C:\lab-aws-nutricional\` (`docker-compose.yml` + `nginx.conf` validados con `docker compose config --quiet`), pendiente de arrancar Docker Desktop
+- Suite de tests Backend: **49/49 verdes** (última ejecución verificada en Día 23 con `mvn21.cmd clean package`, JAR vigente en `target/nutricional-coach-1.0.0-SNAPSHOT.jar`)
+- Suite de tests Frontend: **15/15 verdes** (última ejecución verificada en Día 23 con `npm test -- --watch=false --browsers=ChromeHeadless`, `tsc --noEmit` y `npm run build` en `frontend/dist/frontend/browser/`)
 - Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd` y Angular 18 en `frontend/`
 
 ## Hecho (cierra delete-paciente + medicion-biometrica POST + revisiones + recordatorios)
@@ -54,9 +55,12 @@
 - [x] **Hecho (Día 23):** Empaquetado de producción + guía AWS (`API_BASE_URL='/api/v1'`, `api.config.spec.ts`, `mvn21.cmd clean package` **49/49 verdes**, `ng test` **15/15 verdes**, `npm run build` limpio, `aws Tutorial.md` y `DEV_RUNBOOK.md`).
 - [x] **Hecho (Día 24):** PR #5 (`feat/prod-packaging-aws-guide` → `main`, commit `e982e88`) mergeado y sincronizado en `main` local.
 - [x] **Hecho (Día 24):** Parte 1 de `aws Tutorial.md` para emulador local AWS a coste $0 (`postgres:16-alpine` + `localstack/localstack` S3 + `nginx:alpine`, Java 21 explícito, ciclo `update` → `validate` y pruebas E2E locales).
-- [ ] **Mañana 1 (PR #6 a `main`):** Abrir y mergear PR de `docs/aws-local-emulator-tutorial` → `main` y sincronizar localmente.
-- [ ] **Mañana 2 (Prueba en Emulador Local):** Ejecutar la Parte 1 de `aws Tutorial.md` (`docker compose up -d` + JAR en perfil `prod` + verificación E2E en `http://localhost/`).
-- [ ] **Mañana 3 (Opcional — SDK real AWS S3):** Integrar `software.amazon.awssdk:s3` con `AWS_S3_ENDPOINT` en `S3PdfStorageService.java` para subir PDFs reales a LocalStack / S3.
+- [x] **Hecho (Día 25):** PR #6 (`docs/aws-local-emulator-tutorial` → `main`, commit `9e4b203`) mergeado y sincronizado en `main` local.
+- [x] **Hecho (Día 25 — Preparación):** Laboratorio Docker preconfigurado fuera de Git en `C:\lab-aws-nutricional\` (`nginx.conf` + `docker-compose.yml` validados con `docker compose config --quiet`), artefactos JAR/Angular verificados y puertos `80`/`4566`/`5432`/`8080` libres.
+- [ ] **Mañana 1 (Arrancar Emulador Local):** Iniciar Docker Desktop, ejecutar `docker compose up -d` desde `C:\lab-aws-nutricional\` y crear bucket `nutricional-coach-pdfs` en LocalStack (`awslocal s3 mb`).
+- [ ] **Mañana 2 (Prueba E2E en Emulador Local):** Arrancar el JAR con Java 21 explícito en perfil `prod` (`PROD_JPA_DDL_AUTO=update` → `validate`) y ejecutar los Pasos 4–6 de `aws Tutorial.md` en `http://localhost/`.
+- [ ] **Mañana 3 (Opcional — SDK real AWS S3):** Integrar `software.amazon.awssdk:s3` con `AWS_S3_ENDPOINT` en `S3PdfStorageService.java` (en rama `feat/s3-sdk-integration`) para subir PDFs reales a LocalStack / S3.
+- [ ] **Mañana 4 (Despliegue AWS Free Tier):** Seguir la Parte 2 de `aws Tutorial.md` (Budgets, Security Groups, RDS PostgreSQL, S3 y EC2 Nginx + `systemd`) una vez validado el emulador local.
 
 ## Comandos clave (usar en la terminal integrada de VS Code)
 
@@ -83,4 +87,4 @@ git status --short --branch
 
 ---
 
-Última actualización: sesión del 2026-11-20 (Día 24). Si cambias el plan, edita este archivo y avísame.
+Última actualización: sesión del 2026-11-21 (Día 25). Si cambias el plan, edita este archivo y avísame.
