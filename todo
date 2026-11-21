@@ -46,8 +46,13 @@ Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
 Estado: Rama feat/prod-packaging-aws-guide con PR #4 mergeado en main (197983d), API_BASE_URL='/api/v1' (15/15 Angular tests + tsc + ng build), JAR backend empaquetado (49/49 tests verdes), DEV_RUNBOOK.md actualizado y guía paso a paso en "aws Tutorial.md".
 Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
 
-=== Pendientes (Despliegue AWS Free Tier) ===
-- [done] Día 23 - 1: Abrir y mergear PR #4 feat/pdf-storage-service -> main (197983d) y sincronizar main local
-- [done] Día 23 - 2: API_BASE_URL='/api/v1' (api.config.spec.ts), validar mvn package (49/49) + ng test (15/15) + ng build, actualizar DEV_RUNBOOK.md y crear "aws Tutorial.md"
-- [pending] Pendiente 1: Abrir y mergear PR #5 feat/prod-packaging-aws-guide -> main y sincronizar main local
-- [pending] Pendiente 2: Ejecutar despliegue real en AWS Free Tier siguiendo "aws Tutorial.md"
+=== Cierre de sesión — 2026-11-20 (Día 24) ===
+Estado: Rama docs/aws-local-emulator-tutorial pusheada a origin con PR #5 mergeado en main (e982e88) y Parte 1 de emulador AWS local ($0 con Docker: Postgres 16 + LocalStack S3 + Nginx) añadida en "aws Tutorial.md".
+Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
+
+=== Pendientes para mañana (Emulador Local y Cloud) ===
+- [done] Día 24 - 1: Abrir y mergear PR #5 feat/prod-packaging-aws-guide -> main (e982e88) y sincronizar main local
+- [done] Día 24 - 2: Añadir Parte 1 de emulador AWS local ($0 con Docker Compose, Java 21 explícito, LocalStack S3 + Postgres + Nginx) en "aws Tutorial.md" y documentar Día 24
+- [pending] Mañana 1: Abrir y mergear PR #6 docs/aws-local-emulator-tutorial -> main y sincronizar main local
+- [pending] Mañana 2: Levantar el stack emulador local (Parte 1 de "aws Tutorial.md") y validar flujo E2E en http://localhost/ contra PostgreSQL prod
+- [pending] Mañana 3 (Opcional): Integrar software.amazon.awssdk:s3 + AWS_S3_ENDPOINT en S3PdfStorageService.java para subida real de PDFs a LocalStack / S3
