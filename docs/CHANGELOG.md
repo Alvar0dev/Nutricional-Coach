@@ -645,3 +645,45 @@ Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama
 
 ## Riesgo
 `Risk: none` — cambios exclusivamente documentales sobre `main`; los archivos de laboratorio Docker viven fuera del repositorio en `C:\lab-aws-nutricional\`.
+
+---
+
+# Día 26 — 2026-11-24 / 2026-11-25 — Arranque del Emulador AWS Local ($0), LocalStack `4.14.0`, Puerto `14566` y Bucket S3
+
+## Cambios realizados
+- **Ejecución de TODO 1 (emulador AWS local en `C:\lab-aws-nutricional\`):**
+  - Iniciado Docker Desktop (`26.0.0`, WSL2 `docker-desktop` y `docker-desktop-data` en estado *Running*).
+  - Actualizado `C:\lab-aws-nutricional\docker-compose.yml` (fuera de Git) fijando `localstack/localstack:4.14.0` y mapeo de host `14566:4566`.
+  - Levantados y verificados los 3 contenedores:
+    - `postgres_rds_mock` (`postgres:16-alpine`): *healthy* en `:5432` (`/run/postgresql:5432 - accepting connections`).
+    - `nginx_ec2_mock` (`nginx:alpine`): activo en `:80` (`http://localhost/` → HTTP `200`).
+    - `localstack_s3` (`localstack/localstack:4.14.0`): *healthy* en `14566:4566` (`/_localstack/health` con `"s3": "available"`, `"edition": "community"`).
+  - Creado y verificado el bucket S3 `s3://nutricional-coach-pdfs` (`eu-west-1`) mediante `docker exec localstack_s3 awslocal s3 mb` y `awslocal s3 ls`.
+- **Actualización de documentación operativa y de cierre:**
+  - Actualizado `aws Tutorial.md` reflejando `localstack/localstack:4.14.0`, el mapeo `14566:4566` frente a exclusiones WinNAT en Windows y `AWS_S3_ENDPOINT=http://localhost:14566`.
+  - Actualizados `docs/CHANGELOG.md`, `DEV_RUNBOOK.md`, `PLAN_PENDIENTE_MVP.md`, `TODO.md` y `todo` con el estado verificado tras reinicio de sesión (`docker_engine` detenido actualmente tras reiniciar el servidor de sesión, pendiente de reabrir Docker Desktop para continuar con TODO 2).
+
+## Dificultades encontradas y cómo se resolvieron
+
+### Dificultad 1 — `Docker Desktop.exe` se cierra tras lanzar `com.docker.backend.exe` y `Start-Service com.docker.service` requiere elevación
+**Problema:** Al intentar iniciar Docker por línea de comandos, `Start-Service com.docker.service` falló sin privilegios de administrador; además, `Docker Desktop.exe` es un lanzador que retorna inmediatamente con `ExitCode=0` tras arrancar `com.docker.backend.exe`, por lo que el *Job Object* de la terminal cerraba los procesos hijos al finalizar el comando.  
+**Solución:** Se lanzó `Docker Desktop.exe` dentro de una tarea daemon esperando el proceso `com.docker.backend` (`Wait-Process -Name "com.docker.backend"`), logrando levantar WSL2 y Docker `26.0.0` de forma estable durante la sesión.  
+**Por qué:** Mantiene vivo el árbol de procesos de Docker Desktop dentro de la sesión sin modificar permisos ni servicios del sistema; tras reinicios de máquina o del servidor de sesión, basta volver a abrir Docker Desktop normalmente.
+
+### Dificultad 2 — Puerto `4566` bloqueado en Windows por exclusiones dinámicas de Hyper-V/WinNAT
+**Problema:** Al levantar `localstack_s3` con `"4566:4566"`, Docker falló al hacer bind (`listen tcp 0.0.0.0:4566: bind: An attempt was made to access a socket in a way forbidden by its access permissions`). Al inspeccionar con `netsh interface ipv4 show excludedportrange protocol=tcp`, el rango `4484–4583` estaba reservado por WinNAT en Windows.  
+**Solución:** Se cambió el mapeo en `C:\lab-aws-nutricional\docker-compose.yml` y en `aws Tutorial.md` a `"14566:4566"` (fuera de los rangos excluidos), dejando el puerto interno `4566` intacto dentro del contenedor.  
+**Por qué:** Evita reiniciar WinNAT o modificar reservas de red del host Windows y permite que tanto `awslocal` interno (`:4566`) como futuros clientes desde Windows (`localhost:14566`) funcionen sin conflicto.
+
+### Dificultad 3 — `localstack/localstack:latest` (`2026.10.8`) sale con código `55` exigiendo `LOCALSTACK_AUTH_TOKEN`
+**Problema:** Al arrancar `localstack/localstack:latest` (versión `2026.10.8`, posterior a la unificación de imágenes de marzo de 2026), el contenedor terminó inmediatamente con `ExitCode=55` (`License activation failed! ... Please set the LOCALSTACK_AUTH_TOKEN variable`).  
+**Solución:** Se fijó la imagen `localstack/localstack:4.14.0` (última release Community con versionado semántico previa al cambio, gratuita y sin token obligatorio) en `C:\lab-aws-nutricional\docker-compose.yml` y se documentó en `aws Tutorial.md` tanto el pin a `:4.14.0` como la opción de usar `:latest` con token gratuito de `app.localstack.cloud`.  
+**Por qué:** Garantiza un entorno local $0 funcional sin depender de cuentas ni tokens externos.
+
+## Por qué se ha construido así (Decisiones de Arquitectura y Diseño)
+1. **Fijación explícita de `localstack/localstack:4.14.0`:** Evita regresiones por cambios de distribución/licencia en `:latest` y mantiene la reproducibilidad del laboratorio sin credenciales.
+2. **Separación puerto host `14566` vs puerto contenedor `4566`:** Resuelve de forma permanente las colisiones de rangos dinámicos de Windows Hyper-V/WinNAT sin alterar la configuración interna del servicio S3.
+3. **Estado verificado antes de cerrar sesión:** Al comprobar `docker ps` hoy (`2026-11-25`) tras el reinicio del servidor de sesión, `//./pipe/docker_engine` vuelve a estar detenido, por lo que el plan de mañana incluye explícitamente arrancar Docker Desktop y levantar `docker compose up -d` antes de lanzar el JAR en perfil `prod` (`TODO 2`).
+
+## Riesgo
+`Risk: none` — cambios exclusivamente documentales sobre `main`; no se ha modificado código fuente ni dependencias del proyecto.

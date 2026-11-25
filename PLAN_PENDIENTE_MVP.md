@@ -2,11 +2,11 @@
 
 > Ábrelo en VS Code cuando inicies una sesión. Marca lo que vayas haciendo y avisa si cambia el alcance.
 
-## Estado actual (2026-11-21)
+## Estado actual (2026-11-25)
 
-- Rama activa: `main` (sincronizada con `origin/main` tras merge de PR #6, commit `9e4b203`)
+- Rama activa: `main` (sincronizada con `origin/main` tras PR #6 `9e4b203` y cierre Día 25 `937253e`)
 - MVP: **Mergeado en `main`** (commit `462393a`, PR #1 en GitHub)
-- Laboratorio Emulador AWS Local: **Preconfigurado fuera de Git** en `C:\lab-aws-nutricional\` (`docker-compose.yml` + `nginx.conf` validados con `docker compose config --quiet`), pendiente de arrancar Docker Desktop
+- Laboratorio Emulador AWS Local (`C:\lab-aws-nutricional\`): **Probado y validado en Día 26** (`postgres:16-alpine` healthy `:5432`, `nginx:alpine` HTTP `200` `:80`, `localstack/localstack:4.14.0` healthy `14566:4566` + bucket `nutricional-coach-pdfs`). *(Tras reinicio de sesión, el daemon Docker está detenido y requiere reabrir Docker Desktop + `docker compose up -d` para ejecutar las pruebas E2E)*
 - Suite de tests Backend: **49/49 verdes** (última ejecución verificada en Día 23 con `mvn21.cmd clean package`, JAR vigente en `target/nutricional-coach-1.0.0-SNAPSHOT.jar`)
 - Suite de tests Frontend: **15/15 verdes** (última ejecución verificada en Día 23 con `npm test -- --watch=false --browsers=ChromeHeadless`, `tsc --noEmit` y `npm run build` en `frontend/dist/frontend/browser/`)
 - Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd` y Angular 18 en `frontend/`
@@ -57,9 +57,10 @@
 - [x] **Hecho (Día 24):** Parte 1 de `aws Tutorial.md` para emulador local AWS a coste $0 (`postgres:16-alpine` + `localstack/localstack` S3 + `nginx:alpine`, Java 21 explícito, ciclo `update` → `validate` y pruebas E2E locales).
 - [x] **Hecho (Día 25):** PR #6 (`docs/aws-local-emulator-tutorial` → `main`, commit `9e4b203`) mergeado y sincronizado en `main` local.
 - [x] **Hecho (Día 25 — Preparación):** Laboratorio Docker preconfigurado fuera de Git en `C:\lab-aws-nutricional\` (`nginx.conf` + `docker-compose.yml` validados con `docker compose config --quiet`), artefactos JAR/Angular verificados y puertos `80`/`4566`/`5432`/`8080` libres.
-- [ ] **Mañana 1 (Arrancar Emulador Local):** Iniciar Docker Desktop, ejecutar `docker compose up -d` desde `C:\lab-aws-nutricional\` y crear bucket `nutricional-coach-pdfs` en LocalStack (`awslocal s3 mb`).
-- [ ] **Mañana 2 (Prueba E2E en Emulador Local):** Arrancar el JAR con Java 21 explícito en perfil `prod` (`PROD_JPA_DDL_AUTO=update` → `validate`) y ejecutar los Pasos 4–6 de `aws Tutorial.md` en `http://localhost/`.
-- [ ] **Mañana 3 (Opcional — SDK real AWS S3):** Integrar `software.amazon.awssdk:s3` con `AWS_S3_ENDPOINT` en `S3PdfStorageService.java` (en rama `feat/s3-sdk-integration`) para subir PDFs reales a LocalStack / S3.
+- [x] **Hecho (Día 26 — TODO 1):** Docker Desktop arrancado, `C:\lab-aws-nutricional\docker-compose.yml` ajustado (`localstack/localstack:4.14.0` + `14566:4566`), 3 contenedores levantados y verificados (`postgres_rds_mock` healthy `:5432`, `nginx_ec2_mock` HTTP `200` `:80`, `localstack_s3` healthy `14566:4566`), y bucket `s3://nutricional-coach-pdfs` creado y listado con `awslocal`.
+- [ ] **Mañana 1 (Reabrir Docker y asegurar stack arriba):** Abrir Docker Desktop, ejecutar `docker compose up -d` en `C:\lab-aws-nutricional\` y confirmar/recrear el bucket `s3://nutricional-coach-pdfs` en `localstack_s3` (`awslocal s3 mb s3://nutricional-coach-pdfs --region eu-west-1`).
+- [ ] **Mañana 2 (TODO 2 — Prueba E2E en Emulador Local):** Arrancar el JAR con Java 21 explícito en perfil `prod` (`PROD_JPA_DDL_AUTO=update` → `validate`) y ejecutar los Pasos 4–6 de `aws Tutorial.md` (bloqueo `/h2-console`, flujo completo en `http://localhost/`, persistencia en PostgreSQL y prueba S3 en LocalStack).
+- [ ] **Mañana 3 (Opcional — SDK real AWS S3):** Integrar `software.amazon.awssdk:s3` con `AWS_S3_ENDPOINT=http://localhost:14566` en `S3PdfStorageService.java` (en rama `feat/s3-sdk-integration`) para subir PDFs reales a LocalStack / S3.
 - [ ] **Mañana 4 (Despliegue AWS Free Tier):** Seguir la Parte 2 de `aws Tutorial.md` (Budgets, Security Groups, RDS PostgreSQL, S3 y EC2 Nginx + `systemd`) una vez validado el emulador local.
 
 ## Comandos clave (usar en la terminal integrada de VS Code)
@@ -87,4 +88,4 @@ git status --short --branch
 
 ---
 
-Última actualización: sesión del 2026-11-21 (Día 25). Si cambias el plan, edita este archivo y avísame.
+Última actualización: sesión del 2026-11-25 (Día 26). Si cambias el plan, edita este archivo y avísame.

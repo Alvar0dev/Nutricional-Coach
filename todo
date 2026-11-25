@@ -46,14 +46,13 @@ Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
 Estado: Rama feat/prod-packaging-aws-guide con PR #4 mergeado en main (197983d), API_BASE_URL='/api/v1' (15/15 Angular tests + tsc + ng build), JAR backend empaquetado (49/49 tests verdes), DEV_RUNBOOK.md actualizado y guía paso a paso en "aws Tutorial.md".
 Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
 
-=== Cierre de sesión — 2026-11-21 (Día 25) ===
-Estado: PR #6 mergeado en main (9e4b203) y main sincronizada localmente. Laboratorio Docker preconfigurado fuera de Git en C:\lab-aws-nutricional\ (nginx.conf + docker-compose.yml validados offline con docker compose config --quiet), artefactos JAR y Angular dist verificados y puertos 80/4566/5432/8080 libres; Docker Desktop pendiente de arrancar.
+=== Cierre de sesión — 2026-11-25 (Día 26) ===
+Estado: main al día con origin/main. Completado TODO 1: Docker Desktop (26.0.0) arrancado, C:\lab-aws-nutricional\docker-compose.yml ajustado (localstack/localstack:4.14.0 + 14566:4566), los 3 contenedores verificados saludables (postgres_rds_mock :5432, nginx_ec2_mock :80 HTTP 200, localstack_s3 :14566->4566) y bucket s3://nutricional-coach-pdfs creado con awslocal. Actualizada aws Tutorial.md y docs de cierre. Tras reinicio de servidor de sesión, el daemon Docker vuelve a estar apagado y debe abrirse antes de TODO 2.
 Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
 
 === Pendientes para mañana (Emulador Local y Cloud) ===
-- [done] Día 25 - 1: Abrir y mergear PR #6 docs/aws-local-emulator-tutorial -> main (9e4b203) y sincronizar main local
-- [done] Día 25 - 2 (Prep): Preconfigurar C:\lab-aws-nutricional\ (nginx.conf + docker-compose.yml) y verificar artefactos JAR/dist + Java 21
-- [pending] Mañana 1: Arrancar Docker Desktop, ejecutar docker compose up -d en C:\lab-aws-nutricional\ y crear bucket s3://nutricional-coach-pdfs en LocalStack
+- [done] Día 26 - 1: Levantar stack emulador AWS local ($0) en C:\lab-aws-nutricional\ (localstack:4.14.0 en 14566:4566 + Postgres 16 + Nginx) y crear bucket s3://nutricional-coach-pdfs
+- [pending] Mañana 1: Reabrir Docker Desktop, ejecutar docker compose up -d en C:\lab-aws-nutricional\ y verificar/recrear bucket s3://nutricional-coach-pdfs en LocalStack
 - [pending] Mañana 2: Arrancar el JAR con Java 21 en perfil prod (PROD_JPA_DDL_AUTO=update -> validate) y validar flujo E2E en http://localhost/ + persistencia PostgreSQL/LocalStack
-- [pending] Mañana 3 (Opcional): Integrar software.amazon.awssdk:s3 + AWS_S3_ENDPOINT en S3PdfStorageService.java (nueva rama) para subida real de PDFs a LocalStack / S3
+- [pending] Mañana 3 (Opcional): Integrar software.amazon.awssdk:s3 + AWS_S3_ENDPOINT=http://localhost:14566 en S3PdfStorageService.java (nueva rama) para subida real de PDFs a LocalStack / S3
 - [pending] Mañana 4: Desplegar en AWS Free Tier siguiendo la Parte 2 de aws Tutorial.md tras validar el emulador local

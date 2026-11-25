@@ -18,7 +18,7 @@ Guía operativa para probar el stack completo de **Nutricional Coach** (**Spring
 | **Proxy inverso + SPA** | Contenedor `nginx:alpine` (`http://localhost:80`) | Nginx en EC2 (`http://<EC2_PUBLIC_IP>:80`) |
 | **Backend API (`prod`)** | Fat JAR en local (`127.0.0.1:8080`, perfil `prod`) | Fat JAR en EC2 vía `systemd` (`127.0.0.1:8080`, perfil `prod`) |
 | **Base de datos** | Contenedor `postgres:16-alpine` (`localhost:5432`) | Amazon RDS PostgreSQL (`Public access: No`, `:5432`) |
-| **Almacenamiento S3** | Contenedor `localstack/localstack` (`http://localhost:4566`) | Amazon S3 privado (`eu-west-1`) |
+| **Almacenamiento S3** | Contenedor `localstack/localstack:4.14.0` (`http://localhost:14566`) | Amazon S3 privado (`eu-west-1`) |
 
 ---
 
@@ -96,11 +96,13 @@ services:
       retries: 10
 
   # 2. Emulador de Amazon S3 (LocalStack Community Edition)
+  # Nota: se fija :4.14.0 (última release Community sin LOCALSTACK_AUTH_TOKEN obligatorio)
+  # y se expone 14566:4566 en host para evitar rangos de puertos excluidos de Windows WinNAT (4484-4583).
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:4.14.0
     container_name: localstack_s3
     ports:
-      - "4566:4566"
+      - "14566:4566"
     environment:
       - SERVICES=s3
       - AWS_DEFAULT_REGION=eu-west-1
@@ -145,7 +147,9 @@ docker exec localstack_s3 awslocal s3 ls
 ```
 
 > [!NOTE]
-> En LocalStack Community Edition, los buckets y objetos de S3 se reinician al recrear el contenedor. Si reinicia desde cero (`docker compose down` + `up`), vuelva a ejecutar `awslocal s3 mb s3://nutricional-coach-pdfs --region eu-west-1`. Los datos de PostgreSQL sí persisten en el volumen `pg_rds_data`.
+> - En LocalStack Community Edition, los buckets y objetos de S3 se reinician al recrear el contenedor. Si reinicia desde cero (`docker compose down` + `up`), vuelva a ejecutar `awslocal s3 mb s3://nutricional-coach-pdfs --region eu-west-1`. Los datos de PostgreSQL sí persisten en el volumen `pg_rds_data`.
+> - Si prefiere usar `localstack/localstack:latest` (versiones `2026.03+`), genere un token gratuito en `https://app.localstack.cloud/` y páselo como `LOCALSTACK_AUTH_TOKEN`; con `4.14.0` no se requiere token.
+> - Si en Windows algún puerto sigue dando `bind: An attempt was made to access a socket in a way forbidden by its access permissions`, revise `netsh interface ipv4 show excludedportrange protocol=tcp` y use otro puerto de host libre (en este equipo `4566` caía dentro de `4484–4583`, por eso se mapea `14566:4566`).
 
 ## Paso 4 — Arrancar el Backend en perfil `prod` contra el RDS emulado
 
@@ -213,7 +217,7 @@ Con los 3 contenedores arriba y el JAR corriendo en perfil `prod`:
    docker exec localstack_s3 awslocal s3 cp /tmp/test-s3.txt s3://nutricional-coach-pdfs/revisiones/test-s3.txt
    docker exec localstack_s3 awslocal s3 ls s3://nutricional-coach-pdfs/revisiones/
    ```
-   *(Si más adelante integra `software.amazon.awssdk:s3` en `S3PdfStorageService.java`, bastará añadir una propiedad opcional `AWS_S3_ENDPOINT=http://localhost:4566` para que el propio backend Java suba los PDFs generados directamente a LocalStack).*
+   *(Si más adelante integra `software.amazon.awssdk:s3` en `S3PdfStorageService.java`, bastará añadir una propiedad opcional `AWS_S3_ENDPOINT=http://localhost:14566` para que el propio backend Java suba los PDFs generados directamente a LocalStack).*
 
 ## Paso 6 — Apagar y limpiar el laboratorio local
 

@@ -1,6 +1,6 @@
 # DEV_RUNBOOK.md — Comandos ejecutables y entornos
 
-Estado: 2026-11-21 (Día 25). PR #6 mergeado en `main` (`9e4b203`). Backend Spring Boot 3.4 (H2 local / RDS `prod` / `PdfStorageService`) y Frontend Angular 18 (`API_BASE_URL = '/api/v1'`) empaquetados para producción; laboratorio Docker del emulador AWS local preconfigurado fuera de Git en `C:\lab-aws-nutricional\` siguiendo `aws Tutorial.md`.
+Estado: 2026-11-25 (Día 26). `main` sincronizada (`9e4b203` + docs). Backend Spring Boot 3.4 (H2 local / RDS `prod` / `PdfStorageService`) y Frontend Angular 18 (`API_BASE_URL = '/api/v1'`) empaquetados; laboratorio Docker del emulador AWS local validado en `C:\lab-aws-nutricional\` (`postgres:16-alpine`, `nginx:alpine`, `localstack/localstack:4.14.0` en `14566:4566` + bucket `nutricional-coach-pdfs` probado). Nota: tras reinicio de sesión, volver a abrir Docker Desktop antes de continuar con `docker compose up -d`.
 
 ## Entorno requerido
 
