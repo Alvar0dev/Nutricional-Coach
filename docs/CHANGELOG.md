@@ -687,3 +687,43 @@ Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama
 
 ## Riesgo
 `Risk: none` — cambios exclusivamente documentales sobre `main`; no se ha modificado código fuente ni dependencias del proyecto.
+
+---
+
+# Día 27 — 2026-11-26 — Planificación de TODOs/Documentación, Re-arranque del Emulador AWS Local y Bucket S3
+
+## Cambios realizados
+- **Planificación técnica y matriz documental (TODOs 1–4):**
+  - Revisados `pom.xml`, `application.properties`, `application-prod.properties`, `S3PdfStorageService.java` y `docs/organizacion-documentacion.md`, definiendo el plan paso a paso de TODOs 1–4 (con diseño del adaptador real `S3Client` opcional para TODO 3) y la matriz de actualización por documento.
+  - Detectada deriva histórica en `DEV_RUNBOOK.md` (gotcha obsoleto en línea 87 sobre ausencia de `pom.xml`), `PROJECT_INDEX.md` (anclado en Día 5) y `odd/task/estado-actual-proyecto.md` (rama antigua).
+- **Ejecución de TODO 1 (emulador AWS local $0 en `C:\lab-aws-nutricional\`):**
+  - Comprobadas exclusiones de puertos WinNAT (`4210–4809`, `5357`, `13508`, `50000–50059`), confirmando libres `80`, `5432`, `8080` y `14566`.
+  - Arrancado Docker Desktop (`26.0.0`) y levantados los 3 contenedores (`postgres_rds_mock` healthy `:5432`, `nginx_ec2_mock` HTTP `200` `:80`, `localstack_s3` `localstack/localstack:4.14.0` healthy `14566:4566` con `"s3": "available"`).
+  - Creado y verificado el bucket `s3://nutricional-coach-pdfs` en LocalStack (`make_bucket: nutricional-coach-pdfs`, listado con `awslocal s3 ls`: `2026-11-26 09:50:34 nutricional-coach-pdfs`).
+- **Actualización documental:**
+  - Actualizados `docs/CHANGELOG.md`, `DEV_RUNBOOK.md` (estado al Día 27 y reemplazo del gotcha obsoleto de `pom.xml`), `PLAN_PENDIENTE_MVP.md`, `TODO.md` y `todo`.
+
+## Dificultades encontradas y cómo se resolvieron
+
+### Dificultad 1 — Evaluación *falsy* de `-notmatch` en PowerShell 5.1 cuando `awslocal s3 ls` devuelve salida vacía
+**Problema:** Al recrearse/reiniciarse el contenedor `localstack_s3` (LocalStack Community), el bucket previo no persistía en memoria y `docker exec localstack_s3 awslocal s3 ls` devolvió 0 líneas (`$null` / colección vacía). En PowerShell 5.1, la condición `if ($buckets -notmatch "nutricional-coach-pdfs")` sobre una colección vacía devuelve `@()` (*falsy*), por lo que se saltó `awslocal s3 mb` sin error visible.  
+**Solución:** Al revisar la salida real y detectar que faltaba `make_bucket:`, se ejecutó directamente `docker exec localstack_s3 awslocal s3 mb s3://nutricional-coach-pdfs --region eu-west-1` y se confirmó con `docker exec localstack_s3 awslocal s3 ls`.  
+**Por qué:** En scripts PowerShell 5.1 conviene comprobar `[string]::IsNullOrWhiteSpace(($out | Out-String))` antes de filtrar con regex para evitar falsos negativos cuando la salida está vacía.
+
+### Dificultad 2 — Desplazamiento de rangos WinNAT tras reinicio y reinicio de daemon Docker entre sesiones
+**Problema:** Tras el reinicio previo de sesión, el daemon Docker (`//./pipe/docker_engine`) había quedado detenido y Windows WinNAT había desplazado su rango dinámico excluido a `4210–4809` (siguiendo bloqueado el puerto estándar `4566` de LocalStack).  
+**Solución:** Se verificó `netsh interface ipv4 show excludedportrange protocol=tcp` confirmando que `14566` sigue libre fuera de las exclusiones, se mantuvo Docker Desktop activo vía tarea daemon sobre `com.docker.backend` y se dejó el stack verificado (anotando que, si hay reinicio de servidor antes de mañana, deberá comprobarse `docker compose ps` y reabrir Docker Desktop si hiciera falta).  
+**Por qué:** Asegura reproducibilidad en Windows sin tocar configuraciones privilegiadas de Hyper-V/WinNAT.
+
+### Dificultad 3 — Deriva documental detectada en `DEV_RUNBOOK.md` y documentos ODD antiguos
+**Problema:** `DEV_RUNBOOK.md` conservaba en su lista de gotchas una nota obsoleta del inicio del proyecto (*"Sin `pom.xml` raíz"*), mientras que `PROJECT_INDEX.md` y `odd/task/estado-actual-proyecto.md` seguían reflejando estado anterior al MVP.  
+**Solución:** Se reemplazó el gotcha obsoleto en `DEV_RUNBOOK.md` por los gotchas vigentes del emulador local (`LocalStack 4.14.0` + `14566:4566` y PowerShell) y se planificó en los pendientes de mañana la alineación de `PROJECT_INDEX.md` y `odd/task/estado-actual-proyecto.md` tras completar la validación E2E.  
+**Por qué:** Evita confusión sobre el estado real del build (`pom.xml` operativo con 49/49 tests) y respeta la organización ODD de `docs/organizacion-documentacion.md`.
+
+## Por qué se ha construido así (Decisiones de Arquitectura y Diseño)
+1. **Separación de ejecución verificada frente a supuestos:** Nunca dar por creado un recurso (`s3 mb`) sin observar su salida explícita y listarlo después (`awslocal s3 ls`).
+2. **Planificación antes de tocar código (`TODO 3` y limpieza ODD):** Dejar acotado `S3Client` opcional en una futura rama `feat/s3-sdk-integration` (`Risk: item 5`) permite validar primero TODO 2 (E2E `prod` sobre PostgreSQL + Nginx) sin mezclar dependencias nuevas ni riesgos.
+3. **Actualización documental sin duplicación innecesaria:** Mantener los comandos detallados en `aws Tutorial.md` y los hitos, dificultades y decisiones de cierre en `docs/CHANGELOG.md`, `DEV_RUNBOOK.md`, `TODO.md`, `PLAN_PENDIENTE_MVP.md` y `todo`.
+
+## Riesgo
+`Risk: none` — cambios exclusivamente documentales sobre `main`; el código fuente Java/Angular y `pom.xml` permanecen intactos.

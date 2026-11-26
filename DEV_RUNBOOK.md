@@ -1,6 +1,6 @@
 # DEV_RUNBOOK.md — Comandos ejecutables y entornos
 
-Estado: 2026-11-25 (Día 26). `main` sincronizada (`9e4b203` + docs). Backend Spring Boot 3.4 (H2 local / RDS `prod` / `PdfStorageService`) y Frontend Angular 18 (`API_BASE_URL = '/api/v1'`) empaquetados; laboratorio Docker del emulador AWS local validado en `C:\lab-aws-nutricional\` (`postgres:16-alpine`, `nginx:alpine`, `localstack/localstack:4.14.0` en `14566:4566` + bucket `nutricional-coach-pdfs` probado). Nota: tras reinicio de sesión, volver a abrir Docker Desktop antes de continuar con `docker compose up -d`.
+Estado: 2026-11-26 (Día 27). `main` sincronizada (`e9a284e` + docs). Backend Spring Boot 3.4 (H2 local / RDS `prod` / `PdfStorageService`) y Frontend Angular 18 (`API_BASE_URL = '/api/v1'`) empaquetados; emulador AWS local (`C:\lab-aws-nutricional\`) activo y verificado en Día 27 (`postgres_rds_mock` healthy `:5432`, `nginx_ec2_mock` HTTP `200` `:80`, `localstack_s3` `4.14.0` healthy `14566:4566` y bucket `nutricional-coach-pdfs` creado). Listo para TODO 2 (E2E `prod` con Java 21 explícito).
 
 ## Entorno requerido
 
@@ -84,7 +84,8 @@ npm test -- --watch=false --browsers=ChromeHeadless
 - **Java version conflict**: `spring-petclinic/` requiere Java 17 (`languageVersion = 17`); la máquina tiene 21 y 17. Si se corre `gradlew` con JAVA_HOME=21, falla el build del subproyecto. Ver `SETUP.md` para solución (`winget install EclipseAdoptium.Temurin.17.JDK`).
 - **Rebase pendiente**: El repositorio tuvo un `rebase interactive` en curso en días anteriores (conflicto `README.md`). Resolver con `git status` antes de cualquier `git commit` o `push`.
 - **Subproyecto independiente**: `spring-petclinic/` tiene `.git` propio (gitlink). No debe incluirse en builds del proyecto principal sin verificar que no haya conflictos de módulos.
-- **Sin `pom.xml` raíz para Nutricional-Coach**: El control `PacienteController.java` fue creado en `src/` pero aún no hay `pom.xml` que lo compile. Si se intenta `mvn test` desde raíz hoy, fallará. Configurar Módulo principal es paso pendiente.
+- **Emulador LocalStack en Windows (`4.14.0` y puerto `14566:4566`)**: `localstack/localstack:latest` (`2026.03+`) exige `LOCALSTACK_AUTH_TOKEN` (`exit code 55`) y Windows Hyper-V/WinNAT suele reservar bloques TCP alrededor de `4566` (`netsh interface ipv4 show excludedportrange protocol=tcp`). Por ello `C:\lab-aws-nutricional\docker-compose.yml` fija `:4.14.0` y mapea `14566:4566`. Además, los buckets de LocalStack Community no persisten al recrear el contenedor (re-ejecutar `awslocal s3 mb s3://nutricional-coach-pdfs --region eu-west-1`).
+- **PowerShell 5.1**: No soporta `&&` (usar `if ($LASTEXITCODE -eq 0)`) y `-notmatch` sobre una salida vacía (`$null`/`@()`) evalúa como falso; validar salida explícita cuando un comando puede devolver 0 líneas.
 - **OpenAPI como fuente de verdad**: Cualquier cambio en endpoint debe reflejarse primero en `docs/openapi.yaml` (regla `constitution.md` §3). No modificar `.java` sin actualizar la especificación.
 - **Soft-delete obligatorio**: `PacienteController.deletePaciente()` debe usar `PacienteService.softDeletePaciente()` (no `deleteById`). Violar esto es un error de datos (risk item 1).
 - **`.atl/skill-registry.md`**: Actualizado automáticamente; no editar manualmente sin usar `gentle-ai skill-registry refresh`.
