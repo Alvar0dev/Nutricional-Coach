@@ -5,7 +5,7 @@ Guía operativa para probar el stack completo de **Nutricional Coach** (**Spring
 > [!IMPORTANT]
 > **Notas técnicas previas:**
 > 1. **URL de API en el frontend:** `frontend/src/app/core/api.config.ts` ya está configurado con `API_BASE_URL = '/api/v1'` (compatible con `frontend/proxy.conf.json` en local y con proxy inverso Nginx sin errores CORS).
-> 2. **Estado de S3 en el código:** `S3PdfStorageService` gestiona el conmutador `AWS_S3_ENABLED` y el formato de URI `s3://<bucket>/revisiones/revision-<id>.pdf`, pero almacena en memoria sin dependencia del SDK oficial de AWS (`software.amazon.awssdk:s3`). Tanto en el emulador local como en AWS real, mantenga `AWS_S3_ENABLED=false` hasta incorporar el cliente S3 real si requiere persistencia en bucket.
+> 2. **Estado de S3 en el código:** `S3PdfStorageService` integra el SDK oficial **AWS SDK v2 (`software.amazon.awssdk:s3`)** a través de `S3ClientConfig` (`@ConditionalOnProperty(name = "aws.s3.enabled", havingValue = "true")`). Soporta tanto el emulador **LocalStack** (`AWS_S3_ENDPOINT=http://localhost:14566` + `AWS_S3_PATH_STYLE_ACCESS=true` + credenciales de prueba) como **Amazon S3 real** (`AWS_S3_ENDPOINT` vacío + **IAM Role** en EC2 mediante `DefaultCredentialsProvider`), manteniendo `AWS_S3_ENABLED=false` (`LocalPdfStorageService`) por defecto en local.
 > 3. **Alcance de LocalStack Community Edition:** La edición gratuita de LocalStack emula **S3** en el puerto `4566`, pero **no** emula Amazon RDS PostgreSQL (exclusivo de LocalStack Pro). Por ello, el entorno local combina **LocalStack (S3)** + **PostgreSQL 16 (emulando RDS)** + **Nginx (emulando EC2 Reverse Proxy)** en Docker Compose.
 > 4. **Compilación fuera de EC2:** En instancias Free Tier de 1 GB de RAM (`t2.micro`/`t3.micro`), compile el JAR y el bundle de Angular en su equipo local y transfiera únicamente los artefactos compilados.
 
@@ -192,8 +192,17 @@ Detenga el JAR con `Ctrl+C` y vuelva a arrancarlo simulando el modo endurecido d
   --DB_USER=nutricional_admin `
   --DB_PASSWORD=local_rds_password `
   --PROD_JPA_DDL_AUTO=validate `
-  --AWS_S3_ENABLED=false
+  --AWS_S3_ENABLED=true `
+  --AWS_S3_BUCKET=nutricional-coach-pdfs `
+  --AWS_REGION=eu-west-1 `
+  --AWS_S3_ENDPOINT=http://localhost:14566 `
+  --AWS_S3_PATH_STYLE_ACCESS=true `
+  --AWS_ACCESS_KEY_ID=test `
+  --AWS_SECRET_ACCESS_KEY=test
 ```
+
+> [!TIP]
+> **Si Tomcat falla en Windows con `Port 8080 was already in use` sin ningún proceso escuchando:** tras arrancar Docker Desktop, Windows WinNAT puede reservar dinámicamente un rango que incluya el `8080` (por ejemplo `7941–8540` en `netsh interface ipv4 show excludedportrange protocol=tcp`). En ese caso, pase `--SERVER_PORT=18080` al JAR y cambie `proxy_pass` en `C:\lab-aws-nutricional\nginx.conf` a `http://host.docker.internal:18080` (recreando `nginx-ec2` con `docker compose up -d --force-recreate nginx-ec2`).
 
 ## Paso 5 — Ejecutar todas las pruebas E2E en el emulador (sin tocar AWS real)
 
@@ -210,14 +219,12 @@ Con los 3 contenedores arriba y el JAR corriendo en perfil `prod`:
      docker exec -it postgres_rds_mock psql -U nutricional_admin -d nutricionaldb -c "SELECT id, nombre, apellidos, activo FROM pacientes;"
      ```
    - Reinicie el JAR (`Ctrl+C` y vuelva a lanzar con `PROD_JPA_DDL_AUTO=validate`) y recargue `http://localhost/`. A diferencia de H2 en memoria, sus pacientes, mediciones y revisiones deben seguir ahí.
-4. **Probar operaciones S3 simuladas en LocalStack (ejecutar desde `C:\lab-aws-nutricional\`):**
+4. **Verificar persistencia real de PDFs en LocalStack S3 (con `AWS_S3_ENABLED=true`):**
+   - Al descargar `http://localhost/api/v1/revisiones/<ID>/pdf` desde el navegador o `curl`, el backend sube automáticamente el PDF con `ContentType: application/pdf` y en la segunda descarga lo recupera desde S3:
    ```powershell
-   "PDF test" | Out-File -Encoding utf8 test-s3.txt
-   docker cp test-s3.txt localstack_s3:/tmp/test-s3.txt
-   docker exec localstack_s3 awslocal s3 cp /tmp/test-s3.txt s3://nutricional-coach-pdfs/revisiones/test-s3.txt
    docker exec localstack_s3 awslocal s3 ls s3://nutricional-coach-pdfs/revisiones/
+   docker exec localstack_s3 awslocal s3api head-object --bucket nutricional-coach-pdfs --key revisiones/revision-<ID>.pdf
    ```
-   *(Si más adelante integra `software.amazon.awssdk:s3` en `S3PdfStorageService.java`, bastará añadir una propiedad opcional `AWS_S3_ENDPOINT=http://localhost:14566` para que el propio backend Java suba los PDFs generados directamente a LocalStack).*
 
 ## Paso 6 — Apagar y limpiar el laboratorio local
 
@@ -373,10 +380,12 @@ DB_PASSWORD=<SU_PASSWORD_RDS>
 # Solo en el PRIMER arranque para crear las tablas en RDS; luego cambiar a validate
 PROD_JPA_DDL_AUTO=update
 
-# AWS Config
+# AWS Config (con IAM Role en EC2, omita AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY y deje AWS_S3_ENDPOINT vacío)
 AWS_REGION=eu-west-1
-AWS_S3_ENABLED=false
+AWS_S3_ENABLED=true
 AWS_S3_BUCKET=nutricional-coach-pdfs
+AWS_S3_ENDPOINT=
+AWS_S3_PATH_STYLE_ACCESS=false
 EOF
 
 chmod 600 /opt/nutricional-coach/.env

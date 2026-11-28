@@ -46,13 +46,14 @@ Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
 Estado: Rama feat/prod-packaging-aws-guide con PR #4 mergeado en main (197983d), API_BASE_URL='/api/v1' (15/15 Angular tests + tsc + ng build), JAR backend empaquetado (49/49 tests verdes), DEV_RUNBOOK.md actualizado y guía paso a paso en "aws Tutorial.md".
 Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
 
-=== Cierre de sesión — 2026-11-28 (Día 28) ===
-Estado: main al día con origin/main. Completado TODO 1 (E2E completo prod update->validate sobre PostgreSQL 16 + Nginx :80 + LocalStack 4.14.0 14566:4566, PDF 1079 bytes, soft-delete en psql y persistencia tras reinicio), creado plan.md y ejecutado Paso 0 / TODO 3 (alineados PROJECT_INDEX.md y odd/task/estado-actual-proyecto.md, congelado PLAN_PENDIENTE_MVP.md y registrado plan.md en docs/organizacion-documentacion.md).
+=== Cierre de sesión — 2026-11-28 (Día 28 — feat/s3-sdk-integration) ===
+Estado: Rama feat/s3-sdk-integration (desde main 1340009) con TODO 2 implementado y verificado: SDK AWS S3 v2 (2.31.78), S3ClientConfig, S3PdfStorageService real, 51/51 tests verdes (mvn21.cmd clean package), subida/lectura real en LocalStack S3 (1079 bytes, application/pdf) y odd-verifier PASS (Risk item 5).
 Sin commitear (ajenos, no tocar): opencode.json y spring-petclinic.
 
-=== Pendientes para mañana (Emulador Local y Cloud) ===
+=== Pendientes para mañana (PR #7 y AWS Free Tier) ===
 - [done] Día 27 - 1: Arrancar Docker Desktop 26.0.0, levantar stack en C:\lab-aws-nutricional\ y crear/verificar bucket s3://nutricional-coach-pdfs
 - [done] Día 27/28 - E2E TODO 1: Validar JAR prod (update -> validate) + flujo completo vía Nginx http://localhost/ + persistencia PostgreSQL/LocalStack
 - [done] Día 28 - Paso 0 / TODO 3: Crear plan.md, alinear PROJECT_INDEX.md + odd/task/estado-actual-proyecto.md + docs/organizacion-documentacion.md y congelar PLAN_PENDIENTE_MVP.md
-- [pending] Mañana 1 (TODO 2 Opcional): Integrar software.amazon.awssdk:s3 + AWS_S3_ENDPOINT=http://localhost:14566 + AWS_S3_PATH_STYLE_ACCESS en S3PdfStorageService.java (nueva rama feat/s3-sdk-integration, Risk item 5 + verificador + PR #7; recordar arrancar Docker Desktop antes)
+- [done] Día 28 - TODO 2: Integrar software.amazon.awssdk:s3 (2.31.78) + S3ClientConfig + S3PdfStorageService, 51/51 tests verdes, prueba en vivo LocalStack S3 (1079 bytes) y odd-verifier PASS
+- [pending] Mañana 1 (PR #7): Pushear feat/s3-sdk-integration, abrir y mergear PR #7 -> main y sincronizar main local
 - [pending] Mañana 2 (TODO 4): Desplegar en AWS Free Tier siguiendo Parte 2 de aws Tutorial.md (Budgets, Security Groups, RDS, S3 + IAM Role, EC2 Nginx + systemd)

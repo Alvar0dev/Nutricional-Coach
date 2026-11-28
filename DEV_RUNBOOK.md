@@ -1,12 +1,12 @@
 # DEV_RUNBOOK.md — Comandos ejecutables y entornos
 
-Estado: 2026-11-28 (Día 28). `main` sincronizada (`6c41e86` + cierre Día 28). Backend Spring Boot 3.4 (H2 local / RDS `prod` / `PdfStorageService`) y Frontend Angular 18 (`API_BASE_URL = '/api/v1'`) empaquetados y **validados E2E en el emulador AWS local** (`C:\lab-aws-nutricional\`: PostgreSQL `16.16` en `update` → `validate`, Nginx `:80` y LocalStack `4.14.0` `14566:4566`). Base documental ODD alineada (`PROJECT_INDEX.md`, `odd/task/estado-actual-proyecto.md`, `plan.md`).
+Estado: 2026-11-28 (Día 28 — rama `feat/s3-sdk-integration`). Backend Spring Boot 3.4 (H2 local / RDS `prod` / SDK real AWS S3 v2 en `S3PdfStorageService`) y Frontend Angular 18 (`API_BASE_URL = '/api/v1'`) empaquetados (`51/51` backend, `15/15` frontend) y validados en vivo contra PostgreSQL `16.16`, Nginx `:80` y LocalStack S3 `4.14.0` (`14566:4566`).
 
 ## Entorno requerido
 
 - Java 21 (`C:\Users\alvar\bin\mvn21.cmd` — proyecto principal) / Java 17 (subproyecto `spring-petclinic/` — ver `SETUP.md`)
 - Maven 3.9.9 vía wrapper `C:\Users\alvar\bin\mvn21.cmd` (raíz) y Node.js / npm en `frontend/`
-- `.env` (ignorado en git, plantilla en `.env.example`): variables para conectividad local/Cloud RDS y S3 (`DB_URL`, `DB_DRIVER`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_BUCKET`), cargadas con `spring.config.import=optional:file:.env[.properties]` y fallback por defecto a H2 en memoria.
+- `.env` (ignorado en git, plantilla en `.env.example`): variables para conectividad local/Cloud RDS y S3 (`DB_URL`, `DB_DRIVER`, `DB_USER`, `DB_PASSWORD`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_ENABLED`, `AWS_S3_BUCKET`, `AWS_S3_ENDPOINT`, `AWS_S3_PATH_STYLE_ACCESS`), cargadas con `spring.config.import=optional:file:.env[.properties]` y fallback por defecto a H2 en memoria.
 - Base de datos local por defecto: H2 en memoria (`jdbc:h2:mem:nutricionaldb`), consola disponible en `http://localhost:8080/h2-console`
 
 ## Comandos exactos
@@ -52,7 +52,7 @@ npm start
 ### Suite de tests
 
 ```bash
-# Backend — suite completa (49/49 verdes, incluye E2E H2, placeholders .env, DataInitializerTest, ProdProfileConfigTest y PdfStorageServiceTest)
+# Backend — suite completa (51/51 verdes, incluye E2E H2, placeholders .env, DataInitializerTest, ProdProfileConfigTest y PdfStorageServiceTest con S3ClientConfig)
 C:\Users\alvar\bin\mvn21.cmd test
 
 # Frontend — suite completa en ChromeHeadless (15/15 verdes)
@@ -84,7 +84,7 @@ npm test -- --watch=false --browsers=ChromeHeadless
 - **Java version conflict**: `spring-petclinic/` requiere Java 17 (`languageVersion = 17`); la máquina tiene 21 y 17. Si se corre `gradlew` con JAVA_HOME=21, falla el build del subproyecto. Ver `SETUP.md` para solución (`winget install EclipseAdoptium.Temurin.17.JDK`).
 - **Rebase pendiente**: El repositorio tuvo un `rebase interactive` en curso en días anteriores (conflicto `README.md`). Resolver con `git status` antes de cualquier `git commit` o `push`.
 - **Subproyecto independiente**: `spring-petclinic/` tiene `.git` propio (gitlink). No debe incluirse en builds del proyecto principal sin verificar que no haya conflictos de módulos.
-- **Emulador LocalStack en Windows (`4.14.0` y puerto `14566:4566`)**: `localstack/localstack:latest` (`2026.03+`) exige `LOCALSTACK_AUTH_TOKEN` (`exit code 55`) y Windows Hyper-V/WinNAT suele reservar bloques TCP alrededor de `4566` (`netsh interface ipv4 show excludedportrange protocol=tcp`). Por ello `C:\lab-aws-nutricional\docker-compose.yml` fija `:4.14.0` y mapea `14566:4566`. Además, los buckets de LocalStack Community no persisten al recrear el contenedor (re-ejecutar `awslocal s3 mb s3://nutricional-coach-pdfs --region eu-west-1`).
+- **Emulador LocalStack en Windows (`4.14.0`, `14566:4566` y WinNAT `:8080`)**: `localstack/localstack:latest` (`2026.03+`) exige `LOCALSTACK_AUTH_TOKEN` (`exit code 55`) y Windows Hyper-V/WinNAT suele reservar bloques TCP alrededor de `4566` y, tras arrancar Docker Desktop, también alrededor de `8080` (`netsh interface ipv4 show excludedportrange protocol=tcp`). Por ello `C:\lab-aws-nutricional\docker-compose.yml` fija `:4.14.0` y mapea `14566:4566`; si `:8080` queda excluido, arrancar el JAR con `--SERVER_PORT=18080` y ajustar `proxy_pass` en `C:\lab-aws-nutricional\nginx.conf`. Además, los buckets de LocalStack Community no persisten al recrear el contenedor (re-ejecutar `awslocal s3 mb s3://nutricional-coach-pdfs --region eu-west-1`).
 - **PowerShell 5.1**: No soporta `&&` (usar `if ($LASTEXITCODE -eq 0)`) y `-notmatch` sobre una salida vacía (`$null`/`@()`) evalúa como falso; validar salida explícita cuando un comando puede devolver 0 líneas.
 - **OpenAPI como fuente de verdad**: Cualquier cambio en endpoint debe reflejarse primero en `docs/openapi.yaml` (regla `constitution.md` §3). No modificar `.java` sin actualizar la especificación.
 - **Soft-delete obligatorio**: `PacienteController.deletePaciente()` debe usar `PacienteService.softDeletePaciente()` (no `deleteById`). Violar esto es un error de datos (risk item 1).

@@ -5,17 +5,17 @@
 
 ---
 
-## 1. Estado base al finalizar TODO 1 y Paso 0 / TODO 3 (verificado 2026-11-28)
+## 1. Estado base al finalizar TODO 1, TODO 2 (código) y TODO 3 (verificado 2026-11-28)
 
-- **Rama base:** `main` (sincronizada tras cierre del Día 28; PR #1–#6 mergeados).
+- **Rama actual:** `feat/s3-sdk-integration` (creada desde `main` `1340009`; pendiente de push + PR #7 a `main`).
 - **Artefactos vigentes:**
-  - Backend JAR: `target/nutricional-coach-1.0.0-SNAPSHOT.jar` (Java 21, `49/49` tests verificados en Día 23).
+  - Backend JAR: `target/nutricional-coach-1.0.0-SNAPSHOT.jar` (Java 21, `51/51` tests verificados en Día 28 con `mvn21.cmd clean package` + `odd-verifier` `PASS`).
   - Frontend Angular 18: `frontend/dist/frontend/browser/` (`API_BASE_URL = '/api/v1'`, `15/15` tests verificados en Día 23).
 - **TODO 1 — Validación E2E del Backend `prod` en Emulador Local ($0): COMPLETADO Y VERIFICADO.**
-  - Stack Docker en `C:\lab-aws-nutricional\docker-compose.yml`: `postgres_rds_mock` (`postgres:16-alpine`, `:5432`), `nginx_ec2_mock` (`nginx:alpine`, `:80`) y `localstack_s3` (`localstack/localstack:4.14.0`, `14566:4566`).
-  - Esquema Hibernate creado con `PROD_JPA_DDL_AUTO=update` y validado sin errores con `PROD_JPA_DDL_AUTO=validate` (4 tablas en PostgreSQL: `pacientes`, `mediciones_biometricas`, `revisiones`, `recordatorios`).
-  - Flujo E2E verificado a través de Nginx (`http://localhost/`): SPA Angular `200`, bloqueo `/h2-console` (`404`), alta de pacientes (`201`), 2 mediciones (`201`), revisión mensual (`201`), descarga de PDF OpenPDF (`200 application/pdf`, `1079` bytes), `GET /recordatorios` (`200`), baja lógica `DELETE /pacientes/{id}` (`204`, fila conservada en `psql` con `activo = false` y `fecha_baja` poblada), persistencia confirmada tras reiniciar el JAR en modo `validate`, y prueba S3 en LocalStack (`s3://nutricional-coach-pdfs/revisiones/test-s3.txt`).
-- **TODO 3 — Limpieza y alineación base ODD: COMPLETADO (2026-11-28):** `PROJECT_INDEX.md` y `odd/task/estado-actual-proyecto.md` actualizados al estado post-MVP, `PLAN_PENDIENTE_MVP.md` congelado como histórico MVP y `plan.md` indexado en `docs/organizacion-documentacion.md`.
+- **TODO 2 — Integración SDK real AWS S3 (`software.amazon.awssdk:s3` `2.31.78`): COMPLETADO EN RAMA `feat/s3-sdk-integration` (PENDIENTE PR #7).**
+  - `S3ClientConfig` (`@ConditionalOnProperty("aws.s3.enabled")`) soporta LocalStack (`AWS_S3_ENDPOINT=http://localhost:14566`, `AWS_S3_PATH_STYLE_ACCESS=true`, credenciales explícitas) y EC2 AWS real (IAM Role vía `DefaultCredentialsProvider` sin credenciales estáticas).
+  - Probado en vivo contra LocalStack S3 (`s3://nutricional-coach-pdfs/revisiones/revision-8694689a-03e2-4650-9882-4a5570495198.pdf`, `1079` bytes, `ContentType: application/pdf`, recarga idéntica en segunda petición).
+- **TODO 3 — Limpieza y alineación base ODD: COMPLETADO (2026-11-28).**
 
 > **Nota operativa al iniciar cualquier nueva sesión:** si hubo reinicio de PC o del servidor de sesión, `//./pipe/docker_engine` puede quedar detenido y LocalStack Community reinicia buckets en memoria. Comprobar primero `docker compose ps` desde `C:\lab-aws-nutricional\`, abrir Docker Desktop si hace falta, ejecutar `docker compose up -d` y verificar/recrear el bucket (`docker exec localstack_s3 awslocal s3 mb s3://nutricional-coach-pdfs --region eu-west-1`).
 
@@ -23,26 +23,9 @@
 
 ## 2. Próximos TODOs (orden recomendado)
 
-### TODO 2 *(Opcional)* — Integrar SDK real de AWS S3 (`software.amazon.awssdk:s3`)
-- **Objetivo:** Reemplazar el almacenamiento en memoria de `S3PdfStorageService.java` por subida/lectura real en S3/LocalStack manteniendo compatibilidad local por defecto (`aws.s3.enabled=false`).
-- **Flujo ODD:** Crear rama **`feat/s3-sdk-integration`** desde `main` → entregar vía **PR #7**.
-- **Riesgo:** `Risk: item 5` (incorpora nueva dependencia en `pom.xml`) → requiere **verificación independiente** antes de abrir PR. *(Si ocupa más de una sesión, crear `odd/tasks/s3-sdk-integration.md` antes del primer write; si entra en una sola sesión, trabajar inline).*
-- **Pasos de implementación (TDD `RED → GREEN → refactor`):**
-  1. **Dependencias (`pom.xml`):** añadir `software.amazon.awssdk:bom` en `<dependencyManagement>` y `software.amazon.awssdk:s3` en `<dependencies>`.
-  2. **Propiedades (`src/main/resources/application.properties` y `.env.example`):** añadir:
-     - `aws.s3.endpoint=${AWS_S3_ENDPOINT:}` (vacío en AWS real; `http://localhost:14566` en LocalStack Windows).
-     - `aws.s3.pathStyleAccess=${AWS_S3_PATH_STYLE_ACCESS:false}` (`true` en LocalStack).
-     - Mantener `aws.s3.enabled=${AWS_S3_ENABLED:false}` por defecto.
-  3. **Configuración condicional (`S3ClientConfig`):** `@Configuration` con `@ConditionalOnProperty(name = "aws.s3.enabled", havingValue = "true")` que construya el bean `S3Client`:
-     - Si `aws.accessKeyId` y `aws.secretAccessKey` vienen informados → `StaticCredentialsProvider` (LocalStack).
-     - Si vienen vacíos → `DefaultCredentialsProvider` (compatible con **IAM Role** en EC2 sin almacenar claves).
-     - Aplicar `endpointOverride(URI.create(endpoint))` solo cuando `endpoint` no esté vacío, y `forcePathStyle(pathStyleAccess)`.
-  4. **Adaptador (`src/main/java/com/nutricionalcoach/service/S3PdfStorageService.java`):** inyectar `S3Client` y sustituir `ConcurrentHashMap` por `putObject` (`contentType("application/pdf")`) y `getObjectAsBytes` (capturando `NoSuchKeyException` para devolver `Optional.empty()`).
-  5. **Tests y verificación en vivo:**
-     - Actualizar `src/test/java/com/nutricionalcoach/service/PdfStorageServiceTest.java`: tests unitarios con Mockito sobre `S3Client` + incluir `S3ClientConfig.class` en `ApplicationContextRunner` verificando que con `aws.s3.enabled=false` no se instancia `S3Client`.
-     - Compilar y empaquetar: `C:\Users\alvar\bin\mvn21.cmd clean package` (suite completa en verde).
-     - Probar contra LocalStack en vivo arrancando el JAR con Java 21 explícito y `--AWS_S3_ENABLED=true --AWS_S3_ENDPOINT=http://localhost:14566 --AWS_S3_PATH_STYLE_ACCESS=true --AWS_ACCESS_KEY_ID=test --AWS_SECRET_ACCESS_KEY=test`, descargar un PDF vía `http://localhost/api/v1/revisiones/{id}/pdf` y verificar el objeto físico con `docker exec localstack_s3 awslocal s3 ls s3://nutricional-coach-pdfs/revisiones/`.
-     - Ejecutar verificación independiente (`Risk: item 5`), actualizar documentación afectada y abrir/mergear **PR #7** a `main`.
+### TODO 2 — Integrar SDK real de AWS S3 (`software.amazon.awssdk:s3`) `[IMPLEMENTADO EN feat/s3-sdk-integration — PENDIENTE PR #7]`
+- **Resultado verificado (`2026-11-28`):** `pom.xml` (`2.31.78`), `S3ClientConfig`, `S3PdfStorageService`, `PdfStorageServiceTest`, `51/51` tests verdes, subida/lectura real en LocalStack S3 y dictamen `PASS` de `odd-verifier` (`Risk: item 5`).
+- **Pendiente de entrega:** push de `feat/s3-sdk-integration` → abrir/mergear **PR #7** a `main` y sincronizar `main` localmente.
 
 ---
 

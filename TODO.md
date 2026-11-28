@@ -77,16 +77,17 @@
 - [x] **Validación E2E completa del Backend `prod` en emulador local (`http://localhost/`):** Arrancado `target/nutricional-coach-1.0.0-SNAPSHOT.jar` con Java 21 en `PROD_JPA_DDL_AUTO=update` (4 tablas creadas: `pacientes`, `mediciones_biometricas`, `revisiones`, `recordatorios`) → `validate` (`3.253s` y `3.324s`); verificados SPA Angular (`200`), bloqueo `/h2-console` (`404`), alta (`201`), 2 mediciones (`201`), revisión + OpenPDF (`201`/`200`, `1079` bytes `%PDF-`), `GET /recordatorios` (`200 []`), baja lógica (`204`, conservada en `psql` con `activo=f` y `fecha_baja`), persistencia tras reiniciar el JAR en `validate` y subida S3 en LocalStack (`test-s3.txt`).
 - [x] **Creación de [`plan.md`](plan.md):** Guardada hoja de ruta reutilizable para continuar sin re-procesar el plan.
 - [x] **Paso 0 / TODO 3 (Alineación base ODD):** Sincronizados `PROJECT_INDEX.md` y `odd/task/estado-actual-proyecto.md` al estado post-MVP actual, congelado `PLAN_PENDIENTE_MVP.md` como histórico MVP y registrado `plan.md` en `docs/organizacion-documentacion.md`.
+- [x] **TODO 2 — Integración real del SDK de AWS S3 (`software.amazon.awssdk:s3` `2.31.78`, rama `feat/s3-sdk-integration`):** Añadido `software.amazon.awssdk:bom` + `s3` en `pom.xml`, propiedades `aws.s3.endpoint` / `aws.s3.pathStyleAccess` en `application.properties` y `.env.example`, creado `S3ClientConfig` (`StaticCredentialsProvider` para LocalStack + `DefaultCredentialsProvider` para IAM Role), conectado `S3Client` en `S3PdfStorageService`, validados **51/51 tests verdes** (`mvn21.cmd clean package`), verificación en vivo contra LocalStack (`revision-8694689a-03e2-4650-9882-4a5570495198.pdf`, `1079` bytes `application/pdf` + recarga idéntica desde S3) y dictamen `PASS` del verificador independiente (`odd-verifier`).
 
-### Pendientes para mañana (Emulador Local y Despliegue Cloud)
-- [ ] **1. *(Opcional)* Integrar SDK real de AWS S3 (`software.amazon.awssdk:s3`, TODO 2 en `plan.md`):** En nueva rama `feat/s3-sdk-integration` (`Risk: item 5`), añadir `S3Client` en `S3PdfStorageService.java` con `AWS_S3_ENDPOINT` (`http://localhost:14566` en LocalStack / estándar en AWS) y `AWS_S3_PATH_STYLE_ACCESS`, con tests unitarios (`Mockito` + `ApplicationContextRunner`), verificación en vivo contra LocalStack (arrancando antes Docker Desktop + `docker compose up -d`), verificación independiente y PR #7.
+### Pendientes para mañana (PR #7 y Despliegue Cloud)
+- [ ] **1. Push de `feat/s3-sdk-integration` y PR #7 → `main`:** Pushear la rama `feat/s3-sdk-integration`, crear y mergear PR #7 a `main` y sincronizar `main` localmente.
 - [ ] **2. *(Despliegue real en AWS Free Tier — TODO 4 en `plan.md`):*** Seguir la Parte 2 de `aws Tutorial.md` (Budgets, Security Groups, RDS PostgreSQL privado, S3 privado + IAM Role y EC2 con Nginx + `systemd`).
 
 ## Comandos clave (terminal integrada de VS Code)
 ```
 # Backend
 mvn21.cmd clean compile   # compilar
-mvn21.cmd test            # tests (49/49 verdes)
+mvn21.cmd test            # tests (51/51 verdes)
 mvn21.cmd spring-boot:run # ejecutar backend en http://localhost:8080
 mvn21.cmd spring-boot:run -Dspring-boot.run.profiles=local # ejecutar backend con datos semilla de demo
 

@@ -766,3 +766,40 @@ Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama
 
 ## Riesgo
 `Risk: none` — cambios exclusivamente documentales sobre `main`; no se ha modificado código Java/Angular ni dependencias (`pom.xml`).
+
+---
+
+# Día 28 (Parte 2) — 2026-11-28 — Integración Real del SDK de AWS S3 (`software.amazon.awssdk:s3`) en `feat/s3-sdk-integration` (TODO 2)
+
+## Cambios realizados
+- **Dependencia y configuración (`pom.xml`, `application.properties`, `.env.example`):**
+  - Añadido `software.amazon.awssdk:bom` (`2.31.78`) en `<dependencyManagement>` y `software.amazon.awssdk:s3` en `<dependencies>` manteniendo `openpdf`, `h2` y `postgresql` sin conflictos.
+  - Añadidas propiedades opcionales `aws.s3.endpoint=${AWS_S3_ENDPOINT:}` y `aws.s3.pathStyleAccess=${AWS_S3_PATH_STYLE_ACCESS:false}`, manteniendo `aws.s3.enabled=${AWS_S3_ENABLED:false}` por defecto.
+- **Cliente condicional y adaptador (`S3ClientConfig.java`, `S3PdfStorageService.java`):**
+  - Creado `src/main/java/com/nutricionalcoach/config/S3ClientConfig.java` (`@Configuration` + `@ConditionalOnProperty(name = "aws.s3.enabled", havingValue = "true")`), configurando `S3Client` con `endpointOverride` opcional, `forcePathStyle`, `StaticCredentialsProvider` cuando hay claves explícitas (LocalStack) y `DefaultCredentialsProvider.builder().build()` cuando están vacías (IAM Role en EC2).
+  - Refactorizado `S3PdfStorageService.java` reemplazando el `ConcurrentHashMap` en memoria por llamadas reales a `S3Client.putObject` (`ContentType: application/pdf`, `contentLength`) y `S3Client.getObjectAsBytes` (traduciendo `NoSuchKeyException` y `S3Exception` `404` a `Optional.empty()`).
+- **Tests TDD (`RED → GREEN`), build y verificación en vivo contra LocalStack:**
+  - Actualizado `PdfStorageServiceTest.java` (mocks Mockito + `ApplicationContextRunner` validando desactivación por defecto, endpoint LocalStack y credenciales vacías para IAM Role); observado **RED** inicial antes de implementar `S3ClientConfig`/`S3PdfStorageService` y **GREEN** final con `mvn21.cmd clean package`: **51/51 tests verdes** y JAR generado en `target/nutricional-coach-1.0.0-SNAPSHOT.jar`.
+  - Probado en vivo contra el emulador LocalStack (`14566:4566` + PostgreSQL `:5432` en `validate` + Nginx `:80` → `:18080`): descarga de `GET /api/v1/revisiones/8694689a-03e2-4650-9882-4a5570495198/pdf` (`200`, `1079` bytes, `%PDF-`) generó el objeto físico `revisiones/revision-8694689a-03e2-4650-9882-4a5570495198.pdf` en `s3://nutricional-coach-pdfs` (`awslocal s3 ls` y `s3api head-object` con `ContentType: application/pdf`), y la segunda descarga devolvió `1079` bytes idénticos directamente desde S3.
+  - Verificación independiente (`odd-verifier`, `Risk: item 5`): dictamen **PASS** (`51/51` tests y `mvn21.cmd dependency:tree` limpios).
+- **Documentación actualizada:** `aws Tutorial.md`, `DEV_RUNBOOK.md`, `PROJECT_INDEX.md`, `odd/task/estado-actual-proyecto.md`, `TODO.md`, `plan.md`, `todo` y `docs/CHANGELOG.md`.
+
+## Dificultades encontradas y cómo se resolvieron
+
+### Dificultad 1 — API deprecada `DefaultCredentialsProvider.create()` en AWS SDK `2.31.78`
+**Problema:** Al compilar inicialmente `S3ClientConfig.java`, `javac` emitió warning de API deprecada porque `DefaultCredentialsProvider.create()` quedó obsoleto en versiones recientes del SDK v2.  
+**Solución:** Se sustituyó por `DefaultCredentialsProvider.builder().build()` y se ejecutó `mvn21.cmd clean package` verificando compilación limpia sin warnings en los 31 archivos fuente.  
+**Por qué:** Mantiene compatibilidad futura con AWS SDK v2 y cumple estándares de código limpio.
+
+### Dificultad 2 — Windows WinNAT reservó dinámicamente el rango `7941–8540` (incluyendo `:8080`) tras arrancar Docker Desktop
+**Problema:** Al iniciar el nuevo JAR en `:8080`, Tomcat falló con `Port 8080 was already in use`, aunque `Get-NetTCPConnection` y `netstat` no mostraban ningún proceso escuchando en `:8080`. Al consultar `netsh interface ipv4 show excludedportrange protocol=tcp`, WinNAT había reservado `7941–8540` justo después de levantar Docker Desktop/WSL2.  
+**Solución:** Aprovechando que `application.properties` ya parametriza `server.port=${SERVER_PORT:8080}`, se levantó el JAR en el puerto libre `--SERVER_PORT=18080` y se actualizó el laboratorio local `C:\lab-aws-nutricional\nginx.conf` (`proxy_pass http://host.docker.internal:18080;`) recreando `nginx_ec2_mock`; además se documentó esta solución en `aws Tutorial.md` y `DEV_RUNBOOK.md`.  
+**Por qué:** Respeta el puerto `8080` por defecto en código y producción (EC2 Linux no sufre exclusiones WinNAT) mientras desbloquea el laboratorio Windows de forma determinista.
+
+## Por qué se ha construido así (Decisiones de Arquitectura y Diseño)
+1. **Conmutación condicional `@ConditionalOnProperty("aws.s3.enabled")`:** Mantiene intacto el desarrollo local H2 y la suite por defecto sin requerir credenciales ni contenedores Docker para compilar o testear (`51/51` verdes).
+2. **Doble estrategia de credenciales en `S3ClientConfig`:** Usa `StaticCredentialsProvider` solo cuando llegan `aws.accessKeyId`/`aws.secretAccessKey` no vacíos (LocalStack) y `DefaultCredentialsProvider.builder().build()` cuando están vacíos (IAM Role en EC2 sin secretos en `.env`).
+3. **Captura explícita de `NoSuchKeyException` y `S3Exception` (`404`) en `loadPdf`:** Permite que `RevisionServiceImpl` regenere o almacene el PDF en el primer acceso y utilice S3 como caché real en accesos posteriores sin romper compatibilidad con emuladores S3.
+
+## Riesgo
+`Risk: item 5` — incorpora dependencias nuevas (`software.amazon.awssdk:bom:2.31.78` + `s3`) en `pom.xml`; auditado por verificador independiente (`odd-verifier`: **PASS** con `51/51` tests verdes y `aws.s3.enabled=false` seguro por defecto).

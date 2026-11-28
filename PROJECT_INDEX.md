@@ -5,11 +5,11 @@ Plataforma cloud de nutrición deportiva y biometría. Flujo: alta paciente → 
 
 ## Stack principal
 - **Runtime:** Java 21 (`C:\Users\alvar\bin\mvn21.cmd` / `jdk-21.0.5.11-hotspot` para proyecto principal) / Java 17 (subproyecto `spring-petclinic/`)
-- **Backend:** Spring Boot `3.4.0` (`pom.xml`), Hibernate JPA, Spring Web, OpenPDF `1.3.27`
+- **Backend:** Spring Boot `3.4.0` (`pom.xml`), Hibernate JPA, Spring Web, OpenPDF `1.3.27`, AWS SDK v2 S3 (`2.31.78`)
 - **Base de datos:** H2 en memoria (perfil por defecto / `local` demo) y PostgreSQL (driver `runtime` + perfil `prod` para RDS / emulador Docker)
 - **API:** OpenAPI 3.0 (`docs/openapi.yaml` — fuente de verdad de contratos)
 - **Frontend:** Angular 18 (`frontend/`, `API_BASE_URL = '/api/v1'`, `proxy.conf.json` en dev y Nginx en prod)
-- **Almacenamiento PDF:** `PdfStorageService` (`LocalPdfStorageService` por defecto; `S3PdfStorageService` condicional con `aws.s3.enabled=true`)
+- **Almacenamiento PDF:** `PdfStorageService` (`LocalPdfStorageService` por defecto; `S3ClientConfig` + `S3PdfStorageService` condicional con `aws.s3.enabled=true` usando `S3Client`)
 - **Cloud / Emulador:** AWS Free Tier (EC2 + RDS + S3, Parte 2 de `aws Tutorial.md`) y emulador Docker local $0 (`C:\lab-aws-nutricional\`, Parte 1 de `aws Tutorial.md`)
 - **Tests:** JUnit 5 + Mockito + `MockMvc` + `@SpringBootTest` (backend) y Jasmine/Karma en `ChromeHeadless` (frontend)
 
@@ -26,13 +26,13 @@ Plataforma cloud de nutrición deportiva y biometría. Flujo: alta paciente → 
 
 ## Puntos de entrada (entry points)
 
-- **Arranque Backend:** `src/main/java/com/nutricionalcoach/NutricionalCoachApplication.java` (`DataInitializer.java` bajo `@Profile("local")`)
+- **Arranque Backend:** `src/main/java/com/nutricionalcoach/NutricionalCoachApplication.java` (`DataInitializer.java` bajo `@Profile("local")`, `S3ClientConfig.java` bajo `@ConditionalOnProperty("aws.s3.enabled")`)
 - **Controladores REST (`@RequestMapping` bajo `/api/v1` + CORS `:4200`):**
   - `src/main/java/com/nutricionalcoach/controller/PacienteController.java`
   - `src/main/java/com/nutricionalcoach/controller/MedicionBiometricaController.java`
   - `src/main/java/com/nutricionalcoach/controller/RevisionController.java`
   - `src/main/java/com/nutricionalcoach/controller/RecordatorioController.java`
-- **Almacenamiento PDF:** `PdfStorageService.java`, `LocalPdfStorageService.java`, `S3PdfStorageService.java` (inyectados en `RevisionServiceImpl.java`)
+- **Almacenamiento PDF:** `PdfStorageService.java`, `LocalPdfStorageService.java`, `S3PdfStorageService.java` (`S3Client` AWS SDK v2) inyectados en `RevisionServiceImpl.java`
 - **Frontend SPA:** `frontend/src/app/core/api.config.ts` (`API_BASE_URL = '/api/v1'`) y build estático en `frontend/dist/frontend/browser/`
 
 ## Contratos clave (rutas/firmas representativas)
@@ -68,7 +68,7 @@ Client (Angular :4200 en dev / Nginx :80 en prod)
 - **Testing obligatorio:** ver `docs/constitution.md` §4 y `DEV_RUNBOOK.md`.
 
 ## Estado actual (2026-11-28)
-- **Rama activa:** `main` (PR #1–#6 mergeados en GitHub).
-- **MVP + Empaquetado:** Implementados y verificados en Día 23 (`49/49` tests backend con `mvn21.cmd clean package` y `15/15` tests frontend Angular 18 con `tsc` y `ng build` limpios).
-- **Emulador AWS Local ($0):** Validado E2E en `prod` (`PROD_JPA_DDL_AUTO=update` → `validate` sobre PostgreSQL 16 + Nginx `:80` + LocalStack S3 `4.14.0` en `14566:4566`).
-- **Próximos pasos:** ver `plan.md` y `TODO.md` (`TODO 2` opcional SDK real de AWS S3 en `feat/s3-sdk-integration`, y `TODO 4` despliegue real en AWS Free Tier).
+- **Rama activa:** `feat/s3-sdk-integration` (desde `main` `1340009`; pendiente de PR #7).
+- **MVP + Empaquetado:** `51/51` tests backend verdes (`mvn21.cmd clean package` en Día 28) y `15/15` tests frontend Angular 18 verdes (`tsc` y `ng build` en Día 23).
+- **Emulador AWS Local ($0):** Validado E2E en `prod` (`PROD_JPA_DDL_AUTO=update` → `validate` sobre PostgreSQL 16 + Nginx `:80` + LocalStack S3 `4.14.0` en `14566:4566`) con subida y lectura real de PDFs (`ContentType: application/pdf`) mediante `software.amazon.awssdk:s3`.
+- **Próximos pasos:** ver `plan.md` y `TODO.md` (PR #7 de `feat/s3-sdk-integration` → `main`, y `TODO 4` despliegue real en AWS Free Tier).
