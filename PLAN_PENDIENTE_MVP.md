@@ -1,12 +1,13 @@
-# Plan pendiente hasta el MVP — Nutricional Coach
+# Plan pendiente hasta el MVP — Nutricional Coach `[CONGELADO — HISTÓRICO DEL MVP]`
 
-> Ábrelo en VS Code cuando inicies una sesión. Marca lo que vayas haciendo y avisa si cambia el alcance.
+> [!NOTE]
+> **Documento congelado (2026-11-28):** el MVP ya está completado y mergeado en `main`. Para continuar con los pendientes post-MVP sin duplicar listas, usa [`TODO.md`](TODO.md) (backlog activo) y [`plan.md`](plan.md) (hoja de ruta operativa).
 
-## Estado actual (2026-11-26)
+## Estado al cierre del bloque MVP + Emulador Local (2026-11-28)
 
-- Rama activa: `main` (sincronizada con `origin/main` tras cierre Día 26 `e9a284e`)
+- Rama activa: `main` (sincronizada con `origin/main`; PR #1–#6 mergeados)
 - MVP: **Mergeado en `main`** (commit `462393a`, PR #1 en GitHub)
-- Laboratorio Emulador AWS Local (`C:\lab-aws-nutricional\`): **Levantado y verificado hoy (Día 27)** — `postgres_rds_mock` healthy (`:5432`), `nginx_ec2_mock` HTTP `200` (`:80`), `localstack_s3` (`4.14.0`) healthy (`14566:4566`) y bucket `nutricional-coach-pdfs` creado y listado con `awslocal`. *(Nota: si se reinicia el servidor de sesión entre hoy y mañana, comprobar `docker compose ps` y reabrir Docker Desktop / recrear bucket si hiciera falta).*
+- Laboratorio Emulador AWS Local (`C:\lab-aws-nutricional\`): **Validado E2E en Día 27/28** — perfil `prod` (`PROD_JPA_DDL_AUTO=update` → `validate`) sobre PostgreSQL `16.16`, Nginx `:80` y LocalStack `4.14.0` (`14566:4566`).
 - Suite de tests Backend: **49/49 verdes** (última ejecución verificada en Día 23 con `mvn21.cmd clean package`, JAR vigente en `target/nutricional-coach-1.0.0-SNAPSHOT.jar`)
 - Suite de tests Frontend: **15/15 verdes** (última ejecución verificada en Día 23 con `npm test -- --watch=false --browsers=ChromeHeadless`, `tsc --noEmit` y `npm run build` en `frontend/dist/frontend/browser/`)
 - Entorno listo: `mvn21.cmd` (Java 21 + Maven 3.9.9) en `C:\Users\alvar\bin\mvn21.cmd` y Angular 18 en `frontend/`
@@ -59,10 +60,8 @@
 - [x] **Hecho (Día 25 — Preparación):** Laboratorio Docker preconfigurado fuera de Git en `C:\lab-aws-nutricional\` (`nginx.conf` + `docker-compose.yml` validados con `docker compose config --quiet`), artefactos JAR/Angular verificados y puertos `80`/`4566`/`5432`/`8080` libres.
 - [x] **Hecho (Día 26 — TODO 1):** Docker Desktop arrancado, `C:\lab-aws-nutricional\docker-compose.yml` ajustado (`localstack/localstack:4.14.0` + `14566:4566`), 3 contenedores levantados y verificados (`postgres_rds_mock` healthy `:5432`, `nginx_ec2_mock` HTTP `200` `:80`, `localstack_s3` healthy `14566:4566`), y bucket `s3://nutricional-coach-pdfs` creado y listado con `awslocal`.
 - [x] **Hecho (Día 27 — Planificación + TODO 1):** Planificados TODOs 1–4 y matriz documental ODD; verificado el emulador AWS local en `C:\lab-aws-nutricional\` (`postgres_rds_mock` healthy `:5432`, `nginx_ec2_mock` HTTP `200` `:80`, `localstack_s3` `4.14.0` healthy `14566:4566`) y creado/listado el bucket `s3://nutricional-coach-pdfs`.
-- [ ] **Mañana 1 (TODO 2 — Prueba E2E en Emulador Local):** Verificar con `docker compose ps` que los 3 contenedores sigan arriba (o reabrir Docker Desktop + `docker compose up -d` y recrear bucket si hubo reinicio), arrancar el JAR con Java 21 explícito en perfil `prod` (`PROD_JPA_DDL_AUTO=update` → `validate`) y ejecutar los Pasos 4–6 de `aws Tutorial.md` en `http://localhost/`.
-- [ ] **Mañana 2 (Opcional — TODO 3 SDK real AWS S3):** En nueva rama `feat/s3-sdk-integration` (`Risk: item 5`), integrar `software.amazon.awssdk:s3` + `AWS_S3_ENDPOINT=http://localhost:14566` + `AWS_S3_PATH_STYLE_ACCESS` en `S3PdfStorageService.java`, testear con Mockito/`ApplicationContextRunner` + LocalStack real, verificación independiente y PR #7.
-- [ ] **Mañana 3 (TODO 4 — Despliegue AWS Free Tier):** Seguir la Parte 2 de `aws Tutorial.md` (Budgets, Security Groups, RDS PostgreSQL, S3 + IAM Role y EC2 Nginx + `systemd`) una vez validado el emulador local.
-- [ ] **Mañana 4 (Limpieza documental ODD):** Alinear `PROJECT_INDEX.md` y `odd/task/estado-actual-proyecto.md` con el estado post-MVP actual.
+- [x] **Hecho (Día 27/28 — E2E Emulador Local + `plan.md` + Limpieza ODD):** Validado el JAR en perfil `prod` (`PROD_JPA_DDL_AUTO=update` → `validate`, 4 tablas, Nginx `:80` SPA `200`, `/h2-console` `404`, flujo completo + OpenPDF `1079` bytes, soft-delete en `psql`, persistencia tras reinicio y `test-s3.txt` en LocalStack); creados `plan.md` y alineados `PROJECT_INDEX.md` y `odd/task/estado-actual-proyecto.md`.
+- *(Los pendientes activos post-MVP pasan a [`TODO.md`](TODO.md) y [`plan.md`](plan.md) para evitar duplicidad).*
 
 ## Comandos clave (usar en la terminal integrada de VS Code)
 
@@ -89,4 +88,4 @@ git status --short --branch
 
 ---
 
-Última actualización: sesión del 2026-11-26 (Día 27). Si cambias el plan, edita este archivo y avísame.
+Última actualización: 2026-11-28 (Día 28 — documento congelado como histórico del MVP; el trabajo activo continúa en `TODO.md` y `plan.md`).

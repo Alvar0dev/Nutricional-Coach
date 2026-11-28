@@ -727,3 +727,42 @@ Ninguno: el MVP está fusionado en `main` con todas las suites en verde. La rama
 
 ## Riesgo
 `Risk: none` — cambios exclusivamente documentales sobre `main`; el código fuente Java/Angular y `pom.xml` permanecen intactos.
+
+---
+
+# Día 28 — 2026-11-27 / 2026-11-28 — Validación E2E `prod` en Emulador Local, `plan.md` y Alineación Base ODD (Paso 0)
+
+## Cambios realizados
+- **Validación E2E del Backend `prod` en el emulador local (`2026-11-27`):**
+  - Levantado `C:\lab-aws-nutricional\` (`postgres_rds_mock` healthy `:5432`, `nginx_ec2_mock` `:80`, `localstack_s3` `4.14.0` healthy `14566:4566` + bucket `nutricional-coach-pdfs`).
+  - Ejecutado `target/nutricional-coach-1.0.0-SNAPSHOT.jar` con Java 21 explícito (`jdk-21.0.5.11-hotspot`) en `--spring.profiles.active=prod`:
+    - Arranque inicial con `--PROD_JPA_DDL_AUTO=update` (`3.741s`) creando las 4 tablas JPA en PostgreSQL `16.16` (`mediciones_biometricas`, `pacientes`, `recordatorios`, `revisiones`).
+    - Arranque estricto con `--PROD_JPA_DDL_AUTO=validate` (`3.253s` y `3.324s` tras reinicio), sin errores de esquema.
+  - Verificación completa vía Nginx (`http://localhost/`, *same-origin*): SPA Angular (`200`), `/h2-console` bloqueada (`404`), alta de pacientes (`201` con `Location: http://localhost/api/v1/pacientes/...`), 2 mediciones biométricas (`201`), revisión mensual (`201`), descarga de PDF OpenPDF (`200 application/pdf`, `1079` bytes, cabecera `%PDF-`), `GET /recordatorios` (`200 []`), baja lógica `DELETE` (`204`, fila conservada en PostgreSQL con `activo=f` y `fecha_baja=2026-11-27`), persistencia comprobada tras reiniciar el JAR en modo `validate`, y subida/listado S3 (`test-s3.txt` en `s3://nutricional-coach-pdfs/revisiones/`).
+- **Hoja de ruta persistente (`plan.md`):**
+  - Creado `plan.md` en la raíz con el estado verificado y los pasos exactos para TODO 2 (SDK S3 opcional), TODO 3 (ODD) y TODO 4 (AWS Free Tier), más la matriz documental e invariantes.
+- **Paso 0 / TODO 3 — Limpieza y alineación base ODD (`2026-11-28`):**
+  - Actualizados `PROJECT_INDEX.md` (anclado desde el Día 5) y `odd/task/estado-actual-proyecto.md` (rama vieja) al estado real post-MVP en `main`.
+  - Congelado `PLAN_PENDIENTE_MVP.md` como registro histórico del MVP apuntando a `TODO.md` y `plan.md`.
+  - Registrado `plan.md` y congelado `PLAN_PENDIENTE_MVP.md` en `docs/organizacion-documentacion.md`.
+  - Actualizados `DEV_RUNBOOK.md`, `TODO.md`, `todo` y `docs/CHANGELOG.md`.
+
+## Dificultades encontradas y cómo se resolvieron
+
+### Dificultad 1 — Deriva documental acumulada entre `PROJECT_INDEX.md`, `odd/task/estado-actual-proyecto.md` y 3 checklists paralelos
+**Problema:** Al auditar el mapa documental tras 27 días de avances, `PROJECT_INDEX.md` seguía en el Día 5 (*"sin `pom.xml`"*), `odd/task/estado-actual-proyecto.md` apuntaba a `feat/soft-delete-mediciones-biometricas`, y coexisían tres listas paralelas (`todo`, `TODO.md`, `PLAN_PENDIENTE_MVP.md`).  
+**Solución:** En Paso 0 se alinearon `PROJECT_INDEX.md` y `odd/task/estado-actual-proyecto.md` con la estructura real del código (`30` archivos Java en `src/main/java/`, `4` controladores REST, `pom.xml`, Angular 18), se congeló `PLAN_PENDIENTE_MVP.md` y se añadió `plan.md` a `docs/organizacion-documentacion.md`.  
+**Por qué:** Evita información contradictoria al abrir nuevas sesiones y elimina la duplicación de mantenimiento en cada cierre.
+
+### Dificultad 2 — Ciclo de vida de procesos daemon entre reinicios de sesión (`docker_engine` y JAR `validate`)
+**Problema:** Al reiniciar el servidor de sesión entre días (`2026-11-27` → `2026-11-28`), tanto el daemon Docker (`//./pipe/docker_engine`) como el proceso background del JAR (`exit code 1073807364`) se detuvieron.  
+**Solución:** Se verificó explícitamente `docker info` al iniciar cada jornada antes de planificar y se dejó documentado en `plan.md` y `TODO.md` el pre-flight obligatorio (`docker compose ps` + reabrir Docker Desktop / recrear bucket en LocalStack Community si el contenedor se recrea).  
+**Por qué:** Garantiza que ninguna sesión futura asuma contenedores activos o datos S3 en memoria tras un reinicio.
+
+## Por qué se ha construido así (Decisiones de Arquitectura y Diseño)
+1. **Validación E2E previa en `update` → `validate` con Nginx *same-origin*:** Confirma sobre PostgreSQL `16.16` real (no solo H2) que las 4 entidades JPA, el encabezado `Location` detrás de proxy inverso y la descarga OpenPDF funcionan exactamente como se desplegarán en EC2 + RDS.
+2. **Consolidación de Paso 0 + TODO 3 en un único commit `docs:` sobre `main`:** Deja toda la documentación y `plan.md` sincronizados en `main` antes de abrir la rama de código `feat/s3-sdk-integration` (`TODO 2`, `Risk: item 5`).
+3. **Separación clara entre histórico (`PLAN_PENDIENTE_MVP.md`), backlog activo (`TODO.md`), sesión (`todo`) y hoja de ruta (`plan.md`):** Reduce el ruido en cierres futuros.
+
+## Riesgo
+`Risk: none` — cambios exclusivamente documentales sobre `main`; no se ha modificado código Java/Angular ni dependencias (`pom.xml`).

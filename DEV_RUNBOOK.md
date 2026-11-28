@@ -1,6 +1,6 @@
 # DEV_RUNBOOK.md — Comandos ejecutables y entornos
 
-Estado: 2026-11-26 (Día 27). `main` sincronizada (`e9a284e` + docs). Backend Spring Boot 3.4 (H2 local / RDS `prod` / `PdfStorageService`) y Frontend Angular 18 (`API_BASE_URL = '/api/v1'`) empaquetados; emulador AWS local (`C:\lab-aws-nutricional\`) activo y verificado en Día 27 (`postgres_rds_mock` healthy `:5432`, `nginx_ec2_mock` HTTP `200` `:80`, `localstack_s3` `4.14.0` healthy `14566:4566` y bucket `nutricional-coach-pdfs` creado). Listo para TODO 2 (E2E `prod` con Java 21 explícito).
+Estado: 2026-11-28 (Día 28). `main` sincronizada (`6c41e86` + cierre Día 28). Backend Spring Boot 3.4 (H2 local / RDS `prod` / `PdfStorageService`) y Frontend Angular 18 (`API_BASE_URL = '/api/v1'`) empaquetados y **validados E2E en el emulador AWS local** (`C:\lab-aws-nutricional\`: PostgreSQL `16.16` en `update` → `validate`, Nginx `:80` y LocalStack `4.14.0` `14566:4566`). Base documental ODD alineada (`PROJECT_INDEX.md`, `odd/task/estado-actual-proyecto.md`, `plan.md`).
 
 ## Entorno requerido
 

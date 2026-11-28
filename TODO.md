@@ -69,15 +69,18 @@
 ### Hecho (Día 26 — 2026-11-24 / 2026-11-25)
 - [x] **1. Arrancar Docker Desktop, levantar emulador AWS local ($0) y crear bucket S3:** Ajustado `C:\lab-aws-nutricional\docker-compose.yml` a `localstack/localstack:4.14.0` (sin token obligatorio) y puerto `14566:4566` (evitando exclusión WinNAT `4484–4583`), levantados y verificados los 3 contenedores (`postgres_rds_mock` healthy `:5432`, `nginx_ec2_mock` HTTP `200` `:80`, `localstack_s3` healthy `14566:4566` con S3 disponible) y creado bucket `s3://nutricional-coach-pdfs` (`eu-west-1`). Actualizada la guía `aws Tutorial.md` con estos hallazgos.
 
-### Hecho hoy (Día 27 — 2026-11-26)
+### Hecho (Día 27 — 2026-11-26)
 - [x] **Planificación de TODOs 1–4 y matriz documental ODD:** Auditados `pom.xml`, `application-prod.properties`, `S3PdfStorageService.java`, `DEV_RUNBOOK.md`, `PROJECT_INDEX.md` y `docs/organizacion-documentacion.md`; reemplazado gotcha obsoleto en `DEV_RUNBOOK.md`.
 - [x] **TODO 1 (Re-arranque y verificación en vivo del emulador AWS local):** Comprobadas exclusiones WinNAT (`14566` libre), arrancado Docker Desktop `26.0.0`, levantados los 3 contenedores en `C:\lab-aws-nutricional\` (`postgres_rds_mock` healthy `:5432`, `nginx_ec2_mock` HTTP `200` `:80`, `localstack_s3` `4.14.0` healthy `14566:4566`) y creado/verificado el bucket `s3://nutricional-coach-pdfs` con `awslocal`.
 
+### Hecho hoy (Día 28 — 2026-11-27 / 2026-11-28)
+- [x] **Validación E2E completa del Backend `prod` en emulador local (`http://localhost/`):** Arrancado `target/nutricional-coach-1.0.0-SNAPSHOT.jar` con Java 21 en `PROD_JPA_DDL_AUTO=update` (4 tablas creadas: `pacientes`, `mediciones_biometricas`, `revisiones`, `recordatorios`) → `validate` (`3.253s` y `3.324s`); verificados SPA Angular (`200`), bloqueo `/h2-console` (`404`), alta (`201`), 2 mediciones (`201`), revisión + OpenPDF (`201`/`200`, `1079` bytes `%PDF-`), `GET /recordatorios` (`200 []`), baja lógica (`204`, conservada en `psql` con `activo=f` y `fecha_baja`), persistencia tras reiniciar el JAR en `validate` y subida S3 en LocalStack (`test-s3.txt`).
+- [x] **Creación de [`plan.md`](plan.md):** Guardada hoja de ruta reutilizable para continuar sin re-procesar el plan.
+- [x] **Paso 0 / TODO 3 (Alineación base ODD):** Sincronizados `PROJECT_INDEX.md` y `odd/task/estado-actual-proyecto.md` al estado post-MVP actual, congelado `PLAN_PENDIENTE_MVP.md` como histórico MVP y registrado `plan.md` en `docs/organizacion-documentacion.md`.
+
 ### Pendientes para mañana (Emulador Local y Despliegue Cloud)
-- [ ] **1. Arrancar el Backend `prod` y validar flujo E2E en `http://localhost/` (TODO 2):** Verificar antes con `docker compose ps` que los 3 contenedores sigan arriba (o reabrir Docker Desktop + `docker compose up -d` y recrear bucket si hubo reinicio de sesión); luego lanzar el JAR con Java 21 explícito en perfil `prod` (`PROD_JPA_DDL_AUTO=update` → `validate`), comprobar bloqueo de `/h2-console`, probar alta/mediciones/revisión/PDF desde Nginx (`:80`) y validar persistencia en PostgreSQL + pruebas S3 en LocalStack.
-- [ ] **2. *(Opcional)* Integrar SDK real de AWS S3 (`software.amazon.awssdk:s3`, TODO 3):** En nueva rama `feat/s3-sdk-integration` (`Risk: item 5`), añadir `S3Client` en `S3PdfStorageService.java` con `AWS_S3_ENDPOINT` (`http://localhost:14566` en LocalStack / estándar en AWS) y `AWS_S3_PATH_STYLE_ACCESS`, con tests unitarios, verificación en vivo contra LocalStack, verificación independiente y PR #7.
-- [ ] **3. *(Cuando el emulador esté validado)* Despliegue real en AWS Free Tier (TODO 4):** Seguir la Parte 2 de `aws Tutorial.md` (Budgets, Security Groups, RDS PostgreSQL privado, S3 privado + IAM Role y EC2 con Nginx + `systemd`).
-- [ ] **4. Alinear documentación base ODD:** Actualizar `PROJECT_INDEX.md` y `odd/task/estado-actual-proyecto.md` tras validar el entorno local.
+- [ ] **1. *(Opcional)* Integrar SDK real de AWS S3 (`software.amazon.awssdk:s3`, TODO 2 en `plan.md`):** En nueva rama `feat/s3-sdk-integration` (`Risk: item 5`), añadir `S3Client` en `S3PdfStorageService.java` con `AWS_S3_ENDPOINT` (`http://localhost:14566` en LocalStack / estándar en AWS) y `AWS_S3_PATH_STYLE_ACCESS`, con tests unitarios (`Mockito` + `ApplicationContextRunner`), verificación en vivo contra LocalStack (arrancando antes Docker Desktop + `docker compose up -d`), verificación independiente y PR #7.
+- [ ] **2. *(Despliegue real en AWS Free Tier — TODO 4 en `plan.md`):*** Seguir la Parte 2 de `aws Tutorial.md` (Budgets, Security Groups, RDS PostgreSQL privado, S3 privado + IAM Role y EC2 con Nginx + `systemd`).
 
 ## Comandos clave (terminal integrada de VS Code)
 ```

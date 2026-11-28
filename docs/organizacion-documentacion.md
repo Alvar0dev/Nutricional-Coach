@@ -29,7 +29,10 @@ De esto se deriva que **no todos los documentos son necesarios siempre**. Solo s
 | Feature tracking | `odd/tasks/<feature>.md` | `## Specs`, `## Tasks`, `## Log` para trabajos grandes (ej. `delete-paciente.md`, `medicion-biometrica.md`). | Solo durante una feature activa y grande. |
 | Archivo de features | `odd/tasks/archive/` | Feature trackings ya cerrados. | Nunca. |
 | Checklist sesión | `todo` (raíz, sin extensión) | Checklist ligero de la **sesión actual**. | Sí, se actualiza cada sesión. |
-| Plan MVP | `PLAN_PENDIENTE_MVP.md` | Plan de trabajo hasta el MVP, tareas por hacer y hechas. | Cuando cambia el alcance del MVP. |
+| Backlog post-MVP | `TODO.md` | Pendientes activos e historial diario post-MVP. | Al completar cada TODO. |
+| Hoja de ruta operativa | `plan.md` | Plan detallado paso a paso para próximas sesiones sin re-procesar. | Al cerrar cada bloque de TODOs. |
+| Guía local + Cloud | `aws Tutorial.md` | Guía paso a paso del emulador Docker ($0) y AWS Free Tier. | Solo si cambian pasos o parámetros reales. |
+| Plan MVP *(congelado)* | `PLAN_PENDIENTE_MVP.md` | Histórico del trabajo hasta cerrar el MVP. | **No editar** (congelado; ver `TODO.md` y `plan.md`). |
 | Gitignore | `.gitignore` | Ignora `target/`, `node_modules/`, `dist/`, `.angular/`, `.env`, etc. | Solo cuando haya que ignorar algo nuevo. |
 
 ## Reglas ODD para documentación (cuándo crear qué)
